@@ -564,53 +564,67 @@ td.right{text-align:right;}
 .inv-btn-draft svg{width:14px; height:14px;}
 
 /* ============================================================
-   DASHBOARD — 3-LANE KANBAN
+   DASHBOARD — 3-LANE KANBAN (Flat Design)
    ============================================================ */
-.lane-wrap{display:flex; flex-direction:column; gap:20px; margin-top:6px;}
-.lane{
-  background:#fff; border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-sm); overflow:hidden;
+.dash-search{
+  display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  background:#fff; border:1px solid var(--border); border-radius:10px;
+  padding:10px 14px; box-shadow:var(--shadow-sm);
 }
-.lane-head{
-  display:grid; grid-template-columns:auto 1fr auto;
-  align-items:center; gap:14px;
-  padding:14px 20px; border-bottom:2px solid transparent;
+.dash-search svg{width:16px; height:16px; color:var(--text-secondary); flex-shrink:0;}
+.dash-search input{
+  flex:1; border:none; outline:none; font-family:inherit; font-size:13.5px;
+  color:var(--text-primary); background:transparent;
 }
-.lane-head.lane1{border-bottom-color:#0056FF; background:linear-gradient(to right, #EEF4FF, #fff);}
-.lane-head.lane2{border-bottom-color:#F0B37E; background:linear-gradient(to right, #FEF6EE, #fff);}
-.lane-head.lane3{border-bottom-color:#8FD4A3; background:linear-gradient(to right, #EDF7F1, #fff);}
+.dash-search input::placeholder{color:var(--text-secondary);}
+.dash-search button{
+  background:var(--btn-primary); color:#fff; border:none; border-radius:7px;
+  padding:7px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
+}
+.dash-search button:hover{background:var(--btn-primary-hover);}
+
+.lane-wrap{display:flex; flex-direction:column; gap:24px; margin-top:4px;}
+.lane{}
+/* Lane label strip — thin, no card box wrapping columns */
+.lane-strip{
+  display:flex; align-items:center; gap:10px;
+  padding:0 0 10px 0; border-bottom:2px solid transparent; margin-bottom:12px;
+}
+.lane-strip.lane1{border-bottom-color:#0056FF;}
+.lane-strip.lane2{border-bottom-color:#F0B37E;}
+.lane-strip.lane3{border-bottom-color:#8FD4A3;}
 .lane-badge{
-  width:32px; height:32px; border-radius:50%;
+  width:26px; height:26px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:13px; font-weight:800; color:#fff; flex-shrink:0;
+  font-size:12px; font-weight:800; color:#fff; flex-shrink:0;
 }
 .lane1 .lane-badge{background:#0056FF;}
-.lane2 .lane-badge{background:#8A3E00;}
+.lane2 .lane-badge{background:#C97A2A;}
 .lane3 .lane-badge{background:#1E7E34;}
-.lane-info{}
-.lane-title{font-size:14px; font-weight:700; color:var(--text-primary);}
-.lane-sub{font-size:11.5px; color:var(--text-secondary); margin-top:1px;}
+.lane-title{font-size:13.5px; font-weight:700; color:var(--text-primary);}
+.lane-sub{font-size:11.5px; color:var(--text-secondary); margin-left:4px;}
 .lane-total{
-  font-size:12px; font-weight:700; font-family:'IBM Plex Mono';
-  background:var(--zebra); border:1px solid var(--border-strong);
-  padding:4px 12px; border-radius:20px; color:var(--text-secondary);
-  white-space:nowrap;
+  margin-left:auto; font-size:11.5px; font-weight:700; font-family:'IBM Plex Mono';
+  color:var(--text-secondary); white-space:nowrap;
 }
-.lane-cols{display:flex; gap:0; overflow-x:auto; padding:14px 16px; gap:12px;}
+/* columns sit directly under the strip — no wrapping card */
+.lane-cols{display:flex; gap:12px; overflow-x:auto; padding-bottom:6px;}
 .lane-col{
-  flex:0 0 230px; background:#F7F8FC; border:1px solid var(--border);
+  flex:0 0 220px; background:#fff; border:1px solid var(--border);
   border-radius:var(--radius-md); display:flex; flex-direction:column;
+  box-shadow:var(--shadow-sm);
 }
 .lane-col-head{
-  padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
+  padding:9px 13px; display:flex; align-items:center; justify-content:space-between;
   border-bottom:1px solid var(--border); font-size:12px; font-weight:700;
+  background:var(--zebra); border-radius:var(--radius-md) var(--radius-md) 0 0;
 }
 .lane-col-head .lc-count{
-  background:#fff; border:1px solid var(--border-strong);
-  font-size:10.5px; padding:1px 7px; border-radius:20px; color:var(--text-secondary); font-weight:700;
+  font-size:10.5px; font-weight:700; font-family:'IBM Plex Mono';
+  background:#fff; border:1px solid var(--border); padding:1px 7px; border-radius:20px; color:var(--text-secondary);
 }
-.lane-col-body{padding:8px; display:flex; flex-direction:column; gap:7px; max-height:420px; overflow-y:auto;}
-.lane-empty{padding:24px 8px; text-align:center; font-size:11.5px; color:var(--text-secondary);}
+.lane-col-body{padding:8px; display:flex; flex-direction:column; gap:7px; max-height:380px; overflow-y:auto;}
+.lane-empty{padding:22px 8px; text-align:center; font-size:11.5px; color:var(--text-secondary);}
 
 </style>
 </head>
@@ -1043,46 +1057,49 @@ function pageDashboard(){
       </button>
     </div>
 
-    <div class="section-label" style="margin-bottom:10px;">สายการผลิต (Flow) — จำนวนรายการ ณ ปัจจุบัน</div>
-    <div class="flow-rail" style="margin-bottom:22px;">${flowBar}</div>
+    <!-- SEARCH BAR -->
+    <div class="dash-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="ค้นหา RF No / ลูกค้า...">
+      <button data-action="manual-search">ค้นหา</button>
+    </div>
 
+    <!-- FLOW SUMMARY BAR -->
+    <div class="section-label" style="margin-bottom:8px;">สายการผลิต (Flow) — จำนวนรายการ ณ ปัจจุบัน</div>
+    <div class="flow-rail" style="margin-bottom:24px;">${flowBar}</div>
+
+    <!-- 3-LANE KANBAN -->
     <div class="lane-wrap">
 
-      <!-- LANE 1: RF Node -->
+      <!-- LANE 1 -->
       <div class="lane">
-        <div class="lane-head lane1">
+        <div class="lane-strip lane1">
           <div class="lane-badge">1</div>
-          <div class="lane-info">
-            <div class="lane-title">เลน 1 — RF Node</div>
-            <div class="lane-sub">รับทองจากลูกค้า → ตรวจน้ำหนัก → จัด Lot → หักทอง</div>
-          </div>
-          <div class="lane-total">${l1Total} รายการ</div>
+          <span class="lane-title">RF Node</span>
+          <span class="lane-sub">รับทอง → ตรวจน้ำหนัก → จัด Lot → หักทอง</span>
+          <span class="lane-total">${l1Total} รายการ</span>
         </div>
-        <div class="lane-cols">${rfNodeHtml || '<div class="lane-empty" style="padding:20px;color:var(--text-secondary);">ไม่มีรายการ</div>'}</div>
+        <div class="lane-cols">${rfNodeHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
       </div>
 
-      <!-- LANE 2: Lot / Loss -->
+      <!-- LANE 2 -->
       <div class="lane">
-        <div class="lane-head lane2">
+        <div class="lane-strip lane2">
           <div class="lane-badge">2</div>
-          <div class="lane-info">
-            <div class="lane-title">เลน 2 — Lot / Loss</div>
-            <div class="lane-sub">หักทองเสร็จ → ก่อนส่งรีด → หลังส่งรีด → สกัด</div>
-          </div>
-          <div class="lane-total">${l2Total} รายการ</div>
+          <span class="lane-title">Lot / Loss</span>
+          <span class="lane-sub">หักทองเสร็จ → ก่อนส่งรีด → หลังส่งรีด → สกัด</span>
+          <span class="lane-total">${l2Total} รายการ</span>
         </div>
-        <div class="lane-cols">${lotLossHtml || '<div class="lane-empty" style="padding:20px;color:var(--text-secondary);">ไม่มีรายการ</div>'}</div>
+        <div class="lane-cols">${lotLossHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
       </div>
 
-      <!-- LANE 3: ปิดงาน -->
+      <!-- LANE 3 -->
       <div class="lane">
-        <div class="lane-head lane3">
+        <div class="lane-strip lane3">
           <div class="lane-badge">3</div>
-          <div class="lane-info">
-            <div class="lane-title">เลน 3 — ปิดงาน</div>
-            <div class="lane-sub">ก่อน/หลังหลอม 99 → ปิดงาน → รอออก Invoice (แสดงย้อนหลัง 30 วัน)</div>
-          </div>
-          <div class="lane-total">${l3Total} รายการ</div>
+          <span class="lane-title">ปิดงาน</span>
+          <span class="lane-sub">ก่อน/หลังหลอม 99 → ปิดงาน → รอออก Invoice (30 วันล่าสุด)</span>
+          <span class="lane-total">${l3Total} รายการ</span>
         </div>
         <div class="lane-cols">${closedHtml}</div>
       </div>
