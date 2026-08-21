@@ -45,6 +45,7 @@
   --table-head-fg:oklch(100% 0 0);
   --text-primary:oklch(27.9% 0.037 260.0); /* #1E293B — high-contrast readable text on light bg */
   --card-highlight-bg:oklch(95.2% 0.023 258.4);
+  --soft-blue:oklch(97.0% 0.014 254.6); /* #EFF6FF — general status highlight, clean & professional */
   --page-bg:oklch(98.4% 0.003 247.9); /* #F8FAFC — clean light-grey canvas */
   --surface:oklch(100% 0 0); /* #FFFFFF — cards, sidebar, inputs, table surface */
 
@@ -159,14 +160,14 @@ a{color:inherit;}
 }
 .sidebar-section-label:first-child{padding-top:2px;}
 .nav-item{
-  display:flex; align-items:center; gap:11px;
+  display:flex; align-items:flex-start; gap:11px;
   padding:11px 14px; border-radius:12px; margin-bottom:5px;
-  font-size:16px; font-weight:500; color:var(--sidebar-fg);
+  font-size:16px; font-weight:500; color:var(--sidebar-fg); line-height:1.35;
   cursor:pointer; user-select:none;
   transition:background .12s var(--ease-out), color .12s var(--ease-out), box-shadow .12s var(--ease-out);
   position:relative;
 }
-.nav-item svg{width:18px; height:18px; flex-shrink:0; opacity:.75; transition:opacity .12s var(--ease-out);}
+.nav-item svg{width:18px; height:18px; flex-shrink:0; opacity:.75; margin-top:1px; transition:opacity .12s var(--ease-out);}
 .nav-item:hover{background:var(--nav-hover-bg); color:var(--nav-hover-fg);}
 .nav-item:hover svg{opacity:1;}
 .nav-item.active{
@@ -179,7 +180,7 @@ a{color:inherit;}
 }
 .nav-item.active svg{opacity:1; color:var(--sidebar-active);}
 .nav-item .badge-count{
-  margin-left:auto; background:var(--border); color:var(--sidebar-fg);
+  margin-left:auto; align-self:center; background:var(--border); color:var(--sidebar-fg);
   font-size:16px; font-weight:700; padding:1px 8px; border-radius:20px;
 }
 .nav-item.active .badge-count{background:var(--nav-hover-bg); color:var(--sidebar-active);}
@@ -207,13 +208,6 @@ a{color:inherit;}
 }
 .era-toggle b{font-weight:700;}
 .topbar-user{font-size:16px; color:rgba(255,255,255,0.85); display:flex; align-items:center; gap:8px;}
-.topbar-audit-link{
-  display:flex; align-items:center; gap:7px; font-size:16px; font-weight:600;
-  color:var(--fg-on-dark); background:rgba(255,255,255,0.12); border:none; border-radius:9px;
-  padding:8px 14px; cursor:pointer; transition:background .12s var(--ease-out);
-}
-.topbar-audit-link svg{width:16px; height:16px; flex-shrink:0;}
-.topbar-audit-link:hover{background:rgba(255,255,255,0.22);}
 
 .content{padding:var(--space-xl) var(--space-xl) var(--space-3xl); flex:1; width:100%;}
 .page{display:none; animation:fadeIn .18s var(--ease-out);}
@@ -379,6 +373,24 @@ td.right{text-align:right;}
 .tpl-pick-text{display:flex; flex-direction:column; gap:3px;}
 .tpl-pick-title{font-size:17px; font-weight:700; color:var(--text-primary);}
 .tpl-pick-desc{font-size:16px; color:var(--text-secondary);}
+
+/* ============================================================
+   SEARCHABLE DROPDOWN (combobox — พิมพ์ค้นหาได้)
+   ============================================================ */
+.ss-wrap{position:relative;}
+.ss-input{width:100%;}
+.ss-menu{
+  position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:40;
+  background:var(--surface); border:1px solid var(--border-strong); border-radius:10px;
+  box-shadow:var(--shadow-md); max-height:240px; overflow-y:auto; padding:6px;
+}
+.ss-option{
+  padding:10px 12px; border-radius:8px; font-size:16px; color:var(--text-primary);
+  cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+}
+.ss-option:hover, .ss-option.active{background:var(--card-highlight-bg); color:var(--btn-primary);}
+.ss-option mark{background:var(--doc-original-bg); color:inherit; border-radius:3px; padding:0 1px;}
+.ss-empty{padding:12px; text-align:center; font-size:16px; color:var(--text-secondary);}
 
 .tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; padding-bottom:2px;}
 .tab{
@@ -708,24 +720,14 @@ td.right{text-align:right;}
   box-shadow:var(--shadow-sm); min-width:0;
 }
 .lane-col-head{
-  padding:9px 13px; display:flex; align-items:center; justify-content:space-between;
-  border-bottom:1px solid var(--border); font-size:16px; font-weight:700;
-  background:var(--zebra); border-radius:var(--radius-md) var(--radius-md) 0 0;
+  padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border); font-size:16px; font-weight:700; color:var(--text-primary);
+  background:var(--soft-blue); border-radius:var(--radius-md) var(--radius-md) 0 0;
 }
 .lane-col-head .lc-count{
-  font-size:16px; font-weight:700; font-family:'IBM Plex Mono';
-  background:var(--surface); border:1px solid var(--border); padding:1px 7px; border-radius:20px; color:var(--text-secondary);
+  font-size:15px; font-weight:700; font-family:'IBM Plex Mono';
+  background:var(--header-bg); color:var(--fg-on-dark); padding:2px 9px; border-radius:20px;
 }
-/* Per-column header color coding — reuses existing status/doc tokens only, no new hues */
-.lane-col-head.lch-plain{background:var(--zebra); color:var(--text-primary);}
-.lane-col-head.lch-progress{background:var(--st-progress-bg); color:var(--st-progress-fg);}
-.lane-col-head.lch-test{background:var(--doc-original-bg); color:var(--doc-original-fg);}
-.lane-col-head.lch-info{background:var(--st-info-bg); color:var(--st-info-fg);}
-.lane-col-head.lch-done{background:var(--doc-copy1-bg); color:var(--doc-copy1-fg);}
-.lane-col-head.lch-sched{background:var(--st-sched-bg); color:var(--st-sched-fg);}
-.lane-col-head.lch-hold{background:var(--st-hold-bg); color:var(--st-hold-fg);}
-.lane-col-head.lch-plain .lc-count{background:var(--surface); border-color:var(--border); color:var(--text-secondary);}
-.lane-col-head:not(.lch-plain) .lc-count{background:rgba(255,255,255,0.55); border-color:transparent;}
 .lane-col-body{padding:8px; display:flex; flex-direction:column; gap:7px; max-height:380px; overflow-y:auto;}
 .lane-empty{padding:22px 8px; text-align:center; font-size:16px; color:var(--text-secondary);}
 
@@ -823,10 +825,9 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
         <button type="button" class="menu-toggle" id="menuToggle" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="appSidebar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
-        <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+        <div class="breadcrumb" id="breadcrumb">ภาพรวม</div>
       </div>
       <div class="topbar-right">
-        <button type="button" class="topbar-audit-link" data-go="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ประวัติการใช้งาน</button>
         <div class="era-toggle"><b>18/08/2569</b></div>
         <div class="topbar-user">office@kgr.local</div>
       </div>
@@ -845,13 +846,15 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
    ============================================================ */
 
 const NAV = [
-  {key:'dashboard', label:'Dashboard', group:'หลัก'},
-  {key:'orders', label:'Orders', group:'หลัก', count:5},
+  {key:'dashboard', label:'ภาพรวม', group:'หลัก'},
+  {key:'orders', label:'รายการสั่งซื้อ', group:'หลัก', count:5},
   {key:'lot-allocate', label:'การจัดล็อต', group:'หลัก', count:7},
-  {key:'lot-manage', label:'จัดการข้อมูล Lot', group:'หลัก'},
-  {key:'customers', label:'Customers', group:'ข้อมูลหลัก'},
-  {key:'stock', label:'Stock', group:'ข้อมูลหลัก'},
+  {key:'lot-manage', label:'จัดการข้อมูลล็อต', group:'หลัก'},
+  {key:'tdc-approve', label:'อนุมัติส่ง TDC', group:'หลัก'},
+  {key:'customers', label:'ลูกค้า', group:'ข้อมูลหลัก'},
+  {key:'stock', label:'คลังสินค้า', group:'ข้อมูลหลัก'},
   {key:'accounting', label:'บัญชี', group:'ข้อมูลหลัก', count:2},
+  {key:'report', label:'รายงาน', group:'ระบบ'},
   {key:'history', label:'ประวัติการแก้ไข', group:'ระบบ'},
   {key:'users', label:'จัดการผู้ใช้งาน', group:'ระบบ'},
 ];
@@ -861,9 +864,11 @@ const ICONS = {
   'orders':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6l1 3H8l1-3z"/><rect x="5" y="6" width="14" height="15" rx="1.5"/><path d="M9 11h6M9 15h6"/></svg>',
   'lot-allocate':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"/><path d="M4 6.5L12 11l8-4.5M12 11v9"/></svg>',
   'lot-manage':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>',
+  'tdc-approve':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>',
   'customers':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.7 14.2c2.7.4 4.8 2.4 4.8 5.3"/></svg>',
   'stock':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>',
   'accounting':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2h9l4 4v16H6V2z"/><path d="M15 2v4h4"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>',
+  'report':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M8 17V10M13 17V6M18 17v-4"/></svg>',
   'history':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3.5 2"/></svg>',
   'users':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
 };
@@ -890,13 +895,13 @@ const ORDER_TABS = [
 
 /* ---------- LOT ALLOCATE (จัด Lot) ---------- */
 const LOT_ALLOCATE = [
-  {rf:'RF-26081301', date:'01/08/2569', cust:'โรงงานทองไทยเจริญ', w:'300.00', type:'bar'},
-  {rf:'RF-B006', date:'31/07/2569', cust:'ห้างทองแม่ทองย้อย', w:'152.30', type:'bar'},
-  {rf:'RF-B008', date:'30/07/2569', cust:'ห้างทองศิริทองคำ', w:'264.10', type:'bar'},
-  {rf:'RF-B009', date:'29/07/2569', cust:'ห้างทองเยาวราชกิจ', w:'447.50', type:'bar'},
-  {rf:'RF-010', date:'18/08/2569', cust:'ห้างทองใบเยาวราช', w:'88.40', type:'pellet'},
-  {rf:'RF-011', date:'17/08/2569', cust:'ห้างทองชั่วเช่งเฮง', w:'176.90', type:'pellet'},
-  {rf:'RF-012', date:'16/08/2569', cust:'สมชาย ใจดี', w:'64.00', type:'pellet'},
+  {rf:'RF-26081301', date:'01/08/2569', cust:'โรงงานทองไทยเจริญ', wDeclared:'300.50', w:'300.00', type:'bar'},
+  {rf:'RF-B006', date:'31/07/2569', cust:'ห้างทองแม่ทองย้อย', wDeclared:'152.80', w:'152.30', type:'bar'},
+  {rf:'RF-B008', date:'30/07/2569', cust:'ห้างทองศิริทองคำ', wDeclared:'264.50', w:'264.10', type:'bar'},
+  {rf:'RF-B009', date:'29/07/2569', cust:'ห้างทองเยาวราชกิจ', wDeclared:'448.00', w:'447.50', type:'bar'},
+  {rf:'RF-010', date:'18/08/2569', cust:'ห้างทองใบเยาวราช', wDeclared:'88.90', w:'88.40', type:'pellet'},
+  {rf:'RF-011', date:'17/08/2569', cust:'ห้างทองชั่วเช่งเฮง', wDeclared:'177.40', w:'176.90', type:'pellet'},
+  {rf:'RF-012', date:'16/08/2569', cust:'สมชาย ใจดี', wDeclared:'64.50', w:'64.00', type:'pellet'},
 ];
 
 /* ---------- LOT MANAGE (จัดการข้อมูล Lot) — grouped by stage ---------- */
@@ -1106,6 +1111,8 @@ let state = {
   invoiceTemplate:'gold',
   lotAllocateView:null, // null = landing page; 'bar' | 'pellet' = sub-view
   lotAllocateChecked:[],
+  detailStep:1,
+  detailRf:null,
 };
 
 /* ---------- SIDEBAR ---------- */
@@ -1186,6 +1193,64 @@ function exportCSV(filename, headers, rows){
   URL.revokeObjectURL(url);
 }
 
+/* ---------- SEARCHABLE DROPDOWN (combobox) ---------- */
+function initSearchableSelect(inputEl, hiddenEl, menuEl, options, onSelect){
+  if(!inputEl || !hiddenEl || !menuEl) return;
+  let activeIdx = -1;
+  let filtered = options.slice();
+
+  function highlight(text, query){
+    if(!query) return esc(text);
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if(idx===-1) return esc(text);
+    return esc(text.slice(0,idx)) + '<mark>' + esc(text.slice(idx, idx+query.length)) + '</mark>' + esc(text.slice(idx+query.length));
+  }
+
+  function render(query){
+    filtered = options.filter(o=>o.toLowerCase().includes((query||'').toLowerCase()));
+    activeIdx = filtered.length ? 0 : -1;
+    menuEl.innerHTML = filtered.length
+      ? filtered.map((o,i)=>`<div class="ss-option ${i===activeIdx?'active':''}" data-ss-idx="${i}">${highlight(o, query)}</div>`).join('')
+      : `<div class="ss-empty">ไม่พบรายการที่ค้นหา</div>`;
+    menuEl.hidden = false;
+    inputEl.setAttribute('aria-expanded','true');
+  }
+
+  function close(){
+    menuEl.hidden = true;
+    inputEl.setAttribute('aria-expanded','false');
+  }
+
+  function select(value){
+    hiddenEl.value = value;
+    inputEl.value = value;
+    close();
+    if(onSelect) onSelect(value);
+  }
+
+  inputEl.addEventListener('focus', ()=>render(inputEl.value));
+  inputEl.addEventListener('input', ()=>render(inputEl.value));
+  inputEl.addEventListener('keydown', (e)=>{
+    if(menuEl.hidden && (e.key==='ArrowDown' || e.key==='ArrowUp')){ render(inputEl.value); return; }
+    if(e.key==='ArrowDown'){ e.preventDefault(); activeIdx = Math.min(activeIdx+1, filtered.length-1); updateActive(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); updateActive(); }
+    else if(e.key==='Enter'){ if(!menuEl.hidden && filtered[activeIdx]){ e.preventDefault(); select(filtered[activeIdx]); } }
+    else if(e.key==='Escape'){ close(); }
+  });
+  function updateActive(){
+    $$('.ss-option', menuEl).forEach((el,i)=>el.classList.toggle('active', i===activeIdx));
+    const activeEl = menuEl.children[activeIdx];
+    if(activeEl && activeEl.scrollIntoView) activeEl.scrollIntoView({block:'nearest'});
+  }
+  menuEl.addEventListener('mousedown', (e)=>{
+    const opt = e.target.closest('[data-ss-idx]');
+    if(opt) select(filtered[parseInt(opt.dataset.ssIdx)]);
+  });
+  document.addEventListener('click', (e)=>{
+    if(!inputEl.contains(e.target) && !menuEl.contains(e.target)) close();
+  });
+}
+
 /* ---------- MODAL ---------- */
 function openModal(html){
   const root = $('#overlayRoot');
@@ -1211,6 +1276,8 @@ function renderPage(){
     history: pageHistory,
     users: pageUsers,
     'invoice-edit': pageInvoiceEdit,
+    report: pageReport,
+    'tdc-approve': pageTdcApprove,
   };
   c.innerHTML = builders[state.page] ? builders[state.page]() : '<div>ไม่พบหน้า</div>';
   bindPageEvents();
@@ -1224,7 +1291,7 @@ function pageDashboard(){
   // Helper: render one lane column
   function laneCol(col){
     return `<div class="lane-col">
-      <div class="lane-col-head lch-${col.color||'plain'}">
+      <div class="lane-col-head">
         <span>${esc(col.label)}</span>
         <span class="lc-count">${col.items.length}</span>
       </div>
@@ -1275,7 +1342,7 @@ function pageDashboard(){
   return `
     <div class="page-head">
       <div>
-        <h1>Dashboard</h1>
+        <h1>ภาพรวม</h1>
         <div class="desc">ภาพรวมสถานะทองตลอดสายการผลิต — แบ่ง 3 เลนตามกระบวนการจริง</div>
       </div>
       <button class="btn btn-primary" data-go="orders">
@@ -1496,7 +1563,9 @@ function pageLotAllocateDetail(type){
       <td class="cell-primary">${esc(r.rf)}</td>
       <td>${esc(r.date)}</td>
       <td>${esc(r.cust)}</td>
+      <td class="num">${esc(r.wDeclared||r.w)} g</td>
       <td class="num">${esc(r.w)} g</td>
+      <td class="right"><button class="btn btn-ghost btn-sm" data-detail="${esc(r.rf)}">${iconEye()} ดูรายละเอียด RF-No</button></td>
     </tr>`).join('');
 
   return `
@@ -1512,8 +1581,8 @@ function pageLotAllocateDetail(type){
 
     <div class="table-wrap">
       <table>
-        <thead><tr><th style="width:40px;"><input type="checkbox" id="lotCheckAll"></th><th>RF No</th><th>วันที่รับ</th><th>ลูกค้า</th><th class="num">น้ำหนักรับ</th></tr></thead>
-        <tbody>${rows || `<tr class="empty-row"><td colspan="5">ไม่มีรายการ</td></tr>`}</tbody>
+        <thead><tr><th style="width:40px;"><input type="checkbox" id="lotCheckAll"></th><th>RF No</th><th>วันที่รับ</th><th>ลูกค้า</th><th class="num">น้ำหนักแจ้ง</th><th class="num">น้ำหนักรับ</th><th></th></tr></thead>
+        <tbody>${rows || `<tr class="empty-row"><td colspan="7">ไม่มีรายการ</td></tr>`}</tbody>
       </table>
       <div class="table-foot">
         <span>แสดง 1-${items.length} จาก ${items.length} รายการ</span>
@@ -1570,6 +1639,46 @@ function pageLotManage(){
         <tbody>${body}</tbody>
       </table>
       <div class="table-foot"><span>แสดง ${rows.length}-${rows.length} จาก ${rows.length} รายการ</span><div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div></div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   TDC APPROVE (อนุมัติส่ง TDC)
+   ============================================================ */
+const TDC_APPROVE_DATA = KANBAN_COLS.find(c=>c.key==='tdc')?.items.map(it=>({...it, sampleW:'', custSampleW:''})) || [];
+
+function pageTdcApprove(){
+  const rows = TDC_APPROVE_DATA.map((r,i)=>`
+    <tr>
+      <td class="cell-primary">${esc(r.rf)}</td>
+      <td>${esc(r.cust)}</td>
+      <td>${esc(r.date)}</td>
+      <td class="num">${esc(r.w)} g</td>
+      <td><input type="text" class="num-input" data-tdc-sample="${i}" placeholder="0.00" value="${esc(r.sampleW)}"></td>
+      <td><input type="text" class="num-input" data-tdc-cust-sample="${i}" placeholder="0.00" value="${esc(r.custSampleW)}"></td>
+      <td class="right"><button class="btn btn-primary btn-sm" data-action="tdc-approve-row" data-idx="${i}">${iconCheckSm()} อนุมัติ</button></td>
+    </tr>`).join('');
+
+  return `
+    <div class="page-head">
+      <div><h1>อนุมัติส่ง TDC</h1><div class="desc">ตรวจสอบน้ำหนักตัวอย่างก่อนอนุมัติส่งรายการให้ TDC</div></div>
+    </div>
+
+    <div class="search-row" style="margin-bottom:16px;">
+      <input type="text" placeholder="ค้นหา RF No / ลูกค้า">
+      <button class="btn btn-secondary" data-action="manual-search">${iconSearch()} ค้นหา</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>RF No</th><th>ลูกค้า</th><th>วันที่</th><th class="num">น้ำหนักส่ง</th>
+          <th>น้ำหนักตัวอย่าง (g)</th><th>น้ำหนักตัวอย่างลูกค้า (g)</th><th class="right">จัดการ</th>
+        </tr></thead>
+        <tbody>${rows || `<tr class="empty-row"><td colspan="7">ไม่มีรายการรออนุมัติ</td></tr>`}</tbody>
+      </table>
+      <div class="table-foot"><span>แสดง 1-${TDC_APPROVE_DATA.length} จาก ${TDC_APPROVE_DATA.length} รายการ</span><div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div></div>
     </div>
   `;
 }
@@ -1735,7 +1844,7 @@ function pageAccounting(){
         <td>${esc(r.cust)}</td>
         <td class="right">
           <div class="table-actions" style="justify-content:flex-end;">
-            <button class="btn btn-secondary btn-sm" data-action="preview-invoice" data-no="${esc(r.no)}">${iconEye()} Preview</button>
+            <button class="btn btn-secondary btn-sm" data-action="preview-invoice" data-no="${esc(r.no)}" data-doctype="${docType(i)}">${iconEye()} Preview</button>
             <button class="btn btn-secondary btn-sm" data-action="edit-invoice" data-no="${esc(r.no)}">${iconEdit()} แก้ไข</button>
             <button class="btn btn-secondary btn-sm" data-action="export-excel-invoice" data-no="${esc(r.no)}">${iconDownload()} Excel</button>
           </div>
@@ -2033,7 +2142,16 @@ function pageInvoiceEdit(){
 }
 
 /* ---------- PDF PREVIEW (opens as fake new tab) ---------- */
-function pdfPreviewModal(no){
+function pdfPreviewModal(no, docTypeOverride){
+  const DOC_TYPES = ['original','copy1','copy2'];
+  let docType = docTypeOverride;
+  if(!docType){
+    // derive deterministically from the invoice number so re-opening the same doc shows the same badge
+    const key = String(no||'0');
+    let sum = 0;
+    for(let i=0;i<key.length;i++) sum += key.charCodeAt(i);
+    docType = DOC_TYPES[sum % DOC_TYPES.length];
+  }
   return `
     <div class="modal modal-md" style="padding:0;">
       <div class="preview-head">
@@ -2048,7 +2166,7 @@ function pdfPreviewModal(no){
               <div style="font-size:16px; color:var(--text-secondary); margin-top:2px;">โรงงานหลอมทองคำและโลหะมีค่า</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-weight:700; font-size:16px;">ใบแจ้งหนี้ / INVOICE ${docBadge('original')}</div>
+              <div style="font-weight:700; font-size:16px;">ใบแจ้งหนี้ / INVOICE ${docBadge(docType)}</div>
               <div style="font-size:16px; color:var(--text-secondary);">เลขที่ ${esc(no||'69/5')}</div>
             </div>
           </div>
@@ -2071,9 +2189,57 @@ function pdfPreviewModal(no){
       <div class="modal-foot">
         <span class="search-hint" style="margin-right:auto;">${iconInfo()} ตรวจสอบเส้น/ระยะขอบก่อนดาวน์โหลดจริง</span>
         <button class="btn btn-secondary" data-close-modal>ปิด</button>
-        <button class="btn btn-primary" data-action="download-pdf">⬇ ดาวน์โหลด PDF</button>
+        <button class="btn btn-primary" data-action="download-pdf">${iconDownload()} ดาวน์โหลด PDF</button>
       </div>
     </div>`;
+}
+
+/* ============================================================
+   REPORT & EXPORT (รายงานและส่งออกข้อมูล)
+   ============================================================ */
+function pageReport(){
+  return `
+    <div class="page-head">
+      <div><h1>รายงานและส่งออกข้อมูล</h1><div class="desc">กรองข้อมูลตามเงื่อนไข แล้วออกรายงานหรือส่งออก Excel สำหรับ RF-No และ Lot</div></div>
+    </div>
+
+    <div class="card card-pad" style="margin-bottom:20px;">
+      <div class="section-label" style="margin-bottom:14px;">ตัวกรองข้อมูล (Filter)</div>
+      <div class="grid-3" style="margin-bottom:14px;">
+        <div class="field"><label>ประเภทข้อมูล</label>
+          <select id="reportType"><option value="rf">RF-No</option><option value="lot">Lot</option></select>
+        </div>
+        <div class="field"><label>ช่วงวันที่เริ่ม</label><input type="text" placeholder="วว/ดด/ปปปป"></div>
+        <div class="field"><label>ช่วงวันที่สิ้นสุด</label><input type="text" placeholder="วว/ดด/ปปปป"></div>
+      </div>
+      <div class="grid-3">
+        <div class="field"><label>สถานะ</label>
+          <select><option>ทั้งหมด</option><option>กำลังดำเนินการ</option><option>เสร็จสิ้น</option></select>
+        </div>
+        <div class="field"><label>ลูกค้า</label><input type="text" placeholder="ค้นหาชื่อลูกค้า"></div>
+        <div class="field" style="justify-content:flex-end; display:flex; flex-direction:row; align-items:flex-end; gap:10px;">
+          <button class="btn btn-primary" style="width:100%;" data-action="apply-report-filter">${iconSearch()} กรองข้อมูล</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card card-pad">
+        <div class="stat-card" style="margin-bottom:16px;">
+          <div class="label">ข้อมูล RF-No ที่พบ</div>
+          <div class="value">42<span class="unit">รายการ</span></div>
+        </div>
+        <button class="btn btn-secondary" style="width:100%;" data-action="export-excel-report" data-scope="rf">${iconDownload()} Export Excel — ข้อมูล RF-No</button>
+      </div>
+      <div class="card card-pad">
+        <div class="stat-card" style="margin-bottom:16px;">
+          <div class="label">ข้อมูล Lot ที่พบ</div>
+          <div class="value">15<span class="unit">รายการ</span></div>
+        </div>
+        <button class="btn btn-secondary" style="width:100%;" data-action="export-excel-report" data-scope="lot">${iconDownload()} Export Excel — ข้อมูล Lot</button>
+      </div>
+    </div>
+  `;
 }
 
 /* ============================================================
@@ -2191,24 +2357,58 @@ function pageUsers(){
 /* ============================================================
    DETAIL / GENERIC MODALS
    ============================================================ */
+const RF_DETAIL_STEPS = [
+  {n:1, key:'receive', t:'จัดรับงาน'},
+  {n:2, key:'melt', t:'หลอม'},
+  {n:3, key:'test', t:'ทดสอบ %'},
+  {n:4, key:'deduct', t:'หักทอง'},
+  {n:5, key:'tdc', t:'TDC'},
+];
+
 function genericDetailModal(rf){
+  const step = state.detailStep || 1;
+  const chips = RF_DETAIL_STEPS.map(s=>{
+    const cls = s.n===step ? 'current' : s.n<step ? 'complete' : '';
+    const statusText = s.n===step ? 'กำลังทำ' : s.n<step ? 'เสร็จแล้ว' : 'ยังไม่ถึง';
+    return `<div class="step-chip ${cls}" data-detail-step="${s.n}">
+      <div class="n">${s.n<step ? iconCheckSm() : s.n}</div>
+      <div><div class="t">${esc(s.t)}</div><div class="s">${esc(statusText)}</div></div>
+    </div>`;
+  }).join('');
+
+  const currentLabel = RF_DETAIL_STEPS.find(s=>s.n===step)?.t || '';
+  const isLast = step >= RF_DETAIL_STEPS.length;
+
   return `
-    <div class="modal modal-md">
-      <div class="modal-head"><h3>รายละเอียด · ${esc(rf)}</h3><button class="modal-close" data-close-modal>${iconX()}</button></div>
+    <div class="modal modal-lg">
+      <div class="modal-head"><h3>รายละเอียดงาน · ${esc(rf)}</h3><button class="modal-close" data-close-modal>${iconX()}</button></div>
       <div class="modal-body">
-        <div class="grid-2" style="gap:16px;">
+        <div class="stepper" style="margin-bottom:20px;">${chips}</div>
+
+        <div class="grid-2" style="gap:16px; margin-bottom:16px;">
           <div class="field"><label>RF No</label><input type="text" value="${esc(rf)}" class="input-locked" disabled></div>
-          <div class="field"><label>สถานะปัจจุบัน</label><input type="text" value="ก่อนส่งหลอม 99" ></div>
-          <div class="field"><label>น้ำหนักเข้า (g)</label><input class="num-input" type="text" value="100.00"></div>
-          <div class="field"><label>น้ำหนักหลังหลอม (g)</label><input class="num-input" type="text" value="98.75"></div>
+          <div class="field"><label>ขั้นตอนปัจจุบัน</label><input type="text" value="${esc(currentLabel)}" class="input-locked" disabled></div>
         </div>
+
+        <div class="grid-2" style="gap:16px; margin-bottom:16px;">
+          <div class="field"><label>% Au (ทอง)</label><input class="num-input" type="text" placeholder="0.00" value="96.50"></div>
+          <div class="field"><label>% Ag (เงิน)</label><input class="num-input" type="text" placeholder="0.00" value="2.10"></div>
+        </div>
+
+        <div class="field" style="margin-bottom:16px;"><label>น้ำหนักทอง (g)</label><input class="num-input" type="text" placeholder="0.00" value="100.00"></div>
+        <div class="field" style="margin-bottom:16px;"><label>หมายเหตุ</label><input type="text" placeholder="บันทึกหมายเหตุขั้นตอนนี้ (ไม่บังคับ)"></div>
+
         <div class="divider"></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-ghost btn-sm" data-action="goto-history">${iconClock()} ดูประวัติการใช้งานและการแก้ไข (Audit Log)</button>
           <button class="btn btn-ghost btn-sm" data-action="export-excel-rf" data-rf="${esc(rf)}">${iconDownload()} Export Excel</button>
         </div>
       </div>
-      <div class="modal-foot"><button class="btn btn-secondary" data-close-modal>ปิด</button><button class="btn btn-primary" data-close-modal>บันทึกการแก้ไข</button></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" data-close-modal>ปิด</button>
+        <button class="btn btn-secondary" data-action="save-detail-step" data-rf="${esc(rf)}">บันทึก</button>
+        <button class="btn btn-primary" data-action="advance-detail-step" data-rf="${esc(rf)}" ${isLast?'disabled':''}>${isLast ? 'เสร็จสิ้นขั้นตอนทั้งหมด' : 'บันทึก / ส่งต่อขั้นตอนถัดไป →'}</button>
+      </div>
     </div>`;
 }
 
@@ -2297,7 +2497,6 @@ const TH_LOCATIONS = {
 };
 
 function addCustomerModal(){
-  const provinceOptions = Object.keys(TH_LOCATIONS).map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
   return `
     <div class="modal modal-md">
       <div class="modal-head"><h3>เพิ่มลูกค้าใหม่</h3><button class="modal-close" data-close-modal>${iconX()}</button></div>
@@ -2327,10 +2526,11 @@ function addCustomerModal(){
         <div class="grid-2">
           <div class="field">
             <label>จังหวัด<span class="req">*</span></label>
-            <select id="custProvince">
-              <option value="">เลือกจังหวัด</option>
-              ${provinceOptions}
-            </select>
+            <div class="ss-wrap" id="ssProvince">
+              <input type="text" class="ss-input" id="custProvinceInput" placeholder="พิมพ์เพื่อค้นหาจังหวัด" autocomplete="off" role="combobox" aria-expanded="false">
+              <input type="hidden" id="custProvince" value="">
+              <div class="ss-menu" id="custProvinceMenu" hidden></div>
+            </div>
           </div>
           <div class="field">
             <label>อำเภอ / เขต<span class="req">*</span></label>
@@ -2388,6 +2588,7 @@ function iconPdf(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 function iconArrowLeft(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>`;}
 function iconSave(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>`;}
 function iconClock(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;}
+function iconCheckSm(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg>`;}
 function iconDownload(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>`;}
 function iconChart(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M8 17V10M13 17V6M18 17v-4"/></svg>`;}
 function docBadge(type){
@@ -2419,12 +2620,44 @@ function bindPageEvents(){
   // detail rows/cards
   $$('[data-detail]').forEach(el=>el.addEventListener('click', (e)=>{
     e.stopPropagation();
+    state.detailRf = el.dataset.detail;
+    state.detailStep = 1;
     openModal(genericDetailModal(el.dataset.detail));
     bindModalEvents();
   }));
 
   // manual search
   $$('[data-action="manual-search"]').forEach(el=>el.addEventListener('click', ()=>toast('ค้นหาแล้ว — โหลดผลลัพธ์ล่าสุด')));
+
+  // TDC approve
+  $$('[data-tdc-sample]').forEach(el=>el.addEventListener('change', ()=>{
+    const i = parseInt(el.dataset.tdcSample);
+    if(TDC_APPROVE_DATA[i]) TDC_APPROVE_DATA[i].sampleW = el.value;
+  }));
+  $$('[data-tdc-cust-sample]').forEach(el=>el.addEventListener('change', ()=>{
+    const i = parseInt(el.dataset.tdcCustSample);
+    if(TDC_APPROVE_DATA[i]) TDC_APPROVE_DATA[i].custSampleW = el.value;
+  }));
+  $$('[data-action="tdc-approve-row"]').forEach(el=>el.addEventListener('click', ()=>{
+    const i = parseInt(el.dataset.idx);
+    const row = TDC_APPROVE_DATA[i];
+    if(row) toast(`อนุมัติส่ง TDC สำหรับ ${row.rf} เรียบร้อย`);
+  }));
+
+  // Report & Export
+  const applyReportFilter = $('[data-action="apply-report-filter"]');
+  if(applyReportFilter) applyReportFilter.addEventListener('click', ()=>toast('กรองข้อมูลแล้ว — อัปเดตผลลัพธ์ด้านล่าง'));
+  $$('[data-action="export-excel-report"]').forEach(el=>el.addEventListener('click', ()=>{
+    const scope = el.dataset.scope;
+    if(scope==='rf'){
+      exportCSV(`report-rf-${Date.now()}.csv`, ['RF No','ลูกค้า','วันที่','น้ำหนัก (g)'],
+        Object.values(LOT_MANAGE_DATA).flat().map(r=>[r.rf, r.cust, r.date, r.w]));
+    } else {
+      exportCSV(`report-lot-${Date.now()}.csv`, ['RF No','Lot','ลูกค้า','วันที่','น้ำหนัก (g)'],
+        Object.values(LOT_MANAGE_DATA).flat().map(r=>[r.rf, r.lot, r.cust, r.date, r.w]));
+    }
+    toast('ส่งออก Excel (CSV) เรียบร้อย');
+  }));
 
   // orders
   const newOrderBtn = $('[data-action="new-order"]');
@@ -2487,7 +2720,7 @@ function bindPageEvents(){
   $$('[data-action="edit-invoice"]').forEach(el=>el.addEventListener('click', ()=>{
     state.invoiceNo = el.dataset.no||null; state.invoiceMode='edit'; state.invoiceTemplate='gold'; goPage('invoice-edit');
   }));
-  $$('[data-action="preview-invoice"]').forEach(el=>el.addEventListener('click', ()=>{ openModal(pdfPreviewModal(el.dataset.no)); bindModalEvents(); }));
+  $$('[data-action="preview-invoice"]').forEach(el=>el.addEventListener('click', ()=>{ openModal(pdfPreviewModal(el.dataset.no, el.dataset.doctype)); bindModalEvents(); }));
   const genInv = $('[data-action="create-general-invoice"]');
   if(genInv) genInv.addEventListener('click', ()=>{ openModal(invoiceTemplatePickerModal()); bindModalEvents(); });
 
@@ -2547,13 +2780,34 @@ function updateLotSelection(){
 function bindModalEvents(){
   $$('[data-close-modal]').forEach(el=>el.addEventListener('click', closeModal));
 
+  // RF detail modal — stepper navigation
+  $$('[data-detail-step]').forEach(el=>el.addEventListener('click', ()=>{
+    state.detailStep = parseInt(el.dataset.detailStep);
+    closeModal(); openModal(genericDetailModal(state.detailRf)); bindModalEvents();
+  }));
+  const saveDetailStep = $('[data-action="save-detail-step"]');
+  if(saveDetailStep) saveDetailStep.addEventListener('click', ()=>{
+    toast(`บันทึกข้อมูล ${state.detailRf} เรียบร้อย`);
+  });
+  const advanceDetailStep = $('[data-action="advance-detail-step"]');
+  if(advanceDetailStep) advanceDetailStep.addEventListener('click', ()=>{
+    if(state.detailStep < RF_DETAIL_STEPS.length){
+      state.detailStep += 1;
+      toast(`ส่งต่อไปขั้นตอน "${RF_DETAIL_STEPS.find(s=>s.n===state.detailStep)?.t}" แล้ว`);
+      closeModal(); openModal(genericDetailModal(state.detailRf)); bindModalEvents();
+    }
+  });
+
+
   // add-customer modal — cascading location dropdowns
+  const custProvinceInput = $('#custProvinceInput');
   const custProvince = $('#custProvince');
+  const custProvinceMenu = $('#custProvinceMenu');
   const custDistrict = $('#custDistrict');
   const custSubdistrict = $('#custSubdistrict');
-  if(custProvince && custDistrict && custSubdistrict){
-    custProvince.addEventListener('change', ()=>{
-      const districts = TH_LOCATIONS[custProvince.value] || {};
+  if(custProvinceInput && custProvince && custProvinceMenu && custDistrict && custSubdistrict){
+    initSearchableSelect(custProvinceInput, custProvince, custProvinceMenu, Object.keys(TH_LOCATIONS), (value)=>{
+      const districts = TH_LOCATIONS[value] || {};
       const keys = Object.keys(districts);
       custDistrict.innerHTML = `<option value="">เลือกอำเภอ/เขต</option>` + keys.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
       custDistrict.disabled = keys.length===0;
@@ -2619,6 +2873,25 @@ function bindModalEvents(){
 renderSidebar();
 renderBreadcrumb();
 renderPage();
+
+/* ---------- Enter key advances focus to next field ---------- */
+document.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Enter') return;
+  const el = e.target;
+  const tag = el.tagName;
+  if(tag !== 'INPUT' && tag !== 'SELECT') return;
+  if(tag === 'INPUT' && (el.type === 'checkbox' || el.type === 'radio')) return;
+  e.preventDefault();
+  const container = el.closest('.modal, .content, body') || document.body;
+  const focusable = Array.from(container.querySelectorAll(
+    'input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+  )).filter(f => f.offsetParent !== null); // only visible fields
+  const idx = focusable.indexOf(el);
+  if(idx > -1 && idx < focusable.length - 1){
+    focusable[idx + 1].focus();
+    if(focusable[idx + 1].select) { try{ focusable[idx + 1].select(); }catch(_){} }
+  }
+});
 
 /* ---------- Mobile sidebar drawer ---------- */
 (function(){
