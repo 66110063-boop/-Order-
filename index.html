@@ -21,6 +21,15 @@
  *    "page canvas" — now distinct, so cards stay white even though the canvas is grey)
  *  · sidebar active state redesigned as soft blue-tint pill (sidebar is white now, needs
  *    contrast) with navy text/icon + rounded left indicator bar
+ * pass 4 — Hallmark layout/structure/spacing discipline only (NOT colors/fonts —
+ * those stay 100% KGR brand: #002060 / #0056FF / #F8FAFC / Sarabun + IBM Plex Mono):
+ *  · added --space-3xs…--space-3xl 4pt spacing scale tokens
+ *  · applied scale to macro layout rhythm: .content, .page-head, .card-pad, .lane-wrap,
+ *    .search-row, .section-label, .grid-2/3/4 gaps, .modal-body, .panel-body
+ *  · functional reqs already in place from prior passes: ยอดรวม column removed from
+ *    Invoice ทั่วไป, editable เลขที่ Invoice + วันที่, blank + silver-extraction
+ *    templates, 5-step flow (รับงาน→ส่งหลอม→ทดสอบ%→คิดค่าใช้จ่าย→ส่งให้TDC),
+ *    document-type badges (ต้นฉบับ=เหลือง/สำเนา1=เขียว/สำเนา2=ฟ้า)
  */
 /* ============================================================
    KGR GROUP — DESIGN TOKENS
@@ -34,13 +43,13 @@
   --btn-primary-hover:oklch(45.4% 0.217 262.4);
   --table-head-bg:oklch(37.1% 0.173 262.1);
   --table-head-fg:oklch(100% 0 0);
-  --text-primary:oklch(21.4% 0.059 249.3);
+  --text-primary:oklch(27.9% 0.037 260.0); /* #1E293B — high-contrast readable text on light bg */
   --card-highlight-bg:oklch(95.2% 0.023 258.4);
   --page-bg:oklch(98.4% 0.003 247.9); /* #F8FAFC — clean light-grey canvas */
   --surface:oklch(100% 0 0); /* #FFFFFF — cards, sidebar, inputs, table surface */
 
   /* Extension neutrals (added for consistency, not from logo) — all tinted toward the brand hue */
-  --text-secondary:oklch(52.1% 0.030 248.4);
+  --text-secondary:oklch(44.6% 0.026 256.8); /* #4B5563 — darker for elderly-friendly contrast */
   --border:oklch(92.9% 0.013 255.5); /* #E2E8F0 — thin card/table hairlines */
   --border-strong:oklch(80.7% 0.039 272.4);
   --zebra:oklch(97.5% 0.005 258.3);
@@ -60,6 +69,10 @@
   /* Status — extensions (documented separately in spec) */
   --st-info-bg:oklch(95.7% 0.007 260.7);    --st-info-fg:oklch(39.4% 0.033 257.1);    --st-info-bd:oklch(88.5% 0.019 266.0);
   --st-sched-bg:oklch(93.9% 0.027 299.5);   --st-sched-fg:oklch(43.2% 0.211 292.8);   --st-sched-bd:oklch(81.6% 0.080 298.5);
+  /* Document-type badges — ต้นฉบับ/สำเนา */
+  --doc-original-bg:oklch(97.3% 0.069 103.2); --doc-original-fg:oklch(47.6% 0.103 61.9); --doc-original-bd:oklch(92.4% 0.115 95.7);
+  --doc-copy1-bg:oklch(96.2% 0.043 156.7);    --doc-copy1-fg:oklch(44.8% 0.108 151.3);   --doc-copy1-bd:oklch(87.1% 0.136 154.4);
+  --doc-copy2-bg:oklch(93.2% 0.032 255.6);    --doc-copy2-fg:oklch(42.4% 0.181 265.6);   --doc-copy2-bd:oklch(80.9% 0.096 251.8);
 
   /* Component-specific tokens (lifted out of inline hex per Hallmark token discipline) */
   --sidebar-label:oklch(74.6% 0.042 258.8);
@@ -76,6 +89,17 @@
   --radius-sm:8px;
   --radius-md:12px;
   --radius-lg:18px;
+  /* Spacing scale — 4pt grid, for macro layout rhythm (page padding, section gaps) */
+  --space-3xs:4px;
+  --space-2xs:8px;
+  --space-xs:12px;
+  --space-sm:16px;
+  --space-md:20px;
+  --space-lg:24px;
+  --space-xl:32px;
+  --space-2xl:40px;
+  --space-3xl:56px;
+
   --ease-out:cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in:cubic-bezier(0.7, 0, 0.84, 0);
   --ease-in-out:cubic-bezier(0.65, 0, 0.35, 1);
@@ -130,14 +154,14 @@ a{color:inherit;}
 
 .sidebar-nav{flex:1; padding:18px 14px; overflow-y:auto;}
 .sidebar-section-label{
-  font-size:14px; letter-spacing:.08em; text-transform:uppercase;
+  font-size:16px; letter-spacing:.08em; text-transform:uppercase;
   color:var(--sidebar-label); padding:16px 12px 8px;
 }
 .sidebar-section-label:first-child{padding-top:2px;}
 .nav-item{
   display:flex; align-items:center; gap:11px;
   padding:11px 14px; border-radius:12px; margin-bottom:5px;
-  font-size:14.5px; font-weight:500; color:var(--sidebar-fg);
+  font-size:16px; font-weight:500; color:var(--sidebar-fg);
   cursor:pointer; user-select:none;
   transition:background .12s var(--ease-out), color .12s var(--ease-out), box-shadow .12s var(--ease-out);
   position:relative;
@@ -156,14 +180,14 @@ a{color:inherit;}
 .nav-item.active svg{opacity:1; color:var(--sidebar-active);}
 .nav-item .badge-count{
   margin-left:auto; background:var(--border); color:var(--sidebar-fg);
-  font-size:14px; font-weight:700; padding:1px 8px; border-radius:20px;
+  font-size:16px; font-weight:700; padding:1px 8px; border-radius:20px;
 }
 .nav-item.active .badge-count{background:var(--nav-hover-bg); color:var(--sidebar-active);}
 
 .avatar-chip{
   width:32px; height:32px; border-radius:50%; background:var(--btn-primary);
   color:var(--fg-on-dark); display:flex; align-items:center; justify-content:center;
-  font-size:14px; font-weight:700; flex-shrink:0;
+  font-size:16px; font-weight:700; flex-shrink:0;
 }
 
 .main{flex:1; min-width:0; display:flex; flex-direction:column; background:var(--main-bg);}
@@ -174,35 +198,42 @@ a{color:inherit;}
   padding:0 22px; flex-shrink:0; position:sticky; top:0; z-index:30;
   box-shadow:var(--shadow-sm);
 }
-.breadcrumb{font-size:14px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:6px;}
+.breadcrumb{font-size:16px; color:rgba(255,255,255,0.7); display:flex; align-items:center; gap:6px;}
 .breadcrumb b{color:var(--fg-on-dark); font-weight:600;}
 .topbar-right{display:flex; align-items:center; gap:14px;}
 .era-toggle{
-  font-size:14px; background:rgba(255,255,255,0.12); color:var(--fg-on-dark);
+  font-size:16px; background:rgba(255,255,255,0.12); color:var(--fg-on-dark);
   padding:4px 10px; border-radius:20px; display:flex; align-items:center; gap:6px;
 }
 .era-toggle b{font-weight:700;}
-.topbar-user{font-size:14px; color:rgba(255,255,255,0.85); display:flex; align-items:center; gap:8px;}
+.topbar-user{font-size:16px; color:rgba(255,255,255,0.85); display:flex; align-items:center; gap:8px;}
+.topbar-audit-link{
+  display:flex; align-items:center; gap:7px; font-size:16px; font-weight:600;
+  color:var(--fg-on-dark); background:rgba(255,255,255,0.12); border:none; border-radius:9px;
+  padding:8px 14px; cursor:pointer; transition:background .12s var(--ease-out);
+}
+.topbar-audit-link svg{width:16px; height:16px; flex-shrink:0;}
+.topbar-audit-link:hover{background:rgba(255,255,255,0.22);}
 
-.content{padding:28px 32px 64px; flex:1; max-width:1180px; margin:0; width:100%;}
+.content{padding:var(--space-xl) var(--space-xl) var(--space-3xl); flex:1; width:100%;}
 .page{display:none; animation:fadeIn .18s var(--ease-out);}
 .page.active{display:block;}
 @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
 
-.page-head{display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:18px; gap:16px; flex-wrap:wrap;}
-.page-head h1{font-size:25px; font-weight:700; color:var(--text-primary);}
-.page-head .desc{font-size:15px; color:var(--text-secondary); margin-top:4px;}
+.page-head{display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:var(--space-lg); gap:var(--space-sm); flex-wrap:wrap;}
+.page-head h1{font-size:24px; font-weight:700; color:var(--text-primary);}
+.page-head .desc{font-size:16px; color:var(--text-secondary); margin-top:4px;}
 
 /* ============================================================
    BUTTONS
    ============================================================ */
 .btn{
-  display:inline-flex; align-items:center; gap:8px;
-  border-radius:12px; padding:13px 22px; font-size:16px; font-weight:600;
-  min-height:50px;
+  display:inline-flex; align-items:center; gap:9px;
+  border-radius:12px; padding:15px 24px; font-size:16.5px; font-weight:600;
+  min-height:54px;
   border:1px solid transparent; transition:background-color .12s var(--ease-out), border-color .12s var(--ease-out), box-shadow .12s var(--ease-out); white-space:nowrap;
 }
-.btn svg{width:18px; height:18px;}
+.btn svg{width:19px; height:19px;}
 .btn-primary{background:var(--header-bg); color:var(--btn-primary-fg);}
 .btn-primary:hover{background:var(--btn-primary);}
 .btn-secondary{background:var(--surface); color:var(--text-primary); border-color:var(--border-strong);}
@@ -211,7 +242,7 @@ a{color:inherit;}
 .btn-ghost:hover{background:var(--card-highlight-bg);}
 .btn-danger-ghost{background:transparent; color:var(--st-hold-fg); border-color:var(--st-hold-bd);}
 .btn-danger-ghost:hover{background:var(--st-hold-bg);}
-.btn-sm{padding:9px 15px; font-size:14px; border-radius:9px; min-height:40px;}
+.btn-sm{padding:9px 15px; font-size:16px; border-radius:9px; min-height:40px;}
 .btn:disabled{opacity:.45; cursor:not-allowed;}
 .icon-btn{
   width:44px; height:44px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center;
@@ -224,9 +255,9 @@ a{color:inherit;}
    FORM ELEMENTS
    ============================================================ */
 .field{display:flex; flex-direction:column; gap:6px;}
-.field label{font-size:14px; font-weight:600; color:var(--text-primary);}
+.field label{font-size:16px; font-weight:600; color:var(--text-primary);}
 .field label .req{color:var(--st-hold-fg); margin-left:2px;}
-.field .hint{font-size:14px; color:var(--text-secondary);}
+.field .hint{font-size:16px; color:var(--text-secondary);}
 input[type=text], input[type=date], input[type=number], select, textarea{
   font-family:inherit; font-size:16px; color:var(--text-primary);
   border:1px solid var(--border-strong); border-radius:10px; padding:13px 14px;
@@ -236,9 +267,9 @@ input[type=text], input[type=date], input[type=number], select, textarea{
 input.num-input{font-family:'IBM Plex Mono'; text-align:right;}
 input:focus, select:focus, textarea:focus{outline:2px solid var(--btn-primary); outline-offset:1px; border-color:var(--btn-primary); box-shadow:0 0 0 3px rgba(0,86,255,0.12);}
 input:disabled, .input-locked{background:var(--zebra); color:var(--text-secondary); border-color:var(--border); cursor:not-allowed;}
-.search-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.search-row{display:flex; gap:var(--space-2xs); align-items:center; flex-wrap:wrap;}
 .search-row input{max-width:280px;}
-.search-hint{font-size:14px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;}
+.search-hint{font-size:16px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;}
 .search-hint svg{width:15px; height:15px; flex-shrink:0; stroke:var(--text-secondary);}
 
 /* ============================================================
@@ -248,24 +279,50 @@ input:disabled, .input-locked{background:var(--zebra); color:var(--text-secondar
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
   box-shadow:var(--shadow-sm);
 }
-.card-pad{padding:20px;}
+.card-pad{padding:var(--space-md);}
 .card-highlight{background:var(--card-highlight-bg); border-color:var(--card-highlight-border);}
 .stat-card{
   background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:var(--radius-md);
   padding:14px 16px;
 }
-.stat-card .label{font-size:14px; color:var(--stat-label); font-weight:600; margin-bottom:8px;}
+.stat-card .label{font-size:16px; color:var(--stat-label); font-weight:600; margin-bottom:8px;}
 .stat-card .value{font-size:32px; font-weight:700; color:var(--text-primary);}
-.stat-card .value .unit{font-size:14px; font-weight:500; color:var(--text-secondary); margin-left:4px;}
+.stat-card .value .unit{font-size:16px; font-weight:500; color:var(--text-secondary); margin-left:4px;}
 
 /* ============================================================
+   CHOICE CARDS — big selectable option cards (การจัดล็อต landing, etc.)
+   ============================================================ */
+.choice-grid{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:var(--space-lg); margin-top:var(--space-md);
+}
+.choice-card{
+  position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:var(--space-2xs);
+  text-align:left; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:var(--space-xl); box-shadow:var(--shadow-sm); cursor:pointer; font-family:inherit;
+  transition:border-color .14s var(--ease-out), box-shadow .14s var(--ease-out), transform .14s var(--ease-out);
+}
+.choice-card:hover{border-color:var(--btn-primary); box-shadow:var(--shadow-md); transform:translateY(-2px);}
+.choice-card-badge{
+  position:absolute; top:var(--space-md); right:var(--space-md);
+  background:var(--card-highlight-bg); color:var(--header-bg); font-weight:700; font-size:15px;
+  padding:5px 14px; border-radius:20px;
+}
+.choice-card-icon{
+  width:56px; height:56px; border-radius:14px; background:var(--card-highlight-bg); color:var(--header-bg);
+  display:flex; align-items:center; justify-content:center; margin-bottom:var(--space-2xs); flex-shrink:0;
+}
+.choice-card-icon svg{width:28px; height:28px;}
+.choice-card-title{font-size:22px; font-weight:700; color:var(--text-primary);}
+.choice-card-desc{font-size:16px; color:var(--text-secondary); line-height:1.4;}
+
    TABLES
    ============================================================ */
 .table-wrap{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;}
 table{width:100%; border-collapse:collapse;}
 thead th{
   background:var(--table-head-bg); color:var(--table-head-fg);
-  font-size:15px; font-weight:700; text-align:left; padding:14px 16px;
+  font-size:16px; font-weight:700; text-align:left; padding:14px 16px;
   position:sticky; top:0;
 }
 thead th.num, thead th.right{text-align:right;}
@@ -274,23 +331,23 @@ tbody tr:last-child td{border-bottom:none;}
 tbody tr:nth-child(even){background:var(--zebra);}
 tbody tr.clickable{cursor:pointer;}
 tbody tr.clickable:hover{background:var(--card-highlight-bg);}
-td.num, th.num{font-family:'IBM Plex Mono'; text-align:right; font-variant-numeric:tabular-nums;}
+td.num, th.num{font-family:'IBM Plex Mono'; text-align:right; font-variant-numeric:tabular-nums; font-weight:700;}
 td.right{text-align:right;}
 .cell-primary{font-weight:600; color:var(--text-primary);}
-.cell-sub{font-size:14px; color:var(--text-secondary); margin-top:1px;}
+.cell-sub{font-size:16px; color:var(--text-secondary); margin-top:1px;}
 .table-actions{display:flex; gap:6px; justify-content:flex-end;}
-.table-foot{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; font-size:14px; color:var(--text-secondary); border-top:1px solid var(--border);}
+.table-foot{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; font-size:16px; color:var(--text-secondary); border-top:1px solid var(--border);}
 .pager{display:flex; gap:4px; align-items:center;}
-.pager button{width:26px; height:26px; border-radius:6px; border:1px solid var(--border); background:var(--surface); font-size:14px;}
+.pager button{width:26px; height:26px; border-radius:6px; border:1px solid var(--border); background:var(--surface); font-size:16px;}
 .pager button.active{background:var(--btn-primary); color:var(--fg-on-dark); border-color:var(--btn-primary);}
-.empty-row td{text-align:center; padding:40px 16px; color:var(--text-secondary); font-size:14px;}
+.empty-row td{text-align:center; padding:40px 16px; color:var(--text-secondary); font-size:16px;}
 
 /* ============================================================
    BADGES — status (fixed triads) + tabs
    ============================================================ */
 .badge{
   display:inline-flex; align-items:center; gap:6px;
-  font-size:15px; font-weight:700; padding:5px 14px; border-radius:999px;
+  font-size:16px; font-weight:700; padding:5px 14px; border-radius:999px;
   border:1px solid transparent; white-space:nowrap;
 }
 .badge::before{content:''; width:7px; height:7px; border-radius:50%; background:currentColor;}
@@ -300,21 +357,44 @@ td.right{text-align:right;}
 .badge-info{background:var(--st-info-bg); color:var(--st-info-fg); border-color:var(--st-info-bd);}
 .badge-sched{background:var(--st-sched-bg); color:var(--st-sched-fg); border-color:var(--st-sched-bd);}
 
+.doc-badge{
+  display:inline-flex; align-items:center; font-size:14px; font-weight:700;
+  padding:3px 10px; border-radius:999px; border:1px solid transparent; white-space:nowrap; margin-left:8px;
+}
+.doc-original{background:var(--doc-original-bg); color:var(--doc-original-fg); border-color:var(--doc-original-bd);}
+.doc-copy1{background:var(--doc-copy1-bg); color:var(--doc-copy1-fg); border-color:var(--doc-copy1-bd);}
+.doc-copy2{background:var(--doc-copy2-bg); color:var(--doc-copy2-fg); border-color:var(--doc-copy2-bd);}
+
+.tpl-pick-card{
+  display:flex; align-items:center; gap:14px; text-align:left; width:100%;
+  padding:16px 18px; border-radius:14px; border:1px solid var(--border); background:var(--surface);
+  cursor:pointer; transition:border-color .12s var(--ease-out), background .12s var(--ease-out);
+}
+.tpl-pick-card:hover{border-color:var(--btn-primary); background:var(--card-highlight-bg);}
+.tpl-pick-icon{
+  width:44px; height:44px; border-radius:11px; background:var(--card-highlight-bg); color:var(--header-bg);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.tpl-pick-icon svg{width:22px; height:22px;}
+.tpl-pick-text{display:flex; flex-direction:column; gap:3px;}
+.tpl-pick-title{font-size:17px; font-weight:700; color:var(--text-primary);}
+.tpl-pick-desc{font-size:16px; color:var(--text-secondary);}
+
 .tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; padding-bottom:2px;}
 .tab{
-  padding:11px 16px; font-size:15px; font-weight:600; color:var(--text-secondary);
+  padding:11px 16px; font-size:16px; font-weight:600; color:var(--text-secondary);
   border-bottom:3px solid transparent; cursor:pointer; display:flex; align-items:center; gap:7px;
   margin-bottom:-3px; border-radius:10px 10px 0 0;
   transition:background .12s var(--ease-out), color .12s var(--ease-out);
 }
 .tab:hover{color:var(--text-primary); background:var(--zebra);}
 .tab.active{color:var(--btn-primary); border-bottom-color:var(--btn-primary); background:var(--card-highlight-bg);}
-.tab .count{background:var(--surface); border:1px solid var(--border); color:var(--text-secondary); font-size:14px; font-weight:700; padding:1px 6.5px; border-radius:20px;}
+.tab .count{background:var(--surface); border:1px solid var(--border); color:var(--text-secondary); font-size:16px; font-weight:700; padding:1px 6.5px; border-radius:20px;}
 .tab.active .count{background:var(--btn-primary); border-color:var(--btn-primary); color:var(--fg-on-dark);}
 
 /* subtab pill style (used inside a page, e.g. Stock) */
 .pills{display:flex; gap:8px; margin-bottom:16px;}
-.pill{padding:10px 18px; border-radius:20px; font-size:14px; font-weight:600; border:1px solid var(--border-strong); color:var(--text-secondary); cursor:pointer;}
+.pill{padding:10px 18px; border-radius:20px; font-size:16px; font-weight:600; border:1px solid var(--border-strong); color:var(--text-secondary); cursor:pointer;}
 .pill.active{background:var(--btn-primary); border-color:var(--btn-primary); color:var(--fg-on-dark);}
 
 /* ============================================================
@@ -334,8 +414,8 @@ td.right{text-align:right;}
 .modal-md{max-width:640px;}
 .modal-lg{max-width:920px;}
 .modal-head{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border);}
-.modal-head h3{font-size:16px;}
-.modal-body{padding:22px;}
+.modal-head h3{font-size:20px; font-weight:700;}
+.modal-body{padding:var(--space-lg);}
 .modal-foot{display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--border); background:var(--zebra);}
 .modal-close{width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); border:none; background:transparent;}
 .modal-close:hover{background:var(--zebra);}
@@ -346,7 +426,7 @@ td.right{text-align:right;}
   padding:14px 18px; border-bottom:1px solid var(--border);
   border-radius:var(--radius-lg) var(--radius-lg) 0 0; background:var(--zebra);
 }
-.preview-head-title{display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:var(--text-primary);}
+.preview-head-title{display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:var(--text-primary);}
 .preview-head-title svg{width:15px; height:15px; color:var(--st-hold-fg); flex-shrink:0;}
 
 /* ============================================================
@@ -359,10 +439,10 @@ td.right{text-align:right;}
 }
 .step-chip .n{
   width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-size:14px; font-weight:700; background:var(--zebra); color:var(--text-secondary); flex-shrink:0;
+  font-size:16px; font-weight:700; background:var(--zebra); color:var(--text-secondary); flex-shrink:0;
 }
-.step-chip .t{font-size:14px; font-weight:700;}
-.step-chip .s{font-size:14px; color:var(--text-secondary);}
+.step-chip .t{font-size:16px; font-weight:700;}
+.step-chip .s{font-size:16px; color:var(--text-secondary);}
 .step-chip.current{border-color:var(--btn-primary); background:var(--card-highlight-bg);}
 .step-chip.current .n{background:var(--btn-primary); color:var(--fg-on-dark);}
 .step-chip.current .t{color:var(--btn-primary);}
@@ -380,20 +460,21 @@ td.right{text-align:right;}
 }
 .kanban-col-head{
   padding:12px 14px; display:flex; align-items:center; justify-content:space-between;
-  border-bottom:1px solid var(--border); font-size:14px; font-weight:700;
+  border-bottom:1px solid var(--border); font-size:16px; font-weight:700;
 }
-.kanban-col-head .count{background:var(--surface); border:1px solid var(--border-strong); font-size:14px; padding:1px 8px; border-radius:20px; color:var(--text-secondary); font-weight:700;}
+.kanban-col-head .count{background:var(--surface); border:1px solid var(--border-strong); font-size:16px; padding:1px 8px; border-radius:20px; color:var(--text-secondary); font-weight:700;}
 .kanban-body{padding:10px; display:flex; flex-direction:column; gap:8px; overflow-y:auto;}
 .kcard{
-  background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:10px 12px;
-  box-shadow:var(--shadow-sm); cursor:pointer;
+  background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:12px 14px;
+  box-shadow:var(--shadow-sm); cursor:pointer; overflow:hidden;
 }
 .kcard:hover{border-color:var(--btn-primary);}
-.kcard .rf{font-size:14px; font-weight:700; color:var(--text-primary);}
-.kcard .cust{font-size:14px; color:var(--text-secondary); margin:2px 0 6px;}
-.kcard .meta{display:flex; justify-content:space-between; align-items:center; font-size:14px; color:var(--text-secondary);}
-.kcard .meta .w{font-family:'IBM Plex Mono'; font-weight:600; color:var(--text-primary);}
-.kanban-empty{padding:26px 10px; text-align:center; font-size:14px; color:var(--text-secondary);}
+.kcard .rf{font-size:18px; font-weight:800; color:var(--text-primary);}
+.kcard .cust{font-size:16px; color:var(--text-secondary); margin:2px 0 6px; overflow-wrap:anywhere;}
+.kcard .lot{font-size:15px; color:var(--text-secondary); margin:-3px 0 6px;}
+.kcard .meta{display:flex; justify-content:space-between; align-items:center; font-size:16px; color:var(--text-secondary); gap:8px;}
+.kcard .meta .w{font-family:'IBM Plex Mono'; font-weight:600; color:var(--text-primary); white-space:nowrap; flex-shrink:0;}
+.kanban-empty{padding:26px 10px; text-align:center; font-size:16px; color:var(--text-secondary);}
 
 /* ============================================================
    TIMELINE (edit history)
@@ -410,16 +491,16 @@ td.right{text-align:right;}
 .tl-card:hover{border-color:var(--btn-primary); background:var(--card-highlight-bg);}
 .tl-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
 .tl-who{display:flex; align-items:center; gap:8px;}
-.tl-who .name{font-size:14px; font-weight:700;}
-.tl-when{font-size:14px; color:var(--text-secondary); font-family:'IBM Plex Mono'; white-space:nowrap;}
-.tl-desc{font-size:14px; color:var(--text-secondary); margin-top:4px;}
+.tl-who .name{font-size:16px; font-weight:700;}
+.tl-when{font-size:16px; color:var(--text-secondary); font-family:'IBM Plex Mono'; white-space:nowrap;}
+.tl-desc{font-size:16px; color:var(--text-secondary); margin-top:4px;}
 .tl-fields{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;}
-.tl-field-chip{font-size:14px; background:var(--zebra); border:1px solid var(--border); padding:2px 8px; border-radius:20px; color:var(--text-secondary);}
+.tl-field-chip{font-size:16px; background:var(--zebra); border:1px solid var(--border); padding:2px 8px; border-radius:20px; color:var(--text-secondary);}
 
 /* diff table */
 .diff-table{width:100%; border-collapse:collapse; margin-top:6px;}
-.diff-table th{font-size:14px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-secondary); text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);}
-.diff-table td{padding:10px; font-size:14px; border-bottom:1px solid var(--border); vertical-align:top;}
+.diff-table th{font-size:16px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-secondary); text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);}
+.diff-table td{padding:10px; font-size:16px; border-bottom:1px solid var(--border); vertical-align:top;}
 .diff-old{color:var(--st-hold-fg); text-decoration:line-through; text-decoration-color:var(--st-hold-bd); font-family:'IBM Plex Mono';}
 .diff-new{color:var(--st-done-fg); font-weight:600; font-family:'IBM Plex Mono';}
 .diff-field{font-weight:600;}
@@ -428,28 +509,28 @@ td.right{text-align:right;}
    MISC
    ============================================================ */
 .divider{height:1px; background:var(--border); margin:20px 0;}
-.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
-.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--space-sm);}
+.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-sm);}
 .toast{
   position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-  background:var(--text-primary); color:var(--fg-on-dark); padding:12px 20px; border-radius:10px; font-size:14px;
+  background:var(--text-primary); color:var(--fg-on-dark); padding:12px 20px; border-radius:10px; font-size:16px;
   display:flex; align-items:center; gap:10px; box-shadow:var(--shadow-lg); opacity:0; pointer-events:none;
   transition:opacity .22s var(--ease-out), transform .22s var(--ease-out); z-index:200;
 }
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 .toast svg{width:16px; height:16px; color:var(--st-done-bd); flex-shrink:0;}
-.locked-tag{display:inline-flex; align-items:center; gap:4px; font-size:14px; color:var(--text-secondary); font-weight:600;}
+.locked-tag{display:inline-flex; align-items:center; gap:4px; font-size:16px; color:var(--text-secondary); font-weight:600;}
 .locked-tag svg{width:11px; height:11px;}
-.section-label{font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
-.trash-toggle{display:flex; align-items:center; gap:7px; font-size:14px; color:var(--text-secondary); cursor:pointer; user-select:none;}
+.section-label{font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:var(--space-2xs); display:flex; align-items:center; gap:var(--space-2xs);}
+.trash-toggle{display:flex; align-items:center; gap:7px; font-size:16px; color:var(--text-secondary); cursor:pointer; user-select:none;}
 .switch{width:34px; height:19px; border-radius:20px; background:var(--border-strong); position:relative; transition:.15s;}
 .switch::after{content:''; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:var(--surface); transition:.15s; box-shadow:0 1px 2px rgba(0,0,0,.25);}
 .switch.on{background:var(--btn-primary);}
 .switch.on::after{left:17px;}
 .total-box{background:var(--card-highlight-bg); border:1px solid var(--card-highlight-border); border-radius:10px; padding:14px 18px; min-width:260px;}
-.total-row{display:flex; justify-content:space-between; font-size:14px; padding:4px 0; color:var(--text-secondary);}
-.total-row.grand{font-size:14.5px; font-weight:700; color:var(--text-primary); border-top:1px solid var(--card-highlight-border); margin-top:6px; padding-top:8px;}
+.total-row{display:flex; justify-content:space-between; font-size:16px; padding:4px 0; color:var(--text-secondary);}
+.total-row.grand{font-size:16px; font-weight:700; color:var(--text-primary); border-top:1px solid var(--card-highlight-border); margin-top:6px; padding-top:8px;}
 .total-row span:last-child{font-family:'IBM Plex Mono';}
 ::-webkit-scrollbar{width:9px; height:9px;}
 ::-webkit-scrollbar-thumb{background:var(--border-strong); border-radius:10px;}
@@ -472,15 +553,15 @@ td.right{text-align:right;}
 .inv-back:hover{border-color:var(--btn-primary); color:var(--btn-primary); background:var(--card-highlight-bg);}
 .inv-back svg{width:16px; height:16px;}
 .inv-title h1{font-size:20px; margin:0;}
-.inv-title .sub{font-size:14px; color:var(--text-secondary); margin-top:2px;}
+.inv-title .sub{font-size:16px; color:var(--text-secondary); margin-top:2px;}
 .inv-topbar-right{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
 
 .inv-header-row{
-  display:grid; grid-template-columns: 170px 160px 1fr 1fr 200px;
+  display:grid; grid-template-columns: 170px 170px 160px 1fr 1fr 200px;
   gap:12px; margin-bottom:22px; align-items:start;
 }
-.inv-header-row .field label{font-size:14px; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
-.inv-header-row input{font-size:14px;}
+.inv-header-row .field label{font-size:16px; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
+.inv-header-row input{font-size:16px;}
 
 .inv-body{display:grid; grid-template-columns:1fr 340px; gap:18px; align-items:start;}
 .inv-left{display:flex; flex-direction:column; gap:16px;}
@@ -494,13 +575,13 @@ td.right{text-align:right;}
   display:flex; align-items:center; justify-content:space-between;
   padding:13px 18px; border-bottom:1px solid var(--border); background:var(--zebra);
 }
-.panel-head .title{display:flex; align-items:center; gap:9px; font-size:18px; font-weight:700;}
+.panel-head .title{display:flex; align-items:center; gap:9px; font-size:20px; font-weight:700;}
 .panel-head .title svg{width:18px; height:18px; color:var(--btn-primary);}
-.panel-body{padding:18px;}
+.panel-body{padding:var(--space-md);}
 
 /* calc table */
 .calc-service-row{margin-bottom:14px;}
-.calc-service-row label{font-size:14px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;}
+.calc-service-row label{font-size:16px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;}
 /* calc rows — no table headers, clean list layout */
 .calc-rows{display:flex; flex-direction:column; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:12px;}
 .calc-row{
@@ -510,13 +591,13 @@ td.right{text-align:right;}
 .calc-row:last-child{border-bottom:none;}
 .calc-row:nth-child(even){background:var(--zebra);}
 .calc-row-label{
-  padding:12px 16px; font-size:14px; color:var(--text-primary);
+  padding:12px 16px; font-size:16px; color:var(--text-primary);
   display:flex; align-items:center; gap:8px;
 }
 .calc-row-label.active{color:var(--btn-primary); font-weight:600;}
 .calc-row-input{padding:8px 10px; display:flex; justify-content:flex-end;}
 .calc-row-input input{
-  font-family:'IBM Plex Mono'; font-size:14px; text-align:right;
+  font-family:'IBM Plex Mono'; font-size:16px; text-align:right;
   border:1px solid var(--border-strong); border-radius:8px; padding:8px 12px;
   width:160px; background:var(--surface); color:var(--text-primary); transition:border-color .12s;
 }
@@ -524,35 +605,35 @@ td.right{text-align:right;}
 .calc-row-input input.highlight{
   border-color:var(--btn-primary); background:var(--card-highlight-bg); font-weight:600;
 }
-.calc-unit{padding:12px 14px 12px 4px; font-size:14px; color:var(--text-secondary); white-space:nowrap;}
+.calc-unit{padding:12px 14px 12px 4px; font-size:16px; color:var(--text-secondary); white-space:nowrap;}
 /* subtotal row — matches reference: light peach bg, large right-aligned number */
 .calc-subtotal{
   display:flex; justify-content:space-between; align-items:center;
   background:var(--calc-subtotal-bg); border:1px solid var(--calc-subtotal-border);
   border-radius:10px; padding:14px 20px; margin-top:14px;
 }
-.calc-subtotal .lbl{font-size:14px; color:var(--calc-subtotal-fg); font-weight:600;}
+.calc-subtotal .lbl{font-size:16px; color:var(--calc-subtotal-fg); font-weight:600;}
 .calc-subtotal .val{
   font-size:22px; font-weight:700; font-family:'IBM Plex Mono';
   color:var(--text-primary); letter-spacing:-.01em;
 }
-.calc-subtotal .val .unit{font-size:14px; font-weight:500; color:var(--text-secondary); margin-left:5px;}
+.calc-subtotal .val .unit{font-size:16px; font-weight:500; color:var(--text-secondary); margin-left:5px;}
 /* service label above the rows */
 .calc-service-row{margin-bottom:4px;}
-.calc-service-row label{font-size:14px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em;}
-.calc-service-row input{font-size:14px; max-width:440px; width:100%;}
+.calc-service-row label{font-size:16px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:.03em;}
+.calc-service-row input{font-size:16px; max-width:440px; width:100%;}
 
 /* summary panel */
-.summary-currency{font-size:14px; color:var(--text-secondary); text-align:right; margin-bottom:8px;}
-.summary-row{display:flex; justify-content:space-between; padding:6px 0; font-size:14px;}
+.summary-currency{font-size:16px; color:var(--text-secondary); text-align:right; margin-bottom:8px;}
+.summary-row{display:flex; justify-content:space-between; padding:6px 0; font-size:16px;}
 .summary-row span:last-child{font-family:'IBM Plex Mono'; font-weight:500;}
 .summary-total-box{
   background:var(--card-highlight-bg); border:1.5px solid var(--btn-primary);
   border-radius:10px; padding:14px 16px; margin-top:10px;
 }
-.summary-total-label{font-size:14px; color:var(--btn-primary); font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
+.summary-total-label{font-size:16px; color:var(--btn-primary); font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
 .summary-grand{font-size:24px; font-weight:700; font-family:'IBM Plex Mono'; color:var(--btn-primary);}
-.summary-grand-note{font-size:14px; color:var(--text-secondary); margin-top:4px;}
+.summary-grand-note{font-size:16px; color:var(--text-secondary); margin-top:4px;}
 .note-panel textarea{
   width:100%; font-family:'Sarabun'; font-size:16px; color:var(--text-primary);
   border:1px solid var(--border-strong); border-radius:10px; padding:12px 14px;
@@ -561,14 +642,14 @@ td.right{text-align:right;}
 .note-panel textarea:focus{outline:2px solid var(--btn-primary); outline-offset:1px; border-color:var(--btn-primary); box-shadow:0 0 0 3px rgba(0,86,255,.12);}
 .inv-btn-history{
   display:inline-flex; align-items:center; gap:6px; color:var(--btn-primary);
-  font-size:14px; font-weight:600; border:1px solid var(--btn-primary);
+  font-size:16px; font-weight:600; border:1px solid var(--btn-primary);
   background:transparent; border-radius:8px; padding:8px 13px; cursor:pointer;
 }
 .inv-btn-history:hover{background:var(--card-highlight-bg);}
 .inv-btn-history svg{width:14px; height:14px;}
 .inv-btn-draft{
   display:inline-flex; align-items:center; gap:6px; color:var(--text-primary);
-  font-size:14px; font-weight:600; border:1px solid var(--border-strong);
+  font-size:16px; font-weight:600; border:1px solid var(--border-strong);
   background:var(--surface); border-radius:8px; padding:8px 13px; cursor:pointer;
 }
 .inv-btn-draft:hover{border-color:var(--btn-primary); color:var(--btn-primary);}
@@ -585,22 +666,22 @@ td.right{text-align:right;}
 .dash-search:focus-within{border-color:var(--btn-primary); box-shadow:0 0 0 3px rgba(0,86,255,0.12);}
 .dash-search svg{width:16px; height:16px; color:var(--text-secondary); flex-shrink:0;}
 .dash-search input{
-  flex:1; border:none; outline:none; font-family:inherit; font-size:14px;
+  flex:1; border:none; outline:none; font-family:inherit; font-size:16px;
   color:var(--text-primary); background:transparent;
 }
 .dash-search input::placeholder{color:var(--text-secondary);}
 .dash-search button{
   background:var(--btn-primary); color:var(--fg-on-dark); border:none; border-radius:7px;
-  padding:7px 16px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;
+  padding:7px 16px; font-size:16px; font-weight:600; cursor:pointer; font-family:inherit;
 }
 .dash-search button:hover{background:var(--btn-primary-hover);}
 
-.lane-wrap{display:flex; flex-direction:column; gap:24px; margin-top:4px;}
+.lane-wrap{display:flex; flex-direction:column; gap:var(--space-lg); margin-top:var(--space-3xs);}
 .lane{}
 /* Lane label strip — thin, no card box wrapping columns */
 .lane-strip{
-  display:flex; align-items:center; gap:10px;
-  padding:0 0 10px 0; border-bottom:2px solid transparent; margin-bottom:12px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:0 0 var(--space-xs) 0; border-bottom:2px solid transparent; margin-bottom:var(--space-xs);
 }
 .lane-strip.lane1{border-bottom-color:var(--btn-primary);}
 .lane-strip.lane2{border-bottom-color:var(--st-progress-bd);}
@@ -608,35 +689,45 @@ td.right{text-align:right;}
 .lane-badge{
   width:26px; height:26px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:14px; font-weight:800; color:var(--fg-on-dark); flex-shrink:0;
+  font-size:16px; font-weight:800; color:var(--fg-on-dark); flex-shrink:0; line-height:1;
 }
 .lane1 .lane-badge{background:var(--btn-primary);}
 .lane2 .lane-badge{background:var(--lane2-badge);}
 .lane3 .lane-badge{background:var(--st-done-fg);}
-.lane-title{font-size:14px; font-weight:700; color:var(--text-primary);}
-.lane-sub{font-size:14px; color:var(--text-secondary); margin-left:4px;}
+.lane-title{font-size:16px; font-weight:700; color:var(--text-primary); line-height:1.3;}
+.lane-sub{font-size:16px; color:var(--text-secondary); margin-left:4px; line-height:1.3;}
 .lane-total{
-  margin-left:auto; font-size:14px; font-weight:700; font-family:'IBM Plex Mono';
-  color:var(--text-secondary); white-space:nowrap;
+  margin-left:auto; font-size:16px; font-weight:700; font-family:'IBM Plex Mono';
+  color:var(--text-secondary); white-space:nowrap; line-height:1.3; padding:2px 0;
 }
 /* columns sit directly under the strip — no wrapping card */
-.lane-cols{display:flex; gap:12px; overflow-x:auto; padding-bottom:6px;}
+.lane-cols{display:flex; gap:12px; overflow-x:auto; padding:2px var(--space-lg) var(--space-2xs) 2px;}
 .lane-col{
-  flex:0 0 220px; background:var(--surface); border:1px solid var(--border);
+  flex:0 0 232px; background:var(--surface); border:1px solid var(--border);
   border-radius:var(--radius-md); display:flex; flex-direction:column;
-  box-shadow:var(--shadow-sm);
+  box-shadow:var(--shadow-sm); min-width:0;
 }
 .lane-col-head{
   padding:9px 13px; display:flex; align-items:center; justify-content:space-between;
-  border-bottom:1px solid var(--border); font-size:14px; font-weight:700;
+  border-bottom:1px solid var(--border); font-size:16px; font-weight:700;
   background:var(--zebra); border-radius:var(--radius-md) var(--radius-md) 0 0;
 }
 .lane-col-head .lc-count{
-  font-size:14px; font-weight:700; font-family:'IBM Plex Mono';
+  font-size:16px; font-weight:700; font-family:'IBM Plex Mono';
   background:var(--surface); border:1px solid var(--border); padding:1px 7px; border-radius:20px; color:var(--text-secondary);
 }
+/* Per-column header color coding — reuses existing status/doc tokens only, no new hues */
+.lane-col-head.lch-plain{background:var(--zebra); color:var(--text-primary);}
+.lane-col-head.lch-progress{background:var(--st-progress-bg); color:var(--st-progress-fg);}
+.lane-col-head.lch-test{background:var(--doc-original-bg); color:var(--doc-original-fg);}
+.lane-col-head.lch-info{background:var(--st-info-bg); color:var(--st-info-fg);}
+.lane-col-head.lch-done{background:var(--doc-copy1-bg); color:var(--doc-copy1-fg);}
+.lane-col-head.lch-sched{background:var(--st-sched-bg); color:var(--st-sched-fg);}
+.lane-col-head.lch-hold{background:var(--st-hold-bg); color:var(--st-hold-fg);}
+.lane-col-head.lch-plain .lc-count{background:var(--surface); border-color:var(--border); color:var(--text-secondary);}
+.lane-col-head:not(.lch-plain) .lc-count{background:rgba(255,255,255,0.55); border-color:transparent;}
 .lane-col-body{padding:8px; display:flex; flex-direction:column; gap:7px; max-height:380px; overflow-y:auto;}
-.lane-empty{padding:22px 8px; text-align:center; font-size:14px; color:var(--text-secondary);}
+.lane-empty{padding:22px 8px; text-align:center; font-size:16px; color:var(--text-secondary);}
 
 /* ============================================================
    ACCESSIBILITY — focus states + reduced motion (Hallmark discipline)
@@ -689,8 +780,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
   .calc-row-input{justify-content:flex-start;}
   .calc-row-input input{width:100%;}
   .page-head{flex-direction:column; align-items:flex-start;}
-  .lane-cols, .kanban{scroll-snap-type:x mandatory;}
-  .lane-col, .kanban-col{scroll-snap-align:start;}
+  .lane-cols, .kanban{
+    scroll-snap-type:x mandatory; scroll-padding-left:2px;
+  }
+  .lane-col, .kanban-col{
+    scroll-snap-align:start; scroll-snap-stop:always;
+    flex:0 0 min(300px, 82vw);
+  }
 }
 @media (max-width:414px){
   body{font-size:16px;}
@@ -702,7 +798,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
   .search-row input{max-width:none; width:100%;}
 }
 @media (max-width:375px){
-  .lane-col, .kanban-col{flex-basis:88vw;}
+  .lane-col, .kanban-col{flex:0 0 86vw;}
 }
 @media (max-width:320px){
   .content{padding:12px 10px 36px;}
@@ -730,6 +826,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
         <div class="breadcrumb" id="breadcrumb">Dashboard</div>
       </div>
       <div class="topbar-right">
+        <button type="button" class="topbar-audit-link" data-go="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ประวัติการใช้งาน</button>
         <div class="era-toggle"><b>18/08/2569</b></div>
         <div class="topbar-user">office@kgr.local</div>
       </div>
@@ -750,7 +847,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
 const NAV = [
   {key:'dashboard', label:'Dashboard', group:'หลัก'},
   {key:'orders', label:'Orders', group:'หลัก', count:5},
-  {key:'lot-allocate', label:'จัด Lot', group:'หลัก', count:4},
+  {key:'lot-allocate', label:'การจัดล็อต', group:'หลัก', count:7},
   {key:'lot-manage', label:'จัดการข้อมูล Lot', group:'หลัก'},
   {key:'customers', label:'Customers', group:'ข้อมูลหลัก'},
   {key:'stock', label:'Stock', group:'ข้อมูลหลัก'},
@@ -793,10 +890,13 @@ const ORDER_TABS = [
 
 /* ---------- LOT ALLOCATE (จัด Lot) ---------- */
 const LOT_ALLOCATE = [
-  {rf:'RF-26081301', date:'01/08/2569', cust:'โรงงานทองไทยเจริญ', w:'300.00'},
-  {rf:'RF-B006', date:'31/07/2569', cust:'ห้างทองแม่ทองย้อย', w:'152.30'},
-  {rf:'RF-B008', date:'30/07/2569', cust:'ห้างทองศิริทองคำ', w:'264.10'},
-  {rf:'RF-B009', date:'29/07/2569', cust:'ห้างทองเยาวราชกิจ', w:'447.50'},
+  {rf:'RF-26081301', date:'01/08/2569', cust:'โรงงานทองไทยเจริญ', w:'300.00', type:'bar'},
+  {rf:'RF-B006', date:'31/07/2569', cust:'ห้างทองแม่ทองย้อย', w:'152.30', type:'bar'},
+  {rf:'RF-B008', date:'30/07/2569', cust:'ห้างทองศิริทองคำ', w:'264.10', type:'bar'},
+  {rf:'RF-B009', date:'29/07/2569', cust:'ห้างทองเยาวราชกิจ', w:'447.50', type:'bar'},
+  {rf:'RF-010', date:'18/08/2569', cust:'ห้างทองใบเยาวราช', w:'88.40', type:'pellet'},
+  {rf:'RF-011', date:'17/08/2569', cust:'ห้างทองชั่วเช่งเฮง', w:'176.90', type:'pellet'},
+  {rf:'RF-012', date:'16/08/2569', cust:'สมชาย ใจดี', w:'64.00', type:'pellet'},
 ];
 
 /* ---------- LOT MANAGE (จัดการข้อมูล Lot) — grouped by stage ---------- */
@@ -940,32 +1040,48 @@ const USERS = [
 
 /* ---------- KANBAN (Dashboard) ---------- */
 const KANBAN_COLS = [
-  {key:'lot', label:'จัด Lot', color:'info', items:[
-    {rf:'RF-B009', cust:'ห้างทองเยาวราชกิจ', date:'29/07/2569', w:'447.50'},
-    {rf:'RF-B008', cust:'ห้างทองศิริทองคำ', date:'30/07/2569', w:'264.10'},
-    {rf:'RF-B006', cust:'ห้างทองแม่ทองย้อย', date:'31/07/2569', w:'152.30'},
-    {rf:'RF-26081301', cust:'โรงงานทองไทยเจริญ', date:'01/08/2569', w:'300.00'},
-    {rf:'FO-155', cust:'ห้างทองชั่วเช่งเฮง', date:'07/08/2569', w:'100.00'},
-    {rf:'Sil-123', cust:'ห้างทองใบเยาวราช', date:'13/08/2569', w:'100.00'},
+  // ===== เลน 1 — ระดับ RF No (เมนูบิลรับงาน) =====
+  {key:'new', label:'NEW', color:'plain', items:[
+    {rf:'RF-004', cust:'ห้างทองเยาวราชกิจ', date:'18/08/2569', w:'85.20'},
+    {rf:'RF-005', cust:'ห้างทองศิริทองคำ', date:'18/08/2569', w:'212.00'},
   ]},
-  {key:'presend', label:'ก่อนส่งรีด', color:'progress', items:[]},
-  {key:'postsend', label:'หลังส่งรีด', color:'progress', items:[]},
-  {key:'extract', label:'สกัด', color:'progress', items:[]},
-  {key:'pre99', label:'ก่อนส่งหลอม 99', color:'progress', items:[
-    {rf:'RF-0002', cust:'โรงงานทองไทยเจริญ', date:'11/08/2569', w:'100.00'},
-    {rf:'GOLD-123', cust:'สมชาย ใจดี', date:'12/08/2569', w:'200.00'},
+  {key:'melt', label:'หลอม', color:'progress', items:[
+    {rf:'RF-006', cust:'โรงงานทองไทยเจริญ', date:'17/08/2569', w:'160.40'},
   ]},
-  {key:'post99', label:'หลังส่งหลอม 99', color:'done', items:[
-    {rf:'RF-B012', cust:'ห้างทองชั่วเช่งเฮง', date:'26/07/2569', w:'121.90'},
-    {rf:'FF-123', cust:'ห้างทองใบเยาวราช', date:'12/08/2569', w:'100.00'},
-    {rf:'RF-260813', cust:'ห้างทองศิริทองคำ', date:'13/08/2569', w:'3,001.00'},
-    {rf:'RF-TT-001', cust:'ห้างทองชั่วเช่งเฮง', date:'14/08/2569', w:'100.00'},
-    {rf:'NEW123', cust:'วิไล รุ่งเรือง', date:'15/08/2569', w:'100.00'},
+  {key:'test', label:'ทดสอบ %', color:'test', items:[
+    {rf:'RF-007', cust:'ห้างทองแม่ทองย้อย', date:'16/08/2569', w:'93.75'},
+    {rf:'RF-008', cust:'ห้างทองชั่วเช่งเฮง', date:'16/08/2569', w:'305.10'},
+  ]},
+  {key:'deduct', label:'หักทอง', color:'sched', items:[
+    {rf:'RF-009', cust:'ห้างทองใบเยาวราช', date:'15/08/2569', w:'147.60'},
+  ]},
+  {key:'tdc', label:'TDC', color:'info', items:[
+    {rf:'RF-002', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', date:'13/08/2569', w:'100.00'},
+  ]},
+
+  // ===== เลน 2 — ระดับ Lot No (การจัดล็อต/รีด/สกัด/หลอม99) =====
+  {key:'lot', label:'จัดล็อต', color:'sched', items:[
+    {rf:'RF-B009', cust:'ห้างทองเยาวราชกิจ', lot:'LOT-202608-0003', date:'29/07/2569', w:'447.50'},
+    {rf:'RF-B008', cust:'ห้างทองศิริทองคำ', lot:'LOT-202608-0004', date:'30/07/2569', w:'264.10'},
+  ]},
+  {key:'presend', label:'ก่อนส่งรีด', color:'info', items:[
+    {rf:'RF-B006', cust:'ห้างทองแม่ทองย้อย', lot:'LOT-202608-0005', date:'31/07/2569', w:'152.30'},
+  ]},
+  {key:'postsend', label:'หลังส่งรีด', color:'done', items:[
+    {rf:'RF-26081301', cust:'โรงงานทองไทยเจริญ', lot:'LOT-202608-0006', date:'01/08/2569', w:'300.00'},
+  ]},
+  {key:'extract', label:'สกัด', color:'sched', items:[
+    {rf:'FO-155', cust:'ห้างทองชั่วเช่งเฮง', lot:'LOT-202608-0007', date:'07/08/2569', w:'100.00'},
+  ]},
+  {key:'pre99', label:'ก่อนส่งหลอม 99', color:'hold', items:[
+    {rf:'GOLD-123', cust:'สมชาย ใจดี', lot:'LOT-202608-0008', date:'12/08/2569', w:'200.00'},
+  ]},
+  {key:'post99', label:'หลังส่งหลอม 99', color:'hold', items:[
+    {rf:'RF-001', cust:'มาลิ มีนา', lot:'LOT-202608-0001', date:'14/08/2569', w:'100.00'},
   ]},
 ];
 const KANBAN_CLOSED = [
-  {rf:'RO-1', cust:'ห้างทองแม่ทองย้อย', date:'28/08/2569', w:'100.00'},
-  {rf:'37461', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', date:'13/08/2569', w:'343.90'},
+  {rf:'RF-003', cust:'มาลิ มีนา', lot:'LOT-202608-0002', date:'08/08/2569', w:'10.00'},
 ];
 
 </script>
@@ -987,6 +1103,9 @@ let state = {
   wizardStep:1,
   invoiceNo:null,
   invoiceMode:'new',
+  invoiceTemplate:'gold',
+  lotAllocateView:null, // null = landing page; 'bar' | 'pellet' = sub-view
+  lotAllocateChecked:[],
 };
 
 /* ---------- SIDEBAR ---------- */
@@ -1010,6 +1129,17 @@ function renderSidebar(){
 
 function goPage(key){
   state.page = key;
+  if(key==='lot-allocate') state.lotAllocateView = null;
+  renderSidebar();
+  renderBreadcrumb();
+  renderPage();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function openLotAllocateView(type){
+  state.page = 'lot-allocate';
+  state.lotAllocateView = type;
+  state.lotAllocateChecked = [];
   renderSidebar();
   renderBreadcrumb();
   renderPage();
@@ -1020,6 +1150,11 @@ function renderBreadcrumb(){
   if(state.page==='invoice-edit'){
     const mode = state.invoiceMode==='new' ? 'สร้าง Invoice ใหม่' : `แก้ไข Invoice · ${esc(state.invoiceNo||'')}`;
     $('#breadcrumb').innerHTML = `<span>ระบบจัดการ Order ทอง</span><span>›</span><span data-go="accounting" style="cursor:pointer;">บัญชี</span><span>›</span><b>${esc(mode)}</b>`;
+    return;
+  }
+  if(state.page==='lot-allocate' && state.lotAllocateView){
+    const typeLabel = state.lotAllocateView==='bar' ? 'แบบแท่ง' : 'แบบเม็ด';
+    $('#breadcrumb').innerHTML = `<span>ระบบจัดการ Order ทอง</span><span>›</span><span data-go="lot-allocate" style="cursor:pointer;">การจัดล็อต</span><span>›</span><b>${esc(typeLabel)}</b>`;
     return;
   }
   const n = NAV.find(x=>x.key===state.page);
@@ -1033,6 +1168,22 @@ function toast(msg){
   t.classList.add('show');
   clearTimeout(window.__toastTimer);
   window.__toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ---------- EXPORT EXCEL (CSV — opens natively in Excel) ---------- */
+function exportCSV(filename, headers, rows){
+  const escCsv = (v)=>{
+    const s = String(v==null?'':v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  };
+  const lines = [headers.map(escCsv).join(','), ...rows.map(r=>r.map(escCsv).join(','))];
+  const csv = '\uFEFF' + lines.join('\r\n'); // BOM so Excel renders Thai correctly
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ---------- MODAL ---------- */
@@ -1073,7 +1224,7 @@ function pageDashboard(){
   // Helper: render one lane column
   function laneCol(col){
     return `<div class="lane-col">
-      <div class="lane-col-head">
+      <div class="lane-col-head lch-${col.color||'plain'}">
         <span>${esc(col.label)}</span>
         <span class="lc-count">${col.items.length}</span>
       </div>
@@ -1082,6 +1233,7 @@ function pageDashboard(){
           <div class="kcard" data-detail="${esc(it.rf)}">
             <div class="rf">${esc(it.rf)}</div>
             <div class="cust">${esc(it.cust)}</div>
+            ${it.lot ? `<div class="lot num">${esc(it.lot)}</div>` : ''}
             <div class="meta"><span>${esc(it.date)}</span><span class="w">${esc(it.w)} g</span></div>
           </div>`).join('') : `<div class="lane-empty">ไม่มีรายการ</div>`}
       </div>
@@ -1089,37 +1241,36 @@ function pageDashboard(){
   }
 
   // Define 3 lanes — map KANBAN_COLS into the right lane
-  const lane1Cols = KANBAN_COLS.filter(c=>['lot'].includes(c.key));          // เปิดบิล → หักทอง (จัด Lot คือจุดเริ่มของ lane2 จริงๆ แต่ตามข้อมูลที่มีให้แสดง RF ก่อนจัด Lot ที่นี่)
-  const lane2Cols = KANBAN_COLS.filter(c=>['lot','presend','postsend','extract'].includes(c.key));
-  const lane3Cols = KANBAN_COLS.filter(c=>['pre99','post99'].includes(c.key));
+  const LANE1_KEYS = ['new','melt','test','tdc','deduct'];
+  const LANE2_KEYS = ['lot','presend','postsend','extract','pre99','post99'];
 
   // Count totals per lane
-  const l1Total = KANBAN_COLS.filter(c=>['lot'].includes(c.key)).reduce((s,c)=>s+c.items.length,0);
-  const l2Total = KANBAN_COLS.filter(c=>['presend','postsend','extract'].includes(c.key)).reduce((s,c)=>s+c.items.length,0);
-  const l3Total = KANBAN_COLS.filter(c=>['pre99','post99'].includes(c.key)).reduce((s,c)=>s+c.items.length,0) + KANBAN_CLOSED.length + 11;
+  const l1Total = KANBAN_COLS.filter(c=>LANE1_KEYS.includes(c.key)).reduce((s,c)=>s+c.items.length,0);
+  const l2Total = KANBAN_COLS.filter(c=>LANE2_KEYS.includes(c.key)).reduce((s,c)=>s+c.items.length,0);
+  const l3Total = KANBAN_CLOSED.length;
 
-  // Lane 1: RF Node (เปิดบิล → จัด Lot → หักทอง)
-  const rfNodeCols = KANBAN_COLS.filter(c=>['lot'].includes(c.key));
+  // Lane 1: ระดับ RF No — NEW → หลอม → ทดสอบ % → หักทอง → TDC
+  const rfNodeCols = KANBAN_COLS.filter(c=>LANE1_KEYS.includes(c.key));
   const rfNodeHtml = rfNodeCols.map(laneCol).join('');
 
-  // Lane 2: Lot / Loss (ก่อนส่งรีด → หลังส่งรีด → สกัด)
-  const lotLossCols = KANBAN_COLS.filter(c=>['presend','postsend','extract'].includes(c.key));
+  // Lane 2: ระดับ Lot No — จัดล็อต → ก่อนส่งรีด → หลังส่งรีด → สกัด → ก่อนส่งหลอม 99 → หลังส่งหลอม 99
+  const lotLossCols = KANBAN_COLS.filter(c=>LANE2_KEYS.includes(c.key));
   const lotLossHtml = lotLossCols.map(laneCol).join('');
 
-  // Lane 3: ปิดงาน (ก่อนหลอม 99 → หลังหลอม 99 → ปิดงาน 30 วัน)
-  const closedCols3 = KANBAN_COLS.filter(c=>['pre99','post99'].includes(c.key));
+  // Lane 3: ปิดงาน — 30 วันล่าสุด
   const closedSpecial = `<div class="lane-col" style="flex:0 0 250px;">
-    <div class="lane-col-head"><span>ปิดงาน — 30 วันล่าสุด</span><span class="lc-count">13</span></div>
+    <div class="lane-col-head"><span>ปิดงาน — 30 วันล่าสุด</span><span class="lc-count">${KANBAN_CLOSED.length}</span></div>
     <div class="lane-col-body">
       ${KANBAN_CLOSED.map(it=>`
         <div class="kcard" data-detail="${esc(it.rf)}">
           <div class="rf">${esc(it.rf)}</div>
           <div class="cust">${esc(it.cust)}</div>
+          ${it.lot ? `<div class="lot num">${esc(it.lot)}</div>` : ''}
           <div class="meta"><span>${esc(it.date)}</span><span class="w">${esc(it.w)} g</span></div>
         </div>`).join('')}
     </div>
   </div>`;
-  const closedHtml = closedCols3.map(laneCol).join('') + closedSpecial;
+  const closedHtml = closedSpecial;
 
   return `
     <div class="page-head">
@@ -1148,7 +1299,7 @@ function pageDashboard(){
         <div class="lane-strip lane1">
           <div class="lane-badge">1</div>
           <span class="lane-title">RF Node</span>
-          <span class="lane-sub">รับทอง → ตรวจน้ำหนัก → จัด Lot → หักทอง</span>
+          <span class="lane-sub">NEW → หลอม → ทดสอบ % → หักทอง → TDC</span>
           <span class="lane-total">${l1Total} รายการ</span>
         </div>
         <div class="lane-cols">${rfNodeHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
@@ -1159,7 +1310,7 @@ function pageDashboard(){
         <div class="lane-strip lane2">
           <div class="lane-badge">2</div>
           <span class="lane-title">Lot / Loss</span>
-          <span class="lane-sub">หักทองเสร็จ → ก่อนส่งรีด → หลังส่งรีด → สกัด</span>
+          <span class="lane-sub">จัดล็อต → ก่อนส่งรีด → หลังส่งรีด → สกัด → ก่อนส่งหลอม 99 → หลังส่งหลอม 99</span>
           <span class="lane-total">${l2Total} รายการ</span>
         </div>
         <div class="lane-cols">${lotLossHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
@@ -1170,7 +1321,7 @@ function pageDashboard(){
         <div class="lane-strip lane3">
           <div class="lane-badge">3</div>
           <span class="lane-title">ปิดงาน</span>
-          <span class="lane-sub">ก่อน/หลังหลอม 99 → ปิดงาน → รอออก Invoice (30 วันล่าสุด)</span>
+          <span class="lane-sub">รายการที่ปิดงานแล้วในช่วง 30 วันล่าสุด</span>
           <span class="lane-total">${l3Total} รายการ</span>
         </div>
         <div class="lane-cols">${closedHtml}</div>
@@ -1212,7 +1363,6 @@ function pageOrders(){
       <input type="text" placeholder="ค้นหา RF No / ลูกค้า" style="max-width:260px;">
       <input type="text" placeholder="ช่วงวันที่" value="" style="max-width:190px;">
       <button class="btn btn-secondary" data-action="manual-search">${iconSearch()} ค้นหา</button>
-      <span class="search-hint">${iconInfo()} ระบบค้นหาแบบกดค้นหาเอง (ไม่ auto) เพื่อลดภาระโหลดข้อมูล</span>
     </div>
 
     <div class="tabs">
@@ -1235,10 +1385,11 @@ function pageOrders(){
 /* ---------- ORDER CREATE WIZARD ---------- */
 function orderWizardModal(){
   const steps = [
-    {n:1, t:'สร้าง Order', s:'กำลังทำ'},
-    {n:2, t:'หลอมทองเก่า', s:'ยังไม่ถึง'},
+    {n:1, t:'รับงาน', s:'กำลังทำ'},
+    {n:2, t:'ส่งหลอม', s:'ยังไม่ถึง'},
     {n:3, t:'ทดสอบ %', s:'ยังไม่ถึง'},
-    {n:4, t:'นัดทอง', s:'ยังไม่ถึง'},
+    {n:4, t:'คิดค่าใช้จ่าย (หักทอง)', s:'ยังไม่ถึง'},
+    {n:5, t:'ส่งให้ TDC', s:'ยังไม่ถึง'},
   ];
   const chips = steps.map(s=>`
     <div class="step-chip ${s.n===state.wizardStep?'current':''} ${s.n<state.wizardStep?'complete':''}" data-wizard-step="${s.n}">
@@ -1262,13 +1413,14 @@ function orderWizardModal(){
     <div class="field" style="margin-top:14px;"><label>รายละเอียด</label><input type="text" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></div>
   `;
   const placeholderStep = (label)=>`<div style="padding:50px 0; text-align:center; color:var(--text-secondary);">
-      <div style="font-size:14px;">ขั้นตอน "${esc(label)}" จะเปิดใช้งานหลังจากบันทึกสเตปก่อนหน้า</div>
+      <div style="font-size:16px;">ขั้นตอน "${esc(label)}" จะเปิดใช้งานหลังจากบันทึกสเตปก่อนหน้า</div>
     </div>`;
 
   const body = state.wizardStep===1 ? step1
-    : state.wizardStep===2 ? placeholderStep('หลอมทองเก่า')
+    : state.wizardStep===2 ? placeholderStep('ส่งหลอม')
     : state.wizardStep===3 ? placeholderStep('ทดสอบ %')
-    : placeholderStep('นัดทอง');
+    : state.wizardStep===4 ? placeholderStep('คิดค่าใช้จ่าย (หักทอง)')
+    : placeholderStep('ส่งให้ TDC');
 
   return `
     <div class="modal modal-lg">
@@ -1279,8 +1431,8 @@ function orderWizardModal(){
       <div class="modal-body">
         <div class="stepper">${chips}</div>
         <div class="card card-pad">
-          <div style="font-weight:700; font-size:14px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
-            <span style="width:22px;height:22px;border-radius:50%;background:var(--btn-primary);color:var(--fg-on-dark);display:inline-flex;align-items:center;justify-content:center;font-size:14px;">${state.wizardStep}</span>
+          <div style="font-weight:700; font-size:16px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+            <span style="width:22px;height:22px;border-radius:50%;background:var(--btn-primary);color:var(--fg-on-dark);display:inline-flex;align-items:center;justify-content:center;font-size:16px;">${state.wizardStep}</span>
             ${esc(steps[state.wizardStep-1].t)}
           </div>
           ${body}
@@ -1295,10 +1447,50 @@ function orderWizardModal(){
 }
 
 /* ============================================================
-   LOT ALLOCATE (จัด Lot)
+   LOT ALLOCATE (การจัดล็อต — Batch Allocation)
    ============================================================ */
 function pageLotAllocate(){
-  const rows = LOT_ALLOCATE.map((r,i)=>`
+  if(!state.lotAllocateView){
+    return pageLotAllocateLanding();
+  }
+  return pageLotAllocateDetail(state.lotAllocateView);
+}
+
+function pageLotAllocateLanding(){
+  const barCount = LOT_ALLOCATE.filter(r=>r.type==='bar').length;
+  const pelletCount = LOT_ALLOCATE.filter(r=>r.type==='pellet').length;
+  return `
+    <div class="page-head">
+      <div><h1>การจัดล็อต</h1><div class="desc">เลือกรูปแบบการจัดล็อตเพื่อเริ่มรวมรายการ RF เป็น Lot เดียวกัน</div></div>
+    </div>
+
+    <div class="choice-grid">
+      <button type="button" class="choice-card" data-action="open-lot-type" data-type="bar">
+        <span class="choice-card-badge">${barCount} รายการ</span>
+        <span class="choice-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M4 9l2-3h12l2 3"/></svg>
+        </span>
+        <span class="choice-card-title">แบบแท่ง</span>
+        <span class="choice-card-desc">เริ่มที่ขั้นตอน ก่อนส่งรีด</span>
+      </button>
+
+      <button type="button" class="choice-card" data-action="open-lot-type" data-type="pellet">
+        <span class="choice-card-badge">${pelletCount} รายการ</span>
+        <span class="choice-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="2.4"/><circle cx="13" cy="8" r="2.4"/><circle cx="18" cy="16" r="2.4"/><circle cx="11" cy="17.5" r="2.2"/></svg>
+        </span>
+        <span class="choice-card-title">แบบเม็ด</span>
+        <span class="choice-card-desc">ข้ามการรีด เริ่มที่ขั้นตอน สกัด</span>
+      </button>
+    </div>
+  `;
+}
+
+function pageLotAllocateDetail(type){
+  const typeLabel = type==='bar' ? 'แบบแท่ง' : 'แบบเม็ด';
+  const startStepLabel = type==='bar' ? 'ก่อนส่งรีด' : 'สกัด';
+  const items = LOT_ALLOCATE.filter(r=>r.type===type);
+  const rows = items.map((r,i)=>`
     <tr>
       <td><input type="checkbox" class="lot-check" data-idx="${i}"></td>
       <td class="cell-primary">${esc(r.rf)}</td>
@@ -1309,8 +1501,8 @@ function pageLotAllocate(){
 
   return `
     <div class="page-head">
-      <div><h1>จัด Lot แบบแท่ง</h1><div class="desc">เลือกรายการ RF ที่ต้องการรวมเป็น Lot เดียวกันก่อนส่งหลอม</div></div>
-      <button class="btn btn-secondary" data-go="orders">← ย้อนกลับ</button>
+      <div><h1>การจัดล็อต ${esc(typeLabel)}</h1><div class="desc">เลือกรายการ RF ที่ต้องการรวมเป็น Lot เดียวกัน — เริ่มที่ขั้นตอน ${esc(startStepLabel)}</div></div>
+      <button class="btn btn-secondary" data-go="lot-allocate">${iconArrowLeft()} ย้อนกลับ</button>
     </div>
 
     <div class="search-row" style="margin-bottom:16px;">
@@ -1321,13 +1513,13 @@ function pageLotAllocate(){
     <div class="table-wrap">
       <table>
         <thead><tr><th style="width:40px;"><input type="checkbox" id="lotCheckAll"></th><th>RF No</th><th>วันที่รับ</th><th>ลูกค้า</th><th class="num">น้ำหนักรับ</th></tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>${rows || `<tr class="empty-row"><td colspan="5">ไม่มีรายการ</td></tr>`}</tbody>
       </table>
       <div class="table-foot">
-        <span>แสดง 1-${LOT_ALLOCATE.length} จาก ${LOT_ALLOCATE.length} รายการ</span>
+        <span>แสดง 1-${items.length} จาก ${items.length} รายการ</span>
         <div style="display:flex; align-items:center; gap:16px;">
           <span id="lotSelectedCount">เลือกแล้ว 0 รายการ</span>
-          <button class="btn btn-primary btn-sm" data-action="create-lot" disabled id="lotCreateBtn">จัดกลุ่ม</button>
+          <button class="btn btn-primary btn-sm" data-action="create-lot" disabled id="lotCreateBtn">ยืนยันการจัดล็อต</button>
         </div>
       </div>
     </div>
@@ -1357,6 +1549,10 @@ function pageLotManage(){
   return `
     <div class="page-head">
       <div><h1>จัดการข้อมูล Lot</h1><div class="desc">ติดตามข้อมูล Lot ในแต่ละขั้นตอนของกระบวนการหลอม</div></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-secondary" data-action="export-excel-lot">${iconDownload()} Export Excel</button>
+        <button class="btn btn-primary" data-action="report-lot">${iconChart()} ออกรายงาน</button>
+      </div>
     </div>
 
     <div class="search-row" style="margin-bottom:16px;">
@@ -1508,8 +1704,11 @@ function pageAccounting(){
     {key:'withnum', label:'RF ที่มีเลข Invoice', count:INV_WITH_NUMBER.length},
     {key:'general', label:'Invoice ทั่วไป', count:INV_GENERAL.length},
   ];
+  const DOC_TYPES = ['original','copy1','copy2'];
+  const docType = (i)=> DOC_TYPES[i % DOC_TYPES.length];
 
   let body='';
+  let colCount = 5;
   if(state.acctTab==='nonum'){
     body = INV_NO_NUMBER.map(r=>`
       <tr>
@@ -1528,13 +1727,17 @@ function pageAccounting(){
         </td>
       </tr>`).join('');
   } else {
-    body = INV_GENERAL.map(r=>`
+    colCount = 4;
+    body = INV_GENERAL.map((r,i)=>`
       <tr>
-        <td>${esc(r.date)}</td><td class="cell-primary">${esc(r.no)}</td><td>${esc(r.cust)}</td><td class="num">${esc(r.total)}</td>
+        <td>${esc(r.date)}</td>
+        <td class="cell-primary">${esc(r.no)} ${docBadge(docType(i))}</td>
+        <td>${esc(r.cust)}</td>
         <td class="right">
           <div class="table-actions" style="justify-content:flex-end;">
             <button class="btn btn-secondary btn-sm" data-action="preview-invoice" data-no="${esc(r.no)}">${iconEye()} Preview</button>
             <button class="btn btn-secondary btn-sm" data-action="edit-invoice" data-no="${esc(r.no)}">${iconEdit()} แก้ไข</button>
+            <button class="btn btn-secondary btn-sm" data-action="export-excel-invoice" data-no="${esc(r.no)}">${iconDownload()} Excel</button>
           </div>
         </td>
       </tr>`).join('');
@@ -1562,8 +1765,12 @@ function pageAccounting(){
 
     <div class="table-wrap">
       <table>
-        <thead><tr><th>วันที่บันทึก</th><th>เลขที่</th><th>ลูกค้า</th><th class="num">ยอดรวม</th><th class="right">จัดการ</th></tr></thead>
-        <tbody>${body || `<tr class="empty-row"><td colspan="5">ไม่มีรายการ</td></tr>`}</tbody>
+        <thead><tr>${
+          state.acctTab==='general'
+            ? '<th>วันที่บันทึก</th><th>เลขที่</th><th>ลูกค้า</th><th class="right">จัดการ</th>'
+            : '<th>วันที่บันทึก</th><th>เลขที่</th><th>ลูกค้า</th><th class="num">ยอดรวม</th><th class="right">จัดการ</th>'
+        }</tr></thead>
+        <tbody>${body || `<tr class="empty-row"><td colspan="${colCount}">ไม่มีรายการ</td></tr>`}</tbody>
       </table>
       <div class="table-foot"><span>แสดง 1-${(state.acctTab==='nonum'?INV_NO_NUMBER:state.acctTab==='withnum'?INV_WITH_NUMBER:INV_GENERAL).length} รายการ</span><div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div></div>
     </div>
@@ -1597,7 +1804,7 @@ function invoiceEditModal(no){
         <div class="section-label">รายการ</div>
         <div class="card" style="border-color:var(--border); margin-bottom:10px;">
           <div style="display:flex; gap:10px; align-items:center; padding:12px 14px;">
-            <span style="width:20px; color:var(--text-secondary); font-size:14px;">1.</span>
+            <span style="width:20px; color:var(--text-secondary); font-size:16px;">1.</span>
             <input type="text" value="ค่าหลอมทอง 99.99% (Lot 202608-0016)" style="flex:1;">
             <input class="num-input" type="text" value="${esc(inv.total)}" style="max-width:130px;">
             <button class="icon-btn" title="ลบรายการ">${iconTrash()}</button>
@@ -1634,6 +1841,45 @@ function pageInvoiceEdit(){
 
   const isNew = (mode==='new');
 
+  const TEMPLATES = {
+    gold: {
+      panelTitle: 'รายละเอียดและการคำนวณสกัดทอง',
+      serviceName: 'ค่าดำเนินการสกัดทอง',
+      unit: 'kg.',
+      rows: [
+        {label:'น้ำหนักเข้าตาม RF', value:'0'},
+        {label:'น้ำหนักเข้าจริง', value:'0'},
+        {label:'น้ำหนักคืนทอง 96.5%', value:'0.0114', active:true},
+        {label:'น้ำหนักคำนวณสกัด 96.5', value:'20'},
+        {label:'ราคาทองอ้างอิง', value:'65,500', unit:'บาท'},
+      ],
+      subtotal: '85,936,000.00',
+    },
+    silver: {
+      panelTitle: 'รายละเอียดและการคำนวณสกัดเงิน',
+      serviceName: 'ค่าดำเนินการสกัดเงิน',
+      unit: 'kg.',
+      rows: [
+        {label:'น้ำหนักเข้าตาม RF', value:'0'},
+        {label:'น้ำหนักเข้าจริง', value:'0'},
+        {label:'น้ำหนักคืนเงิน 99.9%', value:'0.0000', active:true},
+        {label:'น้ำหนักคำนวณสกัด 99.9', value:'0'},
+        {label:'ราคาเงินอ้างอิง', value:'0', unit:'บาท'},
+      ],
+      subtotal: '0.00',
+    },
+    blank: {
+      panelTitle: 'รายละเอียดและการคำนวณ (เอกสารเปล่า)',
+      serviceName: '',
+      unit: '',
+      rows: [
+        {label:'รายการที่ 1', value:'0'},
+      ],
+      subtotal: '0.00',
+    },
+  };
+  const tpl = TEMPLATES[state.invoiceTemplate] || TEMPLATES.gold;
+
   return `
   <div class="inv-page">
     <!-- TOP BAR -->
@@ -1659,6 +1905,10 @@ function pageInvoiceEdit(){
     <div class="panel" style="margin-bottom:18px;">
       <div class="panel-body" style="padding:14px 18px;">
         <div class="inv-header-row">
+          <div class="field">
+            <label>เลขที่ Invoice</label>
+            <input type="text" value="${esc(inv.no||'INV-2569-0081')}">
+          </div>
           <div class="field">
             <label>เลขอ้างอิง (RF No.)</label>
             <input type="text" value="${esc(inv.rf||inv.no||'RF-2569-0081')}">
@@ -1686,13 +1936,13 @@ function pageInvoiceEdit(){
     <!-- BODY: LEFT + RIGHT -->
     <div class="inv-body">
 
-      <!-- LEFT: คำนวณสกัดทอง -->
+      <!-- LEFT: คำนวณ -->
       <div class="inv-left">
         <div class="panel">
           <div class="panel-head">
             <div class="title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 3H8l1-3z"/><rect x="5" y="6" width="14" height="15" rx="1.5"/><path d="M9 11h6M9 15h4"/></svg>
-              รายละเอียดและการคำนวณสกัดทอง
+              ${esc(tpl.panelTitle)}
             </div>
             <button class="btn btn-secondary btn-sm" data-action="auto-formula">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M9 3h6l1 3H8l1-3z"/><path d="M12 8v8M8 12h8"/></svg>
@@ -1702,40 +1952,21 @@ function pageInvoiceEdit(){
           <div class="panel-body">
             <div class="calc-service-row">
               <label>ชื่อรายการบริการ</label>
-              <input type="text" value="ค่าดำเนินการสกัดทอง" style="width:100%; max-width:420px;">
+              <input type="text" value="${esc(tpl.serviceName)}" placeholder="ระบุชื่อรายการบริการ" style="width:100%; max-width:420px;">
             </div>
 
             <div class="calc-rows">
+              ${tpl.rows.map(r=>`
               <div class="calc-row">
-                <div class="calc-row-label">น้ำหนักเข้าตาม RF</div>
-                <div class="calc-row-input"><input type="text" class="num-input" value="0" placeholder="0"></div>
-                <div class="calc-unit">kg.</div>
-              </div>
-              <div class="calc-row">
-                <div class="calc-row-label">น้ำหนักเข้าจริง</div>
-                <div class="calc-row-input"><input type="text" class="num-input" value="0" placeholder="0"></div>
-                <div class="calc-unit">kg.</div>
-              </div>
-              <div class="calc-row">
-                <div class="calc-row-label active">น้ำหนักคืนทอง 96.5%</div>
-                <div class="calc-row-input"><input type="text" class="num-input highlight" value="0.0114" placeholder="0.0000"></div>
-                <div class="calc-unit">kg.</div>
-              </div>
-              <div class="calc-row">
-                <div class="calc-row-label">น้ำหนักคำนวณสกัด 96.5</div>
-                <div class="calc-row-input"><input type="text" class="num-input" value="20" placeholder="0"></div>
-                <div class="calc-unit">kg.</div>
-              </div>
-              <div class="calc-row">
-                <div class="calc-row-label">ราคาทองอ้างอิง</div>
-                <div class="calc-row-input"><input type="text" class="num-input" value="65,500" placeholder="0"></div>
-                <div class="calc-unit">บาท</div>
-              </div>
+                <div class="calc-row-label ${r.active?'active':''}">${esc(r.label)}</div>
+                <div class="calc-row-input"><input type="text" class="num-input ${r.active?'highlight':''}" value="${esc(r.value)}" placeholder="0"></div>
+                <div class="calc-unit">${esc(r.unit || tpl.unit)}</div>
+              </div>`).join('')}
             </div>
 
             <div class="calc-subtotal">
               <span class="lbl">ผลลัพธ์คำนวณขั้นต้น (Subtotal):</span>
-              <span class="val">85,936,000.00<span class="unit">บาท</span></span>
+              <span class="val">${esc(tpl.subtotal)}<span class="unit">บาท</span></span>
             </div>
           </div>
         </div>
@@ -1780,11 +2011,11 @@ function pageInvoiceEdit(){
           </div>
           <div class="panel-body" style="display:flex; flex-direction:column; gap:12px;">
             <div class="field">
-              <label style="font-size:14px;">หมายเหตุท้ายเอกสาร</label>
+              <label style="font-size:16px;">หมายเหตุท้ายเอกสาร</label>
               <textarea placeholder="ระบุความถึงลูกค้า หรือรายละเอียดการส่งมอบ..."></textarea>
             </div>
             <div class="field">
-              <label style="font-size:14px;">เงื่อนไขการชำระเงิน</label>
+              <label style="font-size:16px;">เงื่อนไขการชำระเงิน</label>
               <select>
                 <option>ชำระทันทีเมื่อได้รับเอกสาร (Cash on Delivery)</option>
                 <option>ชำระภายใน 7 วัน</option>
@@ -1813,23 +2044,23 @@ function pdfPreviewModal(no){
         <div style="background:var(--surface); box-shadow:var(--shadow-md); border-radius:4px; padding:34px 30px; max-width:480px; margin:0 auto; font-family:'Sarabun';">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px;">
             <div>
-              <div style="font-weight:700; font-size:15px; color:var(--header-bg);">K.G.R. GROUP</div>
-              <div style="font-size:14px; color:var(--text-secondary); margin-top:2px;">โรงงานหลอมทองคำและโลหะมีค่า</div>
+              <div style="font-weight:700; font-size:16px; color:var(--header-bg);">K.G.R. GROUP</div>
+              <div style="font-size:16px; color:var(--text-secondary); margin-top:2px;">โรงงานหลอมทองคำและโลหะมีค่า</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-weight:700; font-size:14px;">ใบแจ้งหนี้ / INVOICE</div>
-              <div style="font-size:14px; color:var(--text-secondary);">เลขที่ ${esc(no||'69/5')}</div>
+              <div style="font-weight:700; font-size:16px;">ใบแจ้งหนี้ / INVOICE ${docBadge('original')}</div>
+              <div style="font-size:16px; color:var(--text-secondary);">เลขที่ ${esc(no||'69/5')}</div>
             </div>
           </div>
-          <div style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">วันที่ 18/08/2569</div>
-          <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <div style="font-size:16px; color:var(--text-secondary); margin-bottom:16px;">วันที่ 18/08/2569</div>
+          <table style="width:100%; border-collapse:collapse; font-size:16px;">
             <thead><tr style="background:var(--table-head-bg); color:var(--fg-on-dark);"><th style="padding:7px 9px; text-align:left;">รายการ</th><th style="padding:7px 9px; text-align:right;">จำนวนเงิน</th></tr></thead>
             <tbody>
               <tr><td style="padding:8px 9px; border-bottom:1px solid var(--border);">ค่าหลอมทอง 99.99% (Lot 202608-0016)</td><td style="padding:8px 9px; text-align:right; border-bottom:1px solid var(--border); font-family:'IBM Plex Mono';">2,450.00</td></tr>
             </tbody>
           </table>
           <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-            <div style="min-width:200px; font-size:14px;">
+            <div style="min-width:200px; font-size:16px;">
               <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>รวมเป็นเงิน</span><span class="num">2,450.00</span></div>
               <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>ภาษีมูลค่าเพิ่ม 7%</span><span class="num">171.50</span></div>
               <div style="display:flex; justify-content:space-between; padding:5px 0; font-weight:700; border-top:1px solid var(--text-primary); margin-top:3px;"><span>รวมทั้งสิ้น</span><span class="num">2,621.50</span></div>
@@ -1855,7 +2086,7 @@ function pageHistory(){
       <div class="tl-card">
         <div class="tl-top">
           <div class="tl-who">
-            <div class="avatar-chip" style="width:24px;height:24px;font-size:14px;">${esc(h.who.slice(0,1))}</div>
+            <div class="avatar-chip" style="width:24px;height:24px;font-size:16px;">${esc(h.who.slice(0,1))}</div>
             <div><span class="name">${esc(h.who)}</span><div class="cell-sub">${esc(h.target)}</div></div>
           </div>
           <span class="tl-when">${esc(h.when)}</span>
@@ -1972,9 +2203,61 @@ function genericDetailModal(rf){
           <div class="field"><label>น้ำหนักหลังหลอม (g)</label><input class="num-input" type="text" value="98.75"></div>
         </div>
         <div class="divider"></div>
-        <button class="btn btn-ghost btn-sm" data-action="goto-history">${iconClock()} ดูประวัติการแก้ไขของรายการนี้</button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" data-action="goto-history">${iconClock()} ดูประวัติการใช้งานและการแก้ไข (Audit Log)</button>
+          <button class="btn btn-ghost btn-sm" data-action="export-excel-rf" data-rf="${esc(rf)}">${iconDownload()} Export Excel</button>
+        </div>
       </div>
       <div class="modal-foot"><button class="btn btn-secondary" data-close-modal>ปิด</button><button class="btn btn-primary" data-close-modal>บันทึกการแก้ไข</button></div>
+    </div>`;
+}
+
+function invoiceTemplatePickerModal(){
+  const options = [
+    {key:'blank', title:'เอกสารเปล่า', desc:'เริ่มจากฟอร์มว่าง — กรอกรายการเองทั้งหมด', icon:iconDoc()},
+    {key:'gold', title:'ค่าดำเนินการสกัดทอง', desc:'เทมเพลตคำนวณสกัดทองมาตรฐาน พร้อมสูตรน้ำหนัก/ราคา', icon:iconChart()},
+    {key:'silver', title:'ค่าดำเนินการสกัดเงิน', desc:'เทมเพลตคำนวณสกัดเงินมาตรฐาน พร้อมสูตรน้ำหนัก/ราคา', icon:iconChart()},
+  ];
+  return `
+    <div class="modal modal-md">
+      <div class="modal-head"><h3>เลือก Template สำหรับ Invoice ใหม่</h3><button class="modal-close" data-close-modal>${iconX()}</button></div>
+      <div class="modal-body">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          ${options.map(o=>`
+          <button type="button" class="tpl-pick-card" data-action="pick-invoice-template" data-tpl="${o.key}">
+            <span class="tpl-pick-icon">${o.icon}</span>
+            <span class="tpl-pick-text">
+              <span class="tpl-pick-title">${esc(o.title)}</span>
+              <span class="tpl-pick-desc">${esc(o.desc)}</span>
+            </span>
+          </button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function lotReportModal(rows){
+  const totalW = rows.reduce((s,r)=>s + (parseFloat(String(r.w).replace(/,/g,''))||0), 0);
+  const stageLabel = LOT_STAGES.find(s=>s.key===state.lotStage)?.label || 'ทั้งหมด';
+  return `
+    <div class="modal modal-md">
+      <div class="modal-head"><h3>รายงาน Lot · ${esc(stageLabel)}</h3><button class="modal-close" data-close-modal>${iconX()}</button></div>
+      <div class="modal-body">
+        <div class="grid-2" style="gap:14px; margin-bottom:18px;">
+          <div class="stat-card"><div class="label">จำนวนรายการ</div><div class="value">${rows.length}<span class="unit">Lot</span></div></div>
+          <div class="stat-card"><div class="label">น้ำหนักรวม</div><div class="value">${totalW.toLocaleString('th-TH',{minimumFractionDigits:2, maximumFractionDigits:2})}<span class="unit">g</span></div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>RF No</th><th>Lot</th><th>ลูกค้า</th><th>วันที่</th><th class="num">น้ำหนัก</th></tr></thead>
+            <tbody>${rows.length ? rows.map(r=>`<tr><td class="cell-primary">${esc(r.rf)}</td><td>${esc(r.lot)}</td><td>${esc(r.cust)}</td><td>${esc(r.date)}</td><td class="num">${esc(r.w)} g</td></tr>`).join('') : `<tr class="empty-row"><td colspan="5">ไม่มีรายการ</td></tr>`}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" data-close-modal>ปิด</button>
+        <button class="btn btn-primary" data-action="print-lot-report">${iconDownload()} พิมพ์ / บันทึก PDF</button>
+      </div>
     </div>`;
 }
 
@@ -1983,8 +2266,8 @@ function confirmDeleteModal(label, onConfirmAction, extraData=''){
     <div class="modal modal-sm">
       <div class="modal-body" style="text-align:center; padding:30px 26px;">
         <div style="width:46px;height:46px;border-radius:50%;background:var(--st-hold-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--st-hold-fg);">${iconTrash()}</div>
-        <h3 style="font-size:15px; margin-bottom:6px;">ย้าย "${esc(label)}" ไปถังขยะ?</h3>
-        <p style="font-size:14px; color:var(--text-secondary); line-height:1.6;">ระบบใช้ Soft Delete — ข้อมูลจะไม่ถูกลบถาวร และสามารถกู้คืนได้ภายหลังจากเมนู "แสดงรายการที่ลบแล้ว"</p>
+        <h3 style="font-size:16px; margin-bottom:6px;">ย้าย "${esc(label)}" ไปถังขยะ?</h3>
+        <p style="font-size:16px; color:var(--text-secondary); line-height:1.6;">ระบบใช้ Soft Delete — ข้อมูลจะไม่ถูกลบถาวร และสามารถกู้คืนได้ภายหลังจากเมนู "แสดงรายการที่ลบแล้ว"</p>
       </div>
       <div class="modal-foot" style="justify-content:center;">
         <button class="btn btn-secondary" data-close-modal>ยกเลิก</button>
@@ -1993,14 +2276,82 @@ function confirmDeleteModal(label, onConfirmAction, extraData=''){
     </div>`;
 }
 
+const TH_LOCATIONS = {
+  'กรุงเทพมหานคร': {
+    'เขตจตุจักร': ['จตุจักร','ลาดยาว','เสนานิคม','จันทรเกษม'],
+    'เขตบางรัก': ['บางรัก','สีลม','สุริยวงศ์'],
+    'เขตห้วยขวาง': ['ห้วยขวาง','บางกะปิ','สามเสนนอก'],
+  },
+  'สมุทรปราการ': {
+    'เมืองสมุทรปราการ': ['ปากน้ำ','สำโรงเหนือ','บางเมือง'],
+    'บางพลี': ['บางพลีใหญ่','บางแก้ว','บางปลา'],
+  },
+  'เชียงใหม่': {
+    'เมืองเชียงใหม่': ['ศรีภูมิ','ช้างม่อย','หายยา'],
+    'สันทราย': ['สันทรายหลวง','สันทรายน้อย','หนองแหย่ง'],
+  },
+  'ชลบุรี': {
+    'เมืองชลบุรี': ['บางปลาสร้อย','มะขามหย่ง','บ้านสวน'],
+    'ศรีราชา': ['ศรีราชา','สุรศักดิ์','หนองขาม'],
+  },
+};
+
 function addCustomerModal(){
+  const provinceOptions = Object.keys(TH_LOCATIONS).map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
   return `
-    <div class="modal modal-sm">
+    <div class="modal modal-md">
       <div class="modal-head"><h3>เพิ่มลูกค้าใหม่</h3><button class="modal-close" data-close-modal>${iconX()}</button></div>
-      <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
-        <div class="field"><label>ชื่อลูกค้า<span class="req">*</span></label><input type="text" placeholder="เช่น ห้างทองเยาวราชกิจ"></div>
-        <div class="field"><label>เบอร์โทร<span class="req">*</span></label><input type="text" placeholder="0812345678"></div>
-        <div class="field"><label>ที่อยู่</label><input type="text" placeholder="ไม่บังคับ"></div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+
+        <div class="field">
+          <label>ประเภทลูกค้า<span class="req">*</span></label>
+          <select id="custType">
+            <option value="">เลือกประเภทลูกค้า</option>
+            <option value="person">บุคคลธรรมดา</option>
+            <option value="corp">นิติบุคคล</option>
+          </select>
+        </div>
+
+        <div class="grid-2">
+          <div class="field"><label>ชื่อ<span class="req">*</span></label><input type="text" placeholder="ชื่อ"></div>
+          <div class="field"><label>นามสกุล<span class="req">*</span></label><input type="text" placeholder="นามสกุล"></div>
+        </div>
+
+        <div class="field"><label>เลขบัตรประชาชน<span class="req">*</span></label><input type="text" placeholder="เลขบัตรประชาชน 13 หลัก" maxlength="13"></div>
+
+        <div class="grid-2">
+          <div class="field"><label>เบอร์โทร</label><input type="text" placeholder="0812345678"></div>
+          <div class="field"><label>ที่อยู่<span class="req">*</span></label><input type="text" placeholder="บ้านเลขที่ / ถนน / ซอย"></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>จังหวัด<span class="req">*</span></label>
+            <select id="custProvince">
+              <option value="">เลือกจังหวัด</option>
+              ${provinceOptions}
+            </select>
+          </div>
+          <div class="field">
+            <label>อำเภอ / เขต<span class="req">*</span></label>
+            <select id="custDistrict" disabled>
+              <option value="">เลือกจังหวัดก่อน</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>ตำบล / แขวง<span class="req">*</span></label>
+            <select id="custSubdistrict" disabled>
+              <option value="">เลือกอำเภอ/เขตก่อน</option>
+            </select>
+          </div>
+          <div class="field"><label>รหัสไปรษณีย์<span class="req">*</span></label><input type="text" placeholder="10900" maxlength="5"></div>
+        </div>
+
+        <div class="field"><label>หมายเหตุ</label><input type="text" placeholder="ไม่บังคับ"></div>
+
       </div>
       <div class="modal-foot"><button class="btn btn-secondary" data-close-modal>ยกเลิก</button><button class="btn btn-primary" data-action="save-customer">บันทึก</button></div>
     </div>`;
@@ -2037,6 +2388,17 @@ function iconPdf(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 function iconArrowLeft(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>`;}
 function iconSave(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>`;}
 function iconClock(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;}
+function iconDownload(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>`;}
+function iconChart(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M8 17V10M13 17V6M18 17v-4"/></svg>`;}
+function docBadge(type){
+  const map = {
+    original: {label:'ต้นฉบับ', cls:'doc-original'},
+    copy1:    {label:'สำเนาใบที่ 1', cls:'doc-copy1'},
+    copy2:    {label:'สำเนาใบที่ 2', cls:'doc-copy2'},
+  };
+  const d = map[type] || map.original;
+  return `<span class="doc-badge ${d.cls}">${d.label}</span>`;
+}
 
 /* ============================================================
    EVENT BINDING (delegated where possible)
@@ -2073,6 +2435,11 @@ function bindPageEvents(){
     bindModalEvents();
   }));
 
+  // lot allocate — landing page choice cards
+  $$('[data-action="open-lot-type"]').forEach(el=>el.addEventListener('click', ()=>{
+    openLotAllocateView(el.dataset.type);
+  }));
+
   // lot allocate checkboxes
   const checkAll = $('#lotCheckAll');
   if(checkAll) checkAll.addEventListener('change', ()=>{
@@ -2081,7 +2448,11 @@ function bindPageEvents(){
   });
   $$('.lot-check').forEach(cb=>cb.addEventListener('change', updateLotSelection));
   const createLotBtn = $('#lotCreateBtn');
-  if(createLotBtn) createLotBtn.addEventListener('click', ()=>{ toast('จัดกลุ่ม Lot สำเร็จ'); });
+  if(createLotBtn) createLotBtn.addEventListener('click', ()=>{
+    const n = $$('.lot-check:checked').length;
+    toast(`จัดล็อตสำเร็จ — รวม ${n} รายการเป็น Lot ใหม่`);
+    goPage('lot-allocate');
+  });
 
   // customers
   const addCustBtn = $('[data-action="add-customer"]');
@@ -2111,14 +2482,14 @@ function bindPageEvents(){
 
   // accounting — invoice goes to full page
   $$('[data-action="create-invoice"]').forEach(el=>el.addEventListener('click', ()=>{
-    state.invoiceNo = el.dataset.rf||null; state.invoiceMode='new'; goPage('invoice-edit');
+    state.invoiceNo = el.dataset.rf||null; state.invoiceMode='new'; state.invoiceTemplate='gold'; goPage('invoice-edit');
   }));
   $$('[data-action="edit-invoice"]').forEach(el=>el.addEventListener('click', ()=>{
-    state.invoiceNo = el.dataset.no||null; state.invoiceMode='edit'; goPage('invoice-edit');
+    state.invoiceNo = el.dataset.no||null; state.invoiceMode='edit'; state.invoiceTemplate='gold'; goPage('invoice-edit');
   }));
   $$('[data-action="preview-invoice"]').forEach(el=>el.addEventListener('click', ()=>{ openModal(pdfPreviewModal(el.dataset.no)); bindModalEvents(); }));
   const genInv = $('[data-action="create-general-invoice"]');
-  if(genInv) genInv.addEventListener('click', ()=>{ state.invoiceNo=null; state.invoiceMode='new'; goPage('invoice-edit'); });
+  if(genInv) genInv.addEventListener('click', ()=>{ openModal(invoiceTemplatePickerModal()); bindModalEvents(); });
 
   // invoice full-page actions
   const draftBtn = $('[data-action="draft-invoice"]');
@@ -2129,6 +2500,35 @@ function bindPageEvents(){
   if(autoFormula) autoFormula.addEventListener('click', ()=>toast('คำนวณอัตโนมัติจากสูตร — อัปเดตยอดแล้ว'));
   const showHistInv = $('[data-action="show-history-inv"]');
   if(showHistInv) showHistInv.addEventListener('click', ()=>{ goPage('history'); });
+
+  // export / report
+  const exportLot = $('[data-action="export-excel-lot"]');
+  if(exportLot) exportLot.addEventListener('click', ()=>{
+    const key = state.lotStage;
+    let rows = key==='all' ? Object.values(LOT_MANAGE_DATA).flat() : (LOT_MANAGE_DATA[key]||[]);
+    exportCSV(`lot-${key}-${Date.now()}.csv`, ['RF No','Lot','ลูกค้า','วันที่','น้ำหนักรับ (g)'],
+      rows.map(r=>[r.rf, r.lot, r.cust, r.date, r.w]));
+    toast('ส่งออก Excel (CSV) เรียบร้อย');
+  });
+  const reportLot = $('[data-action="report-lot"]');
+  if(reportLot) reportLot.addEventListener('click', ()=>{
+    const key = state.lotStage;
+    let rows = key==='all' ? Object.values(LOT_MANAGE_DATA).flat() : (LOT_MANAGE_DATA[key]||[]);
+    openModal(lotReportModal(rows)); bindModalEvents();
+  });
+  $$('[data-action="export-excel-rf"]').forEach(el=>el.addEventListener('click', ()=>{
+    const rf = el.dataset.rf;
+    exportCSV(`${rf}-${Date.now()}.csv`, ['RF No','สถานะปัจจุบัน','น้ำหนักเข้า (g)','น้ำหนักหลังหลอม (g)'],
+      [[rf, 'ก่อนส่งหลอม 99', '100.00', '98.75']]);
+    toast('ส่งออก Excel (CSV) ของ ' + rf + ' เรียบร้อย');
+  }));
+  $$('[data-action="export-excel-invoice"]').forEach(el=>el.addEventListener('click', ()=>{
+    const no = el.dataset.no;
+    const inv = [...INV_WITH_NUMBER, ...INV_GENERAL].find(i=>i.no===no) || {};
+    exportCSV(`invoice-${no}-${Date.now()}.csv`, ['เลขที่','วันที่','ลูกค้า','ยอดรวม'],
+      [[no, inv.date||'', inv.cust||'', inv.total||'']]);
+    toast('ส่งออก Excel (CSV) ของ ' + no + ' เรียบร้อย');
+  }));
 
   // history
   $$('[data-history]').forEach(el=>el.addEventListener('click', ()=>{ openModal(historyDiffModal(el.dataset.history)); bindModalEvents(); }));
@@ -2146,6 +2546,35 @@ function updateLotSelection(){
 
 function bindModalEvents(){
   $$('[data-close-modal]').forEach(el=>el.addEventListener('click', closeModal));
+
+  // add-customer modal — cascading location dropdowns
+  const custProvince = $('#custProvince');
+  const custDistrict = $('#custDistrict');
+  const custSubdistrict = $('#custSubdistrict');
+  if(custProvince && custDistrict && custSubdistrict){
+    custProvince.addEventListener('change', ()=>{
+      const districts = TH_LOCATIONS[custProvince.value] || {};
+      const keys = Object.keys(districts);
+      custDistrict.innerHTML = `<option value="">เลือกอำเภอ/เขต</option>` + keys.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+      custDistrict.disabled = keys.length===0;
+      custSubdistrict.innerHTML = `<option value="">เลือกอำเภอ/เขตก่อน</option>`;
+      custSubdistrict.disabled = true;
+    });
+    custDistrict.addEventListener('change', ()=>{
+      const districts = TH_LOCATIONS[custProvince.value] || {};
+      const subs = districts[custDistrict.value] || [];
+      custSubdistrict.innerHTML = `<option value="">เลือกตำบล/แขวง</option>` + subs.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+      custSubdistrict.disabled = subs.length===0;
+    });
+  }
+
+  const printLotReport = $('[data-action="print-lot-report"]');
+  if(printLotReport) printLotReport.addEventListener('click', ()=>window.print());
+  $$('[data-action="pick-invoice-template"]').forEach(el=>el.addEventListener('click', ()=>{
+    state.invoiceTemplate = el.dataset.tpl;
+    state.invoiceNo = null; state.invoiceMode = 'new';
+    closeModal(); goPage('invoice-edit');
+  }));
   $$('[data-wizard-step]').forEach(el=>el.addEventListener('click', ()=>{
     state.wizardStep = parseInt(el.dataset.wizardStep);
     closeModal(); openModal(orderWizardModal()); bindModalEvents();
