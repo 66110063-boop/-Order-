@@ -41,19 +41,20 @@
 .nav-item:hover { background: var(--nav-hover-bg); color: var(--nav-hover-fg); }
 .nav-item:hover svg { opacity: 1; }
 .nav-item.active {
-  background: var(--sidebar-active-pill-bg); color: var(--sidebar-active);
+  background: var(--sidebar-active); color: var(--fg-on-dark);
   box-shadow: 0 1px 3px rgba(0,32,96,0.10), 0 1px 2px rgba(0,32,96,0.06);
+  border-radius: 8px;
 }
 .nav-item.active::before {
   content: ''; position: absolute; left: -2px; top: 50%; transform: translateY(-50%);
-  width: 4px; height: 20px; border-radius: 4px; background: var(--sidebar-active);
+  width: 4px; height: 20px; border-radius: 4px; background: var(--btn-primary);
 }
-.nav-item.active svg { opacity: 1; color: var(--sidebar-active); }
+.nav-item.active svg { opacity: 1; color: var(--fg-on-dark); }
 .nav-item .badge-count {
   margin-left: auto; align-self: center; background: var(--border); color: var(--sidebar-fg);
   font-size: 16px; font-weight: 700; padding: 1px 8px; border-radius: 20px;
 }
-.nav-item.active .badge-count { background: var(--nav-hover-bg); color: var(--sidebar-active); }
+.nav-item.active .badge-count { background: rgba(255,255,255,0.2); color: var(--fg-on-dark); }
 
 .avatar-chip {
   width: 32px; height: 32px; border-radius: 50%; background: var(--btn-primary);

@@ -7,7 +7,7 @@ const NAV = [
   {key:'orders', label:'รายการสั่งซื้อ', group:'หลัก', count:5},
   {key:'lot-allocate', label:'การจัดล็อต', group:'หลัก', count:7},
   {key:'lot-manage', label:'รีด/สกัด/หลอม99', group:'หลัก'},
-  {key:'tdc-approve', label:'TDC อนุมัติ %', group:'หลัก'},
+  {key:'tdc-approve', label:'TDC Approve', group:'หลัก'},
   {key:'customers', label:'ลูกค้า', group:'ข้อมูลหลัก'},
   {key:'stock', label:'คลังสินค้า', group:'ข้อมูลหลัก'},
   {key:'accounting', label:'บัญชี', group:'ข้อมูลหลัก', count:2},
@@ -32,6 +32,7 @@ const ICONS = {
 
 /* ---------- ORDERS ---------- */
 const ORDERS = [
+  {rf:'RF-0002', date:'28/08/2569', cust:'นายจระเกียรติ อั้งอร่าม', w:'1240.12', wDeclared:'1245.12', meltedW:'1240.12', percentAu:'88.00', auSample:'1.23', auSampleCust:'0.61', percentAg:'95.00', percentApprovalStatus:'pending', status:'info', statusLabel:'ทดสอบ %', station:3, cancelled:false, lotNo:'—', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
   {rf:'RF-2569-0079', date:'04/08/2569', cust:'ห้างทองเยาวราชกิจ', w:'128.45', status:'info', statusLabel:'สร้าง Order', station:1, cancelled:false, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00', percentAu:null, percentAg:null, percentApprovalStatus:'none'},
   {rf:'RF-2569-0078', date:'03/08/2569', cust:'ห้างทองชั่วเช่งเฮง', w:'96.20', status:'info', statusLabel:'สร้าง Order', station:1, cancelled:false, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00', percentAu:null, percentAg:null, percentApprovalStatus:'none'},
   {rf:'RF-2569-0077', date:'03/08/2569', cust:'ห้างทองแม่ทองสุก', w:'412.80', status:'info', statusLabel:'หลอมทองเก่า', station:2, cancelled:false, lotNo:'—', meltedW:'406.10', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00', percentAu:null, percentAg:null, percentApprovalStatus:'none'},
@@ -66,125 +67,41 @@ const LOT_ALLOCATE = [
 
 /* ---------- LOT MANAGE (จัดการข้อมูล Lot) — grouped by stage ---------- */
 const LOT_STAGES = [
-  {key:'all',     label:'ทั้งหมด'},
+  {key:'all', label:'ทั้งหมด'},
   {key:'presend', label:'ก่อนส่งรีด'},
-  {key:'postsend',label:'หลังส่งรีด'},
+  {key:'postsend', label:'หลังส่งรีด'},
   {key:'extract', label:'สกัด'},
-  {key:'pre99',   label:'ก่อนหลอม 99'},
-  {key:'post99',  label:'หลังหลอม 99'},
-  {key:'closed',  label:'ปิดงาน'},
+  {key:'pre99', label:'ก่อนหลอม 99'},
+  {key:'post99', label:'หลังส่งหลอม 99'},
+  {key:'closed', label:'ปิดงาน'},
 ];
-
-/* RF rows shape: {rf, cust, wDeclared, wReceived, wBill, wBefore, wAfter, pctAu, auG, pctAg, agG, wBeforeSend, wSentExtract, wBefore99Au, wBefore99Ag, wScale99Au, wScale99Ag} */
 const LOT_MANAGE_DATA = {
   presend: [
-    {
-      lotNo:'KGR2608-0015', jobType:'แบบแท่ง', createdDate:'27/08/2569', status:'presend', statusLabel:'ก่อนส่งรีด',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:''},
-      ],
-      totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'',
-      sender:'office@kgr.local',
-    },
+    {lot:'KGR2608-0015', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพันธ์', wDec:'100.00', wRec:'100.00', wBill:'100.00'}]},
   ],
   postsend: [
-    {
-      lotNo:'LOT-202608-0013', jobType:'แบบแท่ง', createdDate:'27/08/2569', status:'postsend', statusLabel:'หลังส่งรีด',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wAfter:''},
-      ],
-      totalWAfterRoll:'', totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'100.00',
-      sender:'office@kgr.local',
-    },
+    {lot:'KGR2608-0016', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพันธ์', wDec:'100.00', wRec:'100.00', wBill:'100.00'}]},
   ],
   extract: [
-    {
-      lotNo:'LOT-202608-0012', jobType:'แบบแท่ง', createdDate:'27/08/2569', status:'extract', statusLabel:'สกัด',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wBeforeSend:''},
-      ],
-      totalWAfterRoll:'100.00', totalWSentExtract:'',
-      totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'100.00',
-      sender:'office@kgr.local',
-    },
-    {
-      lotNo:'LOT-202608-0011', jobType:'แบบเม็ด', createdDate:'27/08/2569', status:'extract', statusLabel:'สกัด',
-      rfRows:[
-        {seq:1, rf:'RF-P01', cust:'โรงงานทองไทยเจริญ', wDeclared:'212.00', wReceived:'212.00', wBill:'212.00', wBefore:'212.00', wBeforeSend:''},
-      ],
-      totalWAfterRoll:'212.00', totalWSentExtract:'',
-      totalWDeclaredAu:'212.00', totalWBillAu:'212.00', totalWBeforeAu:'212.00',
-      sender:'office@kgr.local',
-    },
+    {lot:'KGR2608-0017', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพันธ์', wDec:'100.00', wRec:'100.00', wBill:'100.00'}]},
   ],
   pre99: [
-    {
-      lotNo:'LOT-202608-0010', jobType:'แบบแท่ง', createdDate:'26/08/2569', status:'pre99', statusLabel:'ก่อนหลอม 99',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wBeforeSend:'100.00', pctAu:'10.00', auG:'10.00', pctAg:'10.00', agG:'10.00'},
-      ],
-      totalWAfterRoll:'100.00', totalWSentExtract:'100.00',
-      totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'100.00',
-      totalW99Au:'10.00', totalWScale99Au:'', totalW99Ag:'10.00', totalWScale99Ag:'', totalW99AuAg:'20.00',
-      sender:'office@kgr.local',
-    },
+    {lot:'LOT-202608-0012', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'RF-GG4', cust:'สมชาย ใจดี', wDec:'100.00', wRec:'100.00', wBill:'100.00', percentAu:'10.00', auG:'10.00', percentAg:'10.00', agG:'10.00'}]},
+    {lot:'LOT-202608-0011', jobType:'แบบเม็ด', date:'27/08/2569', rfRows: [{rf:'RF-GG5', cust:'โรงงานทองไทยเจริญ', wDec:'300.00', wRec:'300.00', wBill:'300.00', percentAu:'10.00', auG:'10.00', percentAg:'10.00', agG:'10.00'}]},
   ],
   post99: [
-    {
-      lotNo:'LOT-202608-0008', jobType:'แบบแท่ง', createdDate:'25/08/2569', status:'post99', statusLabel:'หลังหลอม 99',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wBeforeSend:'100.00', pctAu:'10.00', auG:'10.00', pctAg:'10.00', agG:'10.00'},
-      ],
-      totalWAfterRoll:'100.00', totalWSentExtract:'100.00',
-      totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'100.00',
-      totalW99Au:'10.00', totalWScale99Au:'10.00', totalW99Ag:'10.00', totalWScale99Ag:'10.00', totalW99AuAg:'20.00',
-      sender:'office@kgr.local',
-    },
-    {
-      lotNo:'LOT-202608-0007', jobType:'แบบแท่ง', createdDate:'25/08/2569', status:'post99', statusLabel:'หลังหลอม 99',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wBeforeSend:'100.00', pctAu:'10.00', auG:'10.00', pctAg:'10.00', agG:'10.00'},
-      ],
-      totalWAfterRoll:'100.00', totalWSentExtract:'100.00',
-      totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'100.00',
-      totalW99Au:'10.00', totalWScale99Au:'10.00', totalW99Ag:'10.00', totalWScale99Ag:'10.00', totalW99AuAg:'20.00',
-      sender:'office@kgr.local',
-    },
-    {
-      lotNo:'LOT-202608-0006', jobType:'แบบแท่ง', createdDate:'24/08/2569', status:'post99', statusLabel:'หลังหลอม 99',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wBeforeSend:'100.00', pctAu:'10.00', auG:'10.00', pctAg:'10.00', agG:'10.00'},
-      ],
-      totalWAfterRoll:'100.00', totalWSentExtract:'100.00',
-      totalWDeclaredAu:'100.00', totalWBillAu:'100.00', totalWBeforeAu:'100.00',
-      totalW99Au:'10.00', totalWScale99Au:'10.00', totalW99Ag:'10.00', totalWScale99Ag:'10.00', totalW99AuAg:'20.00',
-      sender:'office@kgr.local',
-    },
+    {lot:'LOT-202608-0013', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'1150', cust:'นายขจรเกียรติ พึ่งสำราญ', wDec:'100.00', wRec:'20.00', wBill:'100.00', percentAu:'100.00', auG:'100.00', percentAg:'100.00', agG:'10.00'}]},
+    {lot:'LOT-202608-0008', jobType:'แบบแท่ง', date:'25/08/2569', rfRows: [{rf:'RF-GG6', cust:'ห้างทองแม่ทองย้อย', wDec:'250.00', wRec:'250.00', wBill:'250.00'}]},
+    {lot:'LOT-202608-0007', jobType:'แบบแท่ง', date:'25/08/2569', rfRows: [{rf:'RF-GG7', cust:'ห้างทองเยาวราชกิจ', wDec:'100.00', wRec:'100.00', wBill:'100.00'}]},
+    {lot:'LOT-202608-0006', jobType:'แบบแท่ง', date:'24/08/2569', rfRows: [{rf:'RF-GG8', cust:'ห้างทองศิริทองคำ', wDec:'500.00', wRec:'500.00', wBill:'500.00'}]},
   ],
   closed: [
-    {
-      lotNo:'LOT-202608-0014', jobType:'แบบแท่ง', createdDate:'27/08/2569', status:'closed', statusLabel:'ปิดงาน',
-      rfRows:[
-        {seq:1, rf:'RF-GG2', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', wDeclared:'100.00', wReceived:'100.00', wBill:'100.00', wBefore:'100.00', wBeforeSend:'100.00', pctAu:'10.00', auG:'10.00', pctAg:'10.00', agG:'10.00'},
-      ],
-      totalW99Au:'10.00', totalWScale99Au:'10.00', totalW99Ag:'10.00', totalWScale99Ag:'10.00', totalW99AuAg:'20.00',
-      sender:'office@kgr.local',
-    },
-    {
-      lotNo:'LOT-202608-0010', jobType:'แบบแท่ง', createdDate:'26/08/2569', status:'closed', statusLabel:'ปิดงาน',
-      rfRows:[],
-      sender:'office@kgr.local',
-    },
-    {
-      lotNo:'LOT-202608-0005', jobType:'แบบแท่ง', createdDate:'21/08/2569', status:'closed', statusLabel:'ปิดงาน',
-      rfRows:[],
-      sender:'office@kgr.local',
-    },
-    {
-      lotNo:'LOT-202608-0004', jobType:'แบบแท่ง', createdDate:'21/08/2569', status:'closed', statusLabel:'ปิดงาน',
-      rfRows:[],
-      sender:'office@kgr.local',
-    },
+    {lot:'KGR2608-0015', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'RF-GG2', cust:'นายศุภพัฒน์ ศรีเทพาสัมพันธ์', wDec:'100.00', wRec:'100.00', wBill:'100.00', percentAu:'10.00', auG:'10.00', percentAg:'10.00', agG:'10.00'}]},
+    {lot:'LOT-202608-0014', jobType:'แบบแท่ง', date:'27/08/2569', rfRows: [{rf:'RF-GG9', cust:'ห้างทองใบเยาวราช', wDec:'400.00', wRec:'400.00', wBill:'400.00'}]},
+    {lot:'LOT-202608-0010', jobType:'แบบแท่ง', date:'26/08/2569', rfRows: []},
+    {lot:'LOT-202608-0009', jobType:'แบบแท่ง', date:'26/08/2569', rfRows: []},
+    {lot:'LOT-202608-0005', jobType:'แบบแท่ง', date:'21/08/2569', rfRows: []},
+    {lot:'LOT-202608-0004', jobType:'แบบแท่ง', date:'21/08/2569', rfRows: []},
   ],
 };
 

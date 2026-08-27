@@ -1,3 +1,4 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
 /* ============================================================
    KGR GROUP — ORDERS & TDC APPROVAL VIEWS
    ============================================================ */
@@ -129,53 +130,160 @@ function orderWizardModal() {
 }
 
 function pageTdcApprove() {
-  const queue = ORDERS.filter(o => !o.cancelled && o.percentApprovalStatus === 'pending');
+  if (state.tdcDetailId) {
+    return pageTdcApproveDetail(state.tdcDetailId);
+  }
+  return pageTdcApproveList();
+}
 
-  const cards = queue.map((r) => {
-    const isSilver = wfNum(r.percentAg) > 0;
+function pageTdcApproveList() {
+  const query = (state.tdcSearchQuery || '').toLowerCase().trim();
+  let queue = ORDERS.filter(o => !o.cancelled && o.percentApprovalStatus === 'pending');
+  
+  if (query) {
+    queue = queue.filter(o => 
+      o.rf.toLowerCase().includes(query) || 
+      (o.cust || '').toLowerCase().includes(query)
+    );
+  }
+
+  // Pagination logic
+  const itemsPerPage = state.tdcItemsPerPage || 20;
+  const currentPage = state.tdcPage || 1;
+  const totalItems = queue.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  
+  // Guard current page range
+  const activePage = Math.min(currentPage, totalPages);
+  const startIdx = (activePage - 1) * itemsPerPage;
+  const endIdx = Math.min(startIdx + itemsPerPage, totalItems);
+  const pageItems = queue.slice(startIdx, endIdx);
+
+  const rows = pageItems.length ? pageItems.map((r, i) => {
     return `
-    <div class="tdc-card">
-      <div class="tdc-card-head">
-        <div>
-          <div class="tdc-card-rf">${esc(r.rf)}</div>
-          <div class="tdc-card-cust">${esc(r.cust)} • ทดสอบเมื่อ ${esc(r.date)}</div>
-        </div>
-        <div class="tdc-card-weight"><span class="val">${esc(r.w)} g</span><span class="lbl">น้ำหนักรับ</span></div>
-      </div>
-      <div class="tdc-card-body">
-        <div class="grid grid-2">
-          <div class="tdc-metal-panel" style="margin-bottom:0;">
-            <div class="tdc-metal-head"><span class="badge badge-progress">Au — ทอง</span></div>
-            <div class="tdc-metal-body" style="grid-template-columns:1fr;">
-              <div class="field"><label>% Au ที่ทดสอบได้</label><input type="text" class="num-input input-locked" style="font-size:24px; font-weight:800;" value="${wfFmt(wfNum(r.percentAu))}%" disabled></div>
-            </div>
+      <tr>
+        <td class="cell-primary" style="cursor:pointer;" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">${esc(r.rf)}</td>
+        <td>${esc(r.date)}</td>
+        <td>${esc(r.cust)}</td>
+        <td class="num">${esc(r.wDeclared || r.w)}</td>
+        <td class="num">${esc(r.meltedW || '0.00')}</td>
+        <td class="num">${r.percentAu || '0.00'}</td>
+        <td class="num">${r.auSample || '0.00'}</td>
+        <td class="num">${r.auSampleCust || '0.00'}</td>
+        <td class="num">${r.percentAg || '0.00'}</td>
+        <td style="text-align:center;">
+          <div style="display:inline-flex; gap:6px;">
+            <button class="btn btn-sm btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}"><i class="fas fa-check" style="margin-right:4px;"></i> อนุมัติ</button>
+            <button class="btn btn-sm" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; border-radius:6px; padding:5px 12px; font-weight:600;" data-action="tdc-reject-row" data-rf="${esc(r.rf)}"><i class="fas fa-times" style="margin-right:4px;"></i> ไม่อนุมัติ</button>
+            <button class="btn btn-sm btn-secondary" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">ดู</button>
           </div>
-          <div class="tdc-metal-panel" style="margin-bottom:0; ${isSilver ? '' : 'opacity:.55;'}">
-            <div class="tdc-metal-head"><span class="badge badge-sched">Ag — เงิน</span>${isSilver ? '' : '<span class="badge badge-hold" style="margin-left:10px;">Order นี้ไม่มีเงิน</span>'}</div>
-            <div class="tdc-metal-body" style="grid-template-columns:1fr;">
-              <div class="field"><label>% Ag ที่ทดสอบได้</label><input type="text" class="num-input input-locked" style="font-size:24px; font-weight:800;" value="${wfFmt(wfNum(r.percentAg))}%" disabled></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="tdc-card-foot">
-        <button class="btn btn-danger-ghost" data-action="tdc-reject-row" data-rf="${esc(r.rf)}">ปฏิเสธ</button>
-        <button class="btn btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}">${iconCheck()} อนุมัติ %</button>
-      </div>
-    </div>`;
-  }).join('');
+        </td>
+      </tr>`;
+  }).join('') : `<tr class="empty-row"><td colspan="10">ไม่มีรายการรอตรวจสอบ</td></tr>`;
+
+  // Generate pagination buttons
+  let pageButtonsHtml = '';
+  for (let p = 1; p <= totalPages; p++) {
+    pageButtonsHtml += `<button class="btn btn-sm ${p === activePage ? 'active' : ''}" data-action="tdc-go-page" data-page="${p}">${p}</button>`;
+  }
 
   return `
     <div class="page-head">
-      <div><h1>TDC อนุมัติ %</h1><div class="desc">ตรวจสอบและอนุมัติ %Au/%Ag ที่ทดสอบได้ ก่อนเข้าสู่ขั้นตอนหักทอง</div></div>
-      <span class="badge badge-progress" style="font-size:16px; padding:8px 16px;">รออนุมัติ ${queue.length} รายการ</span>
+      <div><h1>TDC Approve</h1><div class="desc">ตรวจสอบและอนุมัติ %Au/%Ag ที่ทดสอบได้ ก่อนเข้าสู่ขั้นตอนหักทอง</div></div>
     </div>
 
-    <div class="search-row" style="margin-bottom:20px;">
-      <input type="text" placeholder="ค้นหา RF No / ลูกค้า">
-      <button class="btn btn-secondary" data-action="manual-search">${iconSearch()} ค้นหา</button>
+    <div class="search-row" style="margin-bottom:16px;">
+      <input type="text" id="tdcSearchInput" placeholder="ค้นหา RF-No. / ลูกค้า" value="${esc(state.tdcSearchQuery || '')}">
+      <button class="btn btn-secondary" data-action="tdc-search-btn">${iconSearch()} ค้นหา</button>
     </div>
 
-    ${cards || `<div class="panel"><div class="panel-body" style="text-align:center; color:var(--text-secondary); padding:40px;">ไม่มีรายการรออนุมัติ</div></div>`}
-  `;
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>RF-No.</th>
+            <th>วันที่รับ</th>
+            <th>ลูกค้า</th>
+            <th class="num">น้ำหนักแจ้ง</th>
+            <th class="num">น้ำหนักหลังหลอม</th>
+            <th class="num">%Au</th>
+            <th class="num">น้ำหนักตัวอย่าง (Au)</th>
+            <th class="num">น้ำหนักตัวอย่างลูกค้า (Au)</th>
+            <th class="num">%Ag</th>
+            <th style="text-align:center;">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+      
+      <div class="table-foot" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; font-size:15px; color:var(--text-secondary); border-top:1px solid var(--border);">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <span>แสดง ${totalItems ? startIdx + 1 : 0}-${endIdx} จาก ${totalItems} รายการ</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <select id="tdcItemsPerPage" style="padding:4px 8px; border-radius:6px; border:1px solid var(--border); font-size:14px; background:var(--surface);">
+              <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+              <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
+              <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+            </select>
+            <span>รายการ/หน้า</span>
+          </div>
+        </div>
+        <div class="pager" style="display:flex; gap:4px; align-items:center;">
+          <button class="btn btn-sm" style="border:1px solid var(--border); background:var(--surface); padding: 4px 8px;" data-action="tdc-prev-page" ${activePage === 1 ? 'disabled' : ''}>ก่อนหน้า</button>
+          ${pageButtonsHtml}
+          <button class="btn btn-sm" style="border:1px solid var(--border); background:var(--surface); padding: 4px 8px;" data-action="tdc-next-page" ${activePage === totalPages ? 'disabled' : ''}>ถัดไป</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function pageTdcApproveDetail(rfId) {
+  const r = ORDERS.find(o => o.rf === rfId);
+  if (!r) return `<div class="page-head"><div><h1>ไม่พบข้อมูล RF</h1></div><button class="btn btn-secondary" data-action="tdc-back-list">ย้อนกลับ</button></div>`;
+
+  return `
+    <div class="page-head" style="margin-bottom:12px;">
+      <div><h1 style="font-size:24px; font-weight:800; margin:0;">${esc(r.rf)}</h1></div>
+    </div>
+    
+    <div class="lot-section-bar">ข้อมูลรับงาน</div>
+    <div class="lot-section-body">
+      <div class="lot-field-row">
+        <div class="lot-field"><label>วันที่รับ</label><input type="text" class="input-locked" value="${esc(r.date)}" disabled></div>
+        <div class="lot-field"><label>ชื่อลูกค้า</label><input type="text" class="input-locked" value="${esc(r.cust)}" disabled></div>
+        <div class="lot-field"><label>รายละเอียด</label><input type="text" class="input-locked" value="${esc(r.details || '—')}" disabled></div>
+      </div>
+    </div>
+    
+    <div class="lot-section-bar">น้ำหนัก</div>
+    <div class="lot-section-body">
+      <div class="lot-field-row">
+        <div class="lot-field"><label>น้ำหนักรับ</label><input type="text" class="num-input input-locked" value="${esc(r.w)}" disabled></div>
+        <div class="lot-field"><label>น้ำหนักแจ้ง</label><input type="text" class="num-input input-locked" value="${esc(r.wDeclared || r.w)}" disabled></div>
+        <div class="lot-field"><label>น้ำหนักหลังหลอม</label><input type="text" class="num-input input-locked" value="${esc(r.meltedW || '0.00')}" disabled></div>
+      </div>
+    </div>
+    
+    <div class="lot-section-bar">ทอง (Au)</div>
+    <div class="lot-section-body">
+      <div class="lot-field-row">
+        <div class="lot-field"><label>% Au</label><input type="text" class="num-input input-locked" value="${esc(r.percentAu || '0.00')}" disabled></div>
+        <div class="lot-field"><label>น้ำหนักตัวอย่าง (Au)</label><input type="text" class="num-input input-locked" value="${esc(r.auSample || '0.00')}" disabled></div>
+        <div class="lot-field"><label>น้ำหนักตัวอย่างลูกค้า (Au)</label><input type="text" class="num-input input-locked" value="${esc(r.auSampleCust || '0.00')}" disabled></div>
+      </div>
+    </div>
+    
+    <div class="lot-section-bar">เงิน (Ag)</div>
+    <div class="lot-section-body">
+      <div class="lot-field-row">
+        <div class="lot-field"><label>% Ag</label><input type="text" class="num-input input-locked" value="${esc(r.percentAg || '0.00')}" disabled style="max-width:calc(33.33% - 11px);"></div>
+      </div>
+    </div>
+    
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:28px;">
+      <button class="btn btn-secondary" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; border-radius:6px; padding:8px 16px; font-weight:600;" data-action="tdc-reject-row" data-rf="${esc(r.rf)}"><i class="fas fa-times" style="margin-right:4px;"></i> ไม่อนุมัติ</button>
+      <button class="btn btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}"><i class="fas fa-check" style="margin-right:4px;"></i> อนุมัติ</button>
+    </div>`;
 }

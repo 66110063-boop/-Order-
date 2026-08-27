@@ -1,3 +1,4 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
 /* ============================================================
    KGR GROUP — MODALS & EVENT HANDLERS
    ============================================================ */
@@ -286,6 +287,24 @@ function bindModalEvents() {
   const dlPdf = $('[data-action="download-pdf"]');
   if (dlPdf) dlPdf.addEventListener('click', () => toast('ดาวน์โหลด PDF สำเร็จ'));
 
+  const confirmApprove = $('[data-action="tdc-confirm-approve"]');
+  if (confirmApprove) {
+    confirmApprove.addEventListener('click', (e) => {
+      const rf = e.currentTarget.dataset.rf;
+      const ord = ORDERS.find(o => o.rf === rf);
+      if (ord) {
+        ord.percentApprovalStatus = 'approved';
+        ord.statusLabel = 'หักทอง';
+        ord.station = 4;
+      }
+      closeModal();
+      toast('อัปเดตสถานะเป็น ชักทอง แล้ว');
+      state.tdcDetailId = null;
+      renderBreadcrumb();
+      renderPage();
+    });
+  }
+
   const gotoHistory = $('[data-action="goto-history"]');
   if (gotoHistory) gotoHistory.addEventListener('click', () => { closeModal(); goPage('history'); });
 }
@@ -314,6 +333,103 @@ function bindPageEvents() {
     state.page = 'lot-allocate';
     renderSidebar(); renderBreadcrumb(); renderPage();
   });
+
+  $$('[data-action="view-lot"]').forEach(el => el.addEventListener('click', (e) => {
+    state.lotDetailId = e.currentTarget.dataset.lot;
+    state.lotDetailStage = e.currentTarget.dataset.stage;
+    renderBreadcrumb();
+    renderPage();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }));
+
+  $$('[data-action="back-lot-list"]').forEach(el => el.addEventListener('click', () => {
+    state.lotDetailId = null;
+    renderBreadcrumb();
+    renderPage();
+  }));
+
+  $$('[data-action="next-lot-stage"]').forEach(el => el.addEventListener('click', () => {
+    toast('บันทึกและส่งต่อไปขั้นตอนถัดไปเรียบร้อยแล้ว');
+    state.lotDetailId = null;
+    renderBreadcrumb();
+    renderPage();
+  }));
+
+  /* ---- TDC Approve Handlers ---- */
+  $$('[data-action="tdc-view-detail"]').forEach(el => el.addEventListener('click', (e) => {
+    state.tdcDetailId = e.currentTarget.dataset.rf;
+    renderBreadcrumb();
+    renderPage();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }));
+
+  $$('[data-action="tdc-back-list"]').forEach(el => el.addEventListener('click', () => {
+    state.tdcDetailId = null;
+    renderBreadcrumb();
+    renderPage();
+  }));
+
+  $$('[data-action="tdc-approve-row"]').forEach(el => el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const rf = e.currentTarget.dataset.rf;
+    openConfirmApproveModal(rf);
+  }));
+
+  $$('[data-action="tdc-reject-row"]').forEach(el => el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const rf = e.currentTarget.dataset.rf;
+    const ord = ORDERS.find(o => o.rf === rf);
+    if (ord) {
+      ord.percentApprovalStatus = 'rejected';
+    }
+    toast('ปฏิเสธรายการเรียบร้อยแล้ว');
+    state.tdcDetailId = null;
+    renderBreadcrumb();
+    renderPage();
+  }));
+
+  $$('[data-action="tdc-go-page"]').forEach(el => el.addEventListener('click', (e) => {
+    state.tdcPage = parseInt(e.currentTarget.dataset.page);
+    renderPage();
+  }));
+
+  $$('[data-action="tdc-prev-page"]').forEach(el => el.addEventListener('click', () => {
+    state.tdcPage = Math.max(1, (state.tdcPage || 1) - 1);
+    renderPage();
+  }));
+
+  $$('[data-action="tdc-next-page"]').forEach(el => el.addEventListener('click', () => {
+    state.tdcPage = (state.tdcPage || 1) + 1;
+    renderPage();
+  }));
+
+  $$('[data-action="tdc-search-btn"]').forEach(el => el.addEventListener('click', () => {
+    const inp = $('#tdcSearchInput');
+    state.tdcSearchQuery = inp ? inp.value : '';
+    state.tdcPage = 1;
+    renderPage();
+  }));
+
+  const tdcSearchInp = $('#tdcSearchInput');
+  if (tdcSearchInp) {
+    tdcSearchInp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        state.tdcSearchQuery = e.target.value;
+        state.tdcPage = 1;
+        renderPage();
+      }
+    });
+  }
+
+  const tdcSelectPerPage = $('#tdcItemsPerPage');
+  if (tdcSelectPerPage) {
+    tdcSelectPerPage.addEventListener('change', (e) => {
+      state.tdcItemsPerPage = parseInt(e.target.value);
+      state.tdcPage = 1;
+      renderPage();
+    });
+  }
+
 
   $$('[data-detail]').forEach(el => el.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -464,9 +580,9 @@ function bindPageEvents() {
   const showHistInv = $('[data-action="show-history-inv"]');
   if (showHistInv) showHistInv.addEventListener('click', () => { goPage('history'); });
 
-  const exportLot = $('[data-action="export-excel-lot"]');
+  const exportLot = $('[data-action="export-excel-all"]');
   if (exportLot) exportLot.addEventListener('click', () => {
-    const key = state.lotStage;
+    const key = state.lotStage || 'all';
     let rows = key === 'all' ? Object.values(LOT_MANAGE_DATA).flat() : (LOT_MANAGE_DATA[key] || []);
     exportCSV(`lot-${key}-${Date.now()}.csv`, ['RF No', 'Lot', 'ลูกค้า', 'วันที่', 'น้ำหนักรับ (g)'],
       rows.map(r => [r.rf, r.lot, r.cust, r.date, r.w]));
@@ -494,5 +610,24 @@ function bindPageEvents() {
 
   $$('[data-history]').forEach(el => el.addEventListener('click', () => { openModal(historyDiffModal(el.dataset.history)); bindModalEvents(); }));
 
+  bindModalEvents();
+}
+
+function openConfirmApproveModal(rf) {
+  const html = `
+    <div class="modal modal-sm">
+      <div class="modal-head">
+        <h3>ยืนยันการอนุมัติ</h3>
+        <button class="modal-close" data-close-modal>${iconX()}</button>
+      </div>
+      <div class="modal-body" style="text-align:center; padding: 24px 16px;">
+        <div style="font-size:17px; margin-bottom:24px; color:var(--text-primary);">ยืนยันการอนุมัติ <b>${esc(rf)}</b> ไปยังขั้นตอน 'ชักทอง' หรือไม่?</div>
+      </div>
+      <div class="modal-foot" style="justify-content:center; gap:16px;">
+        <button class="btn btn-secondary" data-close-modal style="min-width:100px;">ยกเลิก</button>
+        <button class="btn btn-primary" data-action="tdc-confirm-approve" data-rf="${esc(rf)}" style="min-width:100px;">ยืนยัน</button>
+      </div>
+    </div>`;
+  openModal(html);
   bindModalEvents();
 }

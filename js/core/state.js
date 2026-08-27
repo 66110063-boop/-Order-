@@ -15,6 +15,7 @@ let state = {
   invoiceTemplate: 'gold',
   lotAllocateView: null, // null = landing page; 'bar' | 'pellet' = sub-view
   lotAllocateChecked: [],
+  lotDetailId: null,
   detailStep: 1,
   detailRf: null,
   wfCurrent: 1,      // 10-Station Gold Order Workflow — current station

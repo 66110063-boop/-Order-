@@ -170,6 +170,15 @@ td.right { text-align: right; }
 .badge-hold { background: var(--st-hold-bg); color: var(--st-hold-fg); border-color: var(--st-hold-bd); }
 .badge-info { background: var(--st-info-bg); color: var(--st-info-fg); border-color: var(--st-info-bd); }
 .badge-sched { background: var(--st-sched-bg); color: var(--st-sched-fg); border-color: var(--st-sched-bd); }
+.badge-pink { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
+.badge-green { background: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
+.badge-blue { background: #e3f2fd; color: #1565c0; border-color: #bbdefb; }
+.badge-orange { background: #fff3e0; color: #e65100; border-color: #ffe0b2; }
+
+.btn-excel { background: #2e7d32; color: #fff; }
+.btn-excel:hover { background: #1b5e20; }
+.btn-report { background: #f57c00; color: #fff; }
+.btn-report:hover { background: #ef6c00; }
 
 .doc-badge {
   display: inline-flex; align-items: center; font-size: 14px; font-weight: 700;
@@ -474,6 +483,12 @@ td.right { text-align: right; }
 }
 .panel-head .title { display: flex; align-items: center; gap: 9px; font-size: 20px; font-weight: 700; }
 .panel-head .title svg { width: 18px; height: 18px; color: var(--btn-primary); }
+.panel-head-blue {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--card-highlight-bg);
+}
+.panel-head-blue .title { display: flex; align-items: center; gap: 9px; font-size: 20px; font-weight: 700; color: var(--header-bg); }
+.panel-head-blue .title svg { width: 18px; height: 18px; color: var(--btn-primary); }
 .panel-body { padding: var(--space-md); }
 
 /* TDC Approve Card */
@@ -537,3 +552,72 @@ td.right { text-align: right; }
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ============================================================
+   LOT MANAGEMENT — รีด/สกัด/หลอม99 THEME
+   ============================================================ */
+:root {
+  --lot-section-bar-bg: var(--header-bg);
+  --lot-section-bar-fg: var(--fg-on-dark);
+  --lot-section-bg: #eef2f9;
+}
+
+.lot-section-bar {
+  background: var(--lot-section-bar-bg);
+  color: var(--lot-section-bar-fg);
+  font-size: 15px; font-weight: 700;
+  padding: 8px 20px;
+  margin-top: 0;
+}
+
+.lot-stage-badge {
+  display: inline-flex; align-items: center;
+  font-size: 13px; font-weight: 700; padding: 3px 12px;
+  border-radius: 6px; white-space: nowrap;
+}
+
+.lot-manual-tag {
+  display: inline-block;
+  font-size: 11px; font-weight: 700;
+  background: #c62828; color: #fff;
+  padding: 1px 8px; border-radius: 4px;
+  margin-right: 6px; vertical-align: middle;
+  letter-spacing: 0.02em;
+}
+
+.lot-section-body {
+  background: var(--lot-section-bg);
+  padding: 16px 20px 20px;
+  margin-bottom: 24px;
+}
+
+.lot-field-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.lot-field-row-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.lot-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lot-field label {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.lot-label {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+

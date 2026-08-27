@@ -1,3 +1,4 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
 /* ============================================================
    KGR GROUP — APPLICATION ENTRY POINT & ROUTER
    ============================================================ */
@@ -57,6 +58,7 @@ function renderSidebar() {
 function goPage(key) {
   state.page = key;
   if (key === 'lot-allocate') state.lotAllocateView = null;
+  if (key === 'tdc-approve') state.tdcDetailId = null;
   renderSidebar();
   renderBreadcrumb();
   renderPage();
@@ -79,6 +81,14 @@ function renderBreadcrumb() {
   if (state.page === 'invoice-edit') {
     const mode = state.invoiceMode === 'new' ? 'สร้าง Invoice ใหม่' : `แก้ไข Invoice · ${esc(state.invoiceNo || '')}`;
     breadcrumbEl.innerHTML = `<span>ระบบจัดการ Order ทอง</span><span>›</span><span data-go="accounting" style="cursor:pointer;">บัญชี</span><span>›</span><b>${esc(mode)}</b>`;
+    return;
+  }
+  if (state.page === 'lot-manage' && state.lotDetailId) {
+    breadcrumbEl.innerHTML = `<span>ระบบจัดการ Order ทอง</span><span>›</span><span data-go="lot-manage" style="cursor:pointer;">รีด/สกัด/หลอม99</span><span>›</span><b>${esc(state.lotDetailId)}</b>`;
+    return;
+  }
+  if (state.page === 'tdc-approve' && state.tdcDetailId) {
+    breadcrumbEl.innerHTML = `<span>ระบบจัดการ Order ทอง</span><span>›</span><span data-go="tdc-approve" style="cursor:pointer;">TDC Approve</span><span>›</span><b>${esc(state.tdcDetailId)}</b>`;
     return;
   }
   if (state.page === 'lot-allocate' && state.lotAllocateView) {

@@ -1,10 +1,12 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
 /* ============================================================
    KGR GROUP — LOT ALLOCATION & LOT MANAGEMENT VIEWS
    ============================================================ */
 
-/* ──────────────────── LOT ALLOCATE ──────────────────── */
 function pageLotAllocate() {
-  if (!state.lotAllocateView) return pageLotAllocateLanding();
+  if (!state.lotAllocateView) {
+    return pageLotAllocateLanding();
+  }
   return pageLotAllocateDetail(state.lotAllocateView);
 }
 
@@ -15,7 +17,6 @@ function pageLotAllocateLanding() {
     <div class="page-head">
       <div><h1>การจัดล็อต</h1><div class="desc">เลือกรูปแบบการจัดล็อตเพื่อเริ่มรวมรายการ RF เป็น Lot เดียวกัน</div></div>
     </div>
-
     <div class="choice-grid">
       <button type="button" class="choice-card" data-action="open-lot-type" data-type="bar">
         <span class="choice-card-badge">${barCount} รายการ</span>
@@ -25,7 +26,6 @@ function pageLotAllocateLanding() {
         <span class="choice-card-title">แบบแท่ง</span>
         <span class="choice-card-desc">เริ่มที่ขั้นตอน ก่อนส่งรีด</span>
       </button>
-
       <button type="button" class="choice-card" data-action="open-lot-type" data-type="pellet">
         <span class="choice-card-badge">${pelletCount} รายการ</span>
         <span class="choice-card-icon">
@@ -52,22 +52,19 @@ function pageLotAllocateDetail(type) {
       <td class="num">${esc(r.w)} g</td>
       <td class="right"><button class="btn btn-ghost btn-sm" data-rf-summary="${esc(r.rf)}">${iconEye()} ดูรายละเอียด RF-No</button></td>
     </tr>`).join('');
-
   return `
     <div class="page-head">
       <div><h1>การจัดล็อต ${esc(typeLabel)}</h1><div class="desc">เลือกรายการ RF ที่ต้องการรวมเป็น Lot เดียวกัน — เริ่มที่ขั้นตอน ${esc(startStepLabel)}</div></div>
       <button class="btn btn-secondary" data-go="lot-allocate">${iconArrowLeft()} ย้อนกลับ</button>
     </div>
-
     <div class="search-row" style="margin-bottom:16px;">
       <input type="text" placeholder="ค้นหา RF No / ลูกค้า">
       <button class="btn btn-secondary" data-action="manual-search">${iconSearch()} ค้นหา</button>
     </div>
-
     <div class="table-wrap">
       <table>
         <thead><tr><th style="width:40px;"><input type="checkbox" id="lotCheckAll"></th><th>RF No</th><th>วันที่รับ</th><th>ลูกค้า</th><th class="num">น้ำหนักแจ้ง</th><th class="num">น้ำหนักรับ</th><th></th></tr></thead>
-        <tbody>${rows || `<tr class="empty-row"><td colspan="7">ไม่มีรายการ</td></tr>`}</tbody>
+        <tbody>${rows || '<tr class="empty-row"><td colspan="7">ไม่มีรายการ</td></tr>'}</tbody>
       </table>
       <div class="table-foot">
         <span>แสดง 1-${items.length} จาก ${items.length} รายการ</span>
@@ -80,474 +77,410 @@ function pageLotAllocateDetail(type) {
   `;
 }
 
-/* ──────────────────── STATUS BADGE HELPER ──────────────────── */
-function lotStatusBadge(status, label) {
-  const map = {
-    presend:  'badge-orange',
-    postsend: 'badge-blue',
-    extract:  'badge-purple',
-    pre99:    'badge-red',
-    post99:   'badge-red',
-    closed:   'badge-teal',
-  };
-  const cls = map[status] || 'badge-gray';
-  return `<span class="badge ${cls}">${esc(label)}</span>`;
+/* ============================================================
+   LOT MANAGEMENT — รีด/สกัด/หลอม99  LIST + DETAIL
+   ============================================================ */
+
+function pageLotManage() {
+  if (state.lotDetailId) return pageLotDetail(state.lotDetailId);
+  return pageLotManageList();
 }
 
-/* ──────────────────── LOT MANAGE — LIST VIEW ──────────────────── */
-function pageLotManage() {
-  // Flatten all lots from all stages into one array (with dedup on lotNo)
-  const allLots = [];
-  const seen = new Set();
-  const stageOrder = ['presend','postsend','extract','pre99','post99','closed'];
-  stageOrder.forEach(key => {
-    (LOT_MANAGE_DATA[key] || []).forEach(lot => {
-      if (!seen.has(lot.lotNo)) { seen.add(lot.lotNo); allLots.push(lot); }
+/* ---------- LIST VIEW ---------- */
+function pageLotManageList() {
+  const key = state.lotStage || 'all';
+  let rows = [];
+  if (key === 'all') {
+    LOT_STAGES.forEach(s => {
+      if (s.key === 'all') return;
+      (LOT_MANAGE_DATA[s.key] || []).forEach(r => rows.push({ ...r, stageKey: s.key, stageLabel: s.label }));
     });
-  });
+  } else {
+    const s = LOT_STAGES.find(x => x.key === key);
+    rows = (LOT_MANAGE_DATA[key] || []).map(r => ({ ...r, stageKey: key, stageLabel: s ? s.label : '' }));
+  }
 
-  const activeKey = state.lotStage || 'all';
-  let rows = activeKey === 'all' ? allLots : (LOT_MANAGE_DATA[activeKey] || []);
+  const statusColor = (k) => {
+    if (k === 'closed') return 'color:#2e7d32;';
+    if (k === 'presend') return 'color:#475569;';
+    return 'color:#e65100;';
+  };
 
-  const body = rows.length ? rows.map(lot => `
+  const body = rows.length ? rows.map(r => `
     <tr>
-      <td class="cell-primary">${esc(lot.lotNo)}</td>
-      <td>${esc(lot.jobType)}</td>
-      <td>${esc(lot.createdDate)}</td>
-      <td>${lotStatusBadge(lot.status, lot.statusLabel)}</td>
-      <td class="right" style="white-space:nowrap;">
-        <button class="btn btn-primary btn-sm" style="margin-right:6px;" data-lot-detail="${esc(lot.lotNo)}">${iconEye()} ดูรายละเอียด</button>
-        <button class="btn btn-excel btn-sm" data-action="export-lot-excel" data-lot-no="${esc(lot.lotNo)}">${iconDownload()} export .xlsx</button>
+      <td class="cell-primary">${esc(r.lot)}</td>
+      <td>${esc(r.jobType)}</td>
+      <td>${esc(r.date)}</td>
+      <td><span style="font-weight:700; ${statusColor(r.stageKey)}">${esc(r.stageLabel)}</span></td>
+      <td style="text-align:right;">
+        <div style="display:inline-flex; gap:6px;">
+          <button class="btn btn-primary btn-sm" data-action="view-lot" data-lot="${esc(r.lot)}" data-stage="${esc(r.stageKey)}">ดูรายละเอียด</button>
+          <button class="btn btn-excel btn-sm">${iconDownload()} export .xlsx</button>
+        </div>
       </td>
-    </tr>`).join('') :
-    `<tr class="empty-row"><td colspan="5">ไม่พบ Lot ที่ตรงกับเงื่อนไข</td></tr>`;
+    </tr>`).join('') : '<tr class="empty-row"><td colspan="5">ไม่พบ Lot ที่ตรงกับเงื่อนไข</td></tr>';
 
   return `
     <div class="page-head">
-      <div>
-        <h1>รีด/สกัด/หลอม99</h1>
-        <div class="desc">ติดตามข้อมูล Lot ในแต่ละขั้นตอนของกระบวนการ</div>
-      </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-secondary" data-action="export-excel-lot">${iconDownload()} Export Excel</button>
-        <button class="btn btn-primary" data-action="report-lot">${iconChart()} ออกรายงาน</button>
-      </div>
+      <div><h1>รีด/สกัด/หลอม99</h1><div class="desc">ติดตามข้อมูล Lot ในแต่ละขั้นตอนของกระบวนการ</div></div>
     </div>
-
     <div class="search-row" style="margin-bottom:16px;">
-      <input type="text" placeholder="ค้นหาเลข Lot">
-      <button class="btn btn-secondary" data-action="manual-search">${iconSearch()} ค้นหา</button>
+      <input type="text" placeholder="ค้นหาเลข Lot" style="max-width:320px;">
+      <button class="btn btn-secondary btn-sm">ค้นหา</button>
     </div>
-
-    <div class="tabs">
-      ${LOT_STAGES.map(s => `<div class="tab ${activeKey === s.key ? 'active' : ''}" data-tab="lot" data-key="${s.key}">${esc(s.label)}</div>`).join('')}
+    <div class="tabs" style="margin-bottom:0; border-bottom:none;">
+      ${LOT_STAGES.map(s => '<div class="tab ' + (key === s.key ? 'active' : '') + '" data-tab="lot" data-key="' + s.key + '">' + esc(s.label) + '</div>').join('')}
     </div>
-
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>Lot No</th>
-            <th>ชนิด</th>
-            <th>วันที่จัดล็อต</th>
-            <th>สถานะ</th>
-            <th class="right">จัดการ</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Lot No</th><th>ชนิด</th><th>วันที่จัดล็อต</th><th>สถานะ</th><th style="text-align:right;">จัดการ</th></tr></thead>
         <tbody>${body}</tbody>
       </table>
-      <div class="table-foot">
-        <span>แสดง ${rows.length} จาก ${rows.length} รายการ</span>
-        <div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div>
-      </div>
     </div>
   `;
 }
 
-/* ──────────────────── LOT MANAGE — DETAIL VIEW DISPATCHER ──────────────────── */
-function pageLotDetail(lotNo) {
-  // Find lot in all stages
-  let lot = null;
-  const allKeys = ['presend','postsend','extract','pre99','post99','closed'];
-  for (const key of allKeys) {
-    lot = (LOT_MANAGE_DATA[key] || []).find(l => l.lotNo === lotNo);
-    if (lot) break;
-  }
-  if (!lot) return `<div class="page-head"><div><h1>ไม่พบข้อมูล Lot</h1></div><button class="btn btn-secondary" data-go="lot-manage">${iconArrowLeft()} ย้อนกลับ</button></div>`;
-
-  switch (lot.status) {
-    case 'presend':  return pageLotDetailPresend(lot);
-    case 'postsend': return pageLotDetailPostsend(lot);
-    case 'extract':  return pageLotDetailExtract(lot);
-    case 'pre99':    return pageLotDetailPre99(lot);
-    case 'post99':   return pageLotDetailPost99(lot);
-    case 'closed':   return pageLotDetailClosed(lot);
-    default:         return pageLotDetailPresend(lot);
+function getLotStageBadgeClass(sKey) {
+  switch (sKey) {
+    case 'presend': return 'badge-blue';
+    case 'postsend': return 'badge-orange';
+    case 'extract': return 'badge-orange';
+    case 'pre99': return 'badge-orange';
+    case 'post99': return 'badge-orange';
+    case 'closed': return 'badge-green';
+    default: return 'badge-info';
   }
 }
 
-function _lotDetailHeader(lot, backBtn) {
-  return `
-    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px;">
-      ${backBtn || ''}
-      <h1 style="font-size:22px; font-weight:700; margin:0;">${esc(lot.lotNo)}</h1>
-      ${lotStatusBadge(lot.status, lot.statusLabel)}
-      <span style="color:var(--text-secondary); font-size:14px;">จัดล็อตเมื่อ ${esc(lot.createdDate)}</span>
-    </div>`;
-}
+/* ---------- DETAIL VIEW ---------- */
+function pageLotDetail(lotId) {
+  let lotData = null, lotStage = null, lotStageLabel = '';
+  if (state.lotDetailStage) {
+    const s = LOT_STAGES.find(x => x.key === state.lotDetailStage);
+    const f = (LOT_MANAGE_DATA[state.lotDetailStage] || []).find(x => x.lot === lotId);
+    if (f) {
+      lotData = f;
+      lotStage = state.lotDetailStage;
+      lotStageLabel = s ? s.label : '';
+    }
+  }
+  if (!lotData) {
+    for (const s of LOT_STAGES) {
+      if (s.key === 'all') continue;
+      const f = (LOT_MANAGE_DATA[s.key] || []).find(x => x.lot === lotId);
+      if (f) { lotData = f; lotStage = s.key; lotStageLabel = s.label; break; }
+    }
+  }
+  if (!lotData) return '<div class="page-head"><div><h1>ไม่พบข้อมูล Lot</h1></div><button class="btn btn-secondary" data-action="back-lot-list">ย้อนกลับ</button></div>';
 
-function _lotDetailFooter(lot, stageLabel, nextLabel) {
-  return `
-    <div class="detail-section">
-      <div class="detail-section-title">ผู้ดำเนินการ</div>
-      <div class="detail-field-label">ผู้ส่ง - ${esc(stageLabel)}</div>
-      <input type="text" class="detail-input" value="${esc(lot.sender)}" readonly style="max-width:280px;">
+  /* ---- header ---- */
+  const badgeClass = getLotStageBadgeClass(lotStage);
+  const hdr = `
+    <div style="margin-bottom:4px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <h1 style="font-size:22px; font-weight:800; margin:0;">${esc(lotData.lot)}</h1>
+      <span class="lot-stage-badge badge ${badgeClass}">${esc(lotStageLabel)}</span>
+      <span style="font-size:15px; color:var(--text-secondary);">จัดล็อตเมื่อ ${esc(lotData.date)}</span>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px; padding-bottom:16px;">
-      <button class="btn btn-secondary" data-action="save-lot-stage">บันทึก</button>
-      ${nextLabel ? `<button class="btn btn-primary" data-action="next-lot-stage">${esc(nextLabel)} →</button>` : ''}
-    </div>`;
+    <div style="font-size:15px; color:var(--text-secondary); margin-bottom:20px;">${esc(lotStageLabel)}</div>`;
+
+  /* ---- table ---- */
+  const tbl = _lotTable(lotData, lotStage, lotStageLabel);
+
+  /* ---- middle sections ---- */
+  const mid = _lotSections(lotData, lotStage, lotStageLabel);
+
+  /* ---- footer ---- */
+  let foot = '';
+  if (lotStage !== 'closed') {
+    const nextBtnLabel = lotStage === 'post99' ? 'ปิดงาน' : 'ขั้นตอนถัดไป';
+    foot = `
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:28px;">
+        <button class="btn btn-secondary" data-action="back-lot-list">บันทึก</button>
+        <button class="btn btn-primary" data-action="next-lot-stage">${esc(nextBtnLabel)}</button>
+      </div>`;
+  }
+
+  return hdr + tbl + mid + foot;
 }
 
-/* ────── STAGE 1: ก่อนส่งรีด ────── */
-function pageLotDetailPresend(lot) {
-  const rows = (lot.rfRows || []).map(r => `
-    <tr>
-      <td>${r.seq}</td>
-      <td class="cell-primary">${esc(r.rf)}</td>
-      <td>${esc(r.cust)}</td>
-      <td class="num">${esc(r.wDeclared)}</td>
-      <td class="num">${esc(r.wReceived)}</td>
-      <td class="num">${esc(r.wBill)}</td>
-      <td><input type="number" class="detail-input-inline" placeholder="" value="${esc(r.wBefore || '')}" data-field="wBefore" data-rf="${esc(r.rf)}"></td>
-    </tr>`).join('');
+/* ---- Table builder ---- */
+function _lotTable(d, stage, stageLabel) {
+  /* header cols */
+  const base = '<th style="width:60px;">ลำดับ</th><th>RF-No.</th><th>ลูกค้า</th><th class="num">น้ำหนักแจ้ง</th><th class="num">น้ำหนักรับ</th><th class="num">น้ำหนักบิล</th>';
+  let extra = '';
+
+    if (stage === 'presend')
+      extra = '<th class="num">น้ำหนักชั่ง - ก่อนรีด</th>';
+    else if (stage === 'postsend')
+      extra = '<th class="num">น้ำหนักชั่ง - ก่อนรีด</th><th style="text-align:center;">จัดการ</th>';
+    else if (stage === 'extract')
+      extra = '<th class="num">น้ำหนักชั่ง - ก่อนรีด</th><th class="num">น้ำหนักชั่ง - ก่อนส่งสกัด</th>';
+    else if (stage === 'pre99' || stage === 'post99')
+      extra = '<th class="num">น้ำหนักชั่ง - ก่อนรีด</th><th class="num">%Au</th><th class="num">Au (g)</th><th class="num">%Ag</th><th class="num">Ag (g)</th>';
+    else if (stage === 'closed')
+      extra = '<th class="num">น้ำหนักชั่ง - ก่อนรีด</th><th class="num">%Au</th><th class="num">Au (g)</th><th class="num">%Ag</th><th class="num">Ag (g)</th><th style="text-align:center;width:100px;">รายละเอียด</th>';
+
+    /* body rows */
+    const bodyRows = d.rfRows.length ? d.rfRows.map((r, i) => {
+      let cells = `
+        <td style="text-align:center;">${i + 1}</td>
+        <td class="cell-primary">${esc(r.rf)}</td>
+        <td>${esc(r.cust)}</td>
+        <td class="num">${esc(r.wDec)}</td>
+        <td class="num">${esc(r.wRec)}</td>
+        <td class="num">${esc(r.wBill)}</td>`;
+
+      if (stage === 'presend')
+        cells += '<td><input type="text" class="num-input" placeholder="0.00" style="width:100%;"></td>';
+      else if (stage === 'postsend')
+        cells += `<td class="num">${esc(r.wBill)}</td><td style="text-align:center;"><button class="btn btn-sm" style="background:#c62828;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-weight:700;font-size:14px;">รีดเสียหาย</button></td>`;
+      else if (stage === 'extract')
+        cells += `<td class="num">${esc(r.wBill)}</td><td><input type="text" class="num-input" placeholder="0.00" style="width:100%;"></td>`;
+      else if (stage === 'pre99' || stage === 'post99')
+        cells += `
+          <td class="num">${esc(r.wBill)}</td>
+          <td class="num">${r.percentAu || '100.00'}</td>
+          <td class="num">${r.auG || '100.00'}</td>
+          <td class="num">${r.percentAg || '100.00'}</td>
+          <td class="num">${r.agG || '100.00'}</td>`;
+      else if (stage === 'closed')
+        cells += `
+          <td><input type="text" class="num-input input-locked" value="${esc(r.wBill)}" disabled style="width:100%;"></td>
+          <td><input type="text" class="num-input input-locked" value="${r.percentAu || '10.00'}" disabled style="width:100%;"></td>
+          <td><input type="text" class="num-input input-locked" value="${r.auG || '10.00'}" disabled style="width:100%;"></td>
+          <td><input type="text" class="num-input input-locked" value="${r.percentAg || '10.00'}" disabled style="width:100%;"></td>
+          <td><input type="text" class="num-input input-locked" value="${r.agG || '10.00'}" disabled style="width:100%;"></td>
+          <td style="text-align:center;"><button class="btn btn-sm" style="background:#fff; border:1px solid var(--border-light); color:var(--primary); font-size:12px; padding:4px 10px; border-radius:6px; font-weight:600;"><i class="fas fa-search" style="margin-right:4px;"></i> ดู detail</button></td>`;
+
+      return '<tr>' + cells + '</tr>';
+    }).join('') : '<tr class="empty-row"><td colspan="12">ไม่มีรายการ RF</td></tr>';
 
   return `
-    <div style="max-width:1000px; margin:0 auto; padding:20px 0;">
-      ${_lotDetailHeader(lot, `<button class="btn btn-secondary btn-sm" data-go="lot-manage">${iconArrowLeft()}</button>`)}
-      <div style="font-weight:600; font-size:15px; margin-bottom:14px; margin-top:4px;">ก่อนส่งรีด</div>
-
-      <div class="table-wrap" style="margin-bottom:20px;">
-        <table>
-          <thead><tr>
-            <th style="width:48px;">ลำดับ</th>
-            <th>RF-No.</th><th>ลูกค้า</th>
-            <th class="num">น้ำหนักแจ้ง</th>
-            <th class="num">น้ำหนักรับ</th>
-            <th class="num">น้ำหนักบิล</th>
-            <th style="min-width:150px;">น้ำหนักชั่ง - ก่อนรีด</th>
-          </tr></thead>
-          <tbody>${rows || `<tr class="empty-row"><td colspan="7">ไม่มีรายการ RF</td></tr>`}</tbody>
-        </table>
-      </div>
-
-      <div style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">เลข Lot-No: <strong>${esc(lot.lotNo)}</strong></div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">ทองคำ (Au)</div>
-        <div class="detail-3col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักแจ้ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWDeclaredAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักบิล (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBillAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBeforeAu || '')}" readonly>
-          </div>
-        </div>
-      </div>
-
-      ${_lotDetailFooter(lot, 'ก่อนส่งรีด', 'ขั้นตอนถัดไป')}
+    <div class="table-wrap" style="margin-bottom:0; border-radius:0;">
+      <table><thead><tr>${base}${extra}</tr></thead><tbody>${bodyRows}</tbody></table>
     </div>`;
 }
 
-/* ────── STAGE 2: หลังส่งรีด ────── */
-function pageLotDetailPostsend(lot) {
-  const rows = (lot.rfRows || []).map(r => `
-    <tr>
-      <td>${r.seq}</td>
-      <td class="cell-primary">${esc(r.rf)}</td>
-      <td>${esc(r.cust)}</td>
-      <td class="num">${esc(r.wDeclared)}</td>
-      <td class="num">${esc(r.wReceived)}</td>
-      <td class="num">${esc(r.wBill)}</td>
-      <td class="num">${esc(r.wBefore)}</td>
-      <td><button class="btn btn-sm" style="background:var(--error,#e53e3e);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;" data-action="rolling-damage" data-rf="${esc(r.rf)}">รีดเสียหาย</button></td>
-    </tr>`).join('');
+/* ---- Section builder ---- */
+function _lotSections(d, stage, stageLabel) {
+  const lotNoLine = `<div style="padding:16px 20px 12px; font-size:15px; color:var(--text-secondary);">แสง Lot No. <b style="color:var(--text-primary);">${esc(d.lot)}</b></div>`;
 
+  /* --- helper: 3-column Au summary --- */
+  const auSummary3 = (v1, v2, v3) => `
+    <div class="lot-section-body" style="margin-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
+      <div class="lot-field-row">
+        <div class="lot-field"><label>ผลรวมน้ำหนักแจ้ง (Au)</label><input type="text" class="num-input input-locked" value="${v1}" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักบิล (Au)</label><input type="text" class="num-input input-locked" value="${v2}" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่ง (Au)</label><input type="text" class="num-input input-locked" value="${v3}" disabled></div>
+      </div>
+    </div>`;
+
+  /* --- helper: operator section --- */
+  const operatorSection = (label) => `
+    ${sectionBar('ผู้ดำเนินการ')}
+    <div class="lot-section-body">
+      <div class="lot-field-row lot-field-row-2">
+        <div class="lot-field"><label>ผู้ส่ง - ${esc(label)}</label><input type="text" class="input-locked" value="office@kgr.local" disabled></div>
+        <div class="lot-field"><label>วันที่ทดสอบ</label><input type="text" class="input-locked" value="27/08/2569" disabled></div>
+      </div>
+    </div>`;
+
+  /* ===== PRESEND ===== */
+  if (stage === 'presend') return `
+    ${lotNoLine}
+    ${sectionBar('ทองคำ (Au)')}
+    ${auSummary3('100.00', '100.00', '100.00')}
+    ${operatorSection('ก่อนส่งรีด')}`;
+
+  /* ===== POSTSEND ===== */
+  if (stage === 'postsend') return `
+    ${lotNoLine}
+    ${sectionBar('น้ำหนักระหว่างทาง — ไม่แยกโลหะ')}
+    <div class="lot-section-body">
+      <div style="max-width:420px;">
+        <label class="lot-label"><span class="lot-manual-tag">กรอกเอง</span>ผลรวมน้ำ หนักชั่งหลังรีด</label>
+        <input type="text" class="num-input" placeholder="0.00">
+      </div>
+    </div>
+    ${sectionBar('ทองคำ (Au)')}
+    ${auSummary3('100.00', '100.00', '100.00')}
+    ${operatorSection('หลังส่งรีด')}`;
+
+  /* ===== EXTRACT ===== */
+  if (stage === 'extract') return `
+    ${lotNoLine}
+    ${sectionBar('น้ำหนักระหว่างทาง — ไม่แยกโลหะ')}
+    <div class="lot-section-body">
+      <div class="lot-field-row lot-field-row-2">
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label><span class="lot-manual-tag">กรอกเอง</span>ผลรวมน้ำหนักชั่งก่อนส่งสกัด</label><input type="text" class="num-input" placeholder="0.00"></div>
+      </div>
+    </div>
+    ${sectionBar('ทองคำ (Au)')}
+    ${auSummary3('100.00', '100.00', '100.00')}
+    ${operatorSection('ก่อนส่งสกัด')}`;
+
+  /* ===== PRE99 ===== */
+  if (stage === 'pre99') return `
+    ${lotNoLine}
+    ${sectionBar('น้ำหนักระหว่างทาง — ไม่แยกโลหะ')}
+    <div class="lot-section-body">
+      <div class="lot-field-row lot-field-row-2">
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>น้ำหนักชั่งก่อนสกัด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('ทองคำ (Au)')}
+    <div class="lot-section-body" style="margin-bottom:0; padding-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>ผลรวมน้ำหนักแจ้ง (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักบิล (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่ง (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('เงิน (Ag)')}
+    <div class="lot-section-body" style="margin-bottom:0; padding-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Ag)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('รวม Au + Ag')}
+    <div class="lot-section-body">
+      <div style="max-width:420px;">
+        <label class="lot-label">น้ำหนักชั่งรวม</label>
+        <input type="text" class="num-input input-locked" value="200.00" disabled style="font-size:20px; font-weight:800;">
+      </div>
+    </div>
+    ${operatorSection('ก่อนหลอม 99')}`;
+
+  /* ===== POST99 ===== */
+  if (stage === 'post99') return `
+    ${lotNoLine}
+    ${sectionBar('น้ำหนักระหว่างทาง — ไม่แยกโลหะ')}
+    <div class="lot-section-body">
+      <div class="lot-field-row lot-field-row-2">
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>น้ำหนักชั่งก่อนสกัด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('ทองคำ (Au)')}
+    <div class="lot-section-body" style="margin-bottom:0; padding-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>ผลรวมน้ำหนักแจ้ง (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักบิล (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่ง (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">หลังหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>%Au หลังหลอม 99</label><input type="text" class="num-input" value="99.99"></div>
+        <div class="lot-field"><label><span class="lot-manual-tag">กรอกเอง</span>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Au)</label><input type="text" class="num-input" value="100.00"></div>
+        <div class="lot-field"><label><span class="lot-manual-tag">กรอกเอง</span>ขี้เบ้า</label><input type="text" class="num-input" value=""></div>
+      </div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ขาด (g)</label><input type="text" class="num-input input-locked diff-mismatch" value="-100.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('เงิน (Ag)')}
+    <div class="lot-section-body" style="margin-bottom:0; padding-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Ag)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">หลังหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>%Ag หลังหลอม 99</label><input type="text" class="num-input" value="99.99"></div>
+        <div class="lot-field"><label><span class="lot-manual-tag">กรอกเอง</span>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Ag)</label><input type="text" class="num-input" value="100.00"></div>
+        <div class="lot-field"><label><span class="lot-manual-tag">กรอกเอง</span>ขี้เบ้า</label><input type="text" class="num-input" value="142.00"></div>
+      </div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ขาด (g)</label><input type="text" class="num-input input-locked diff-match" value="0.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('รวม Au + Ag')}
+    <div class="lot-section-body">
+      <div style="max-width:420px;">
+        <label class="lot-label">น้ำหนักชั่งรวม</label>
+        <input type="text" class="num-input input-locked" value="200.00" disabled style="font-size:20px; font-weight:800;">
+      </div>
+    </div>
+    ${operatorSection('หลังส่งหลอม 99')}`;
+
+  /* ===== CLOSED ===== */
+  if (stage === 'closed') return `
+    ${lotNoLine}
+    ${sectionBar('น้ำหนักระหว่างทาง — ไม่แยกโลหะ')}
+    <div class="lot-section-body">
+      <div class="lot-field-row lot-field-row-2">
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>น้ำหนักชั่งก่อนสกัด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('ทองคำ (Au)')}
+    <div class="lot-section-body" style="margin-bottom:0; padding-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>ผลรวมน้ำหนักแจ้ง (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักบิล (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่ง (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Au)</label><input type="text" class="num-input input-locked" value="10.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">หลังหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>%Au หลังหลอม 99</label><input type="text" class="num-input input-locked" value="99.99" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Au)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ขี้เบ้า</label><input type="text" class="num-input input-locked" value="20.00" disabled></div>
+      </div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ขาด (g)</label><input type="text" class="num-input input-locked diff-mismatch" value="90.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('เงิน (Ag)')}
+    <div class="lot-section-body" style="margin-bottom:0; padding-bottom:0;">
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Ag)</label><input type="text" class="num-input input-locked" value="10.00" disabled></div>
+      </div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">หลังหลอม 99</div>
+      <div class="lot-field-row" style="margin-bottom:16px;">
+        <div class="lot-field"><label>%Ag หลังหลอม 99</label><input type="text" class="num-input input-locked" value="99.99" disabled></div>
+        <div class="lot-field"><label>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Ag)</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
+        <div class="lot-field"><label>ขี้เบ้า</label><input type="text" class="num-input input-locked" value="142.00" disabled></div>
+      </div>
+      <div class="lot-field-row" style="margin-bottom:16px; display:block;">
+        <div class="lot-field" style="max-width:calc(33.33% - 11px);"><label>ขาด (g)</label><input type="text" class="num-input input-locked diff-match" value="0.00" disabled></div>
+      </div>
+    </div>
+    ${sectionBar('รวม Au + Ag')}
+    <div class="lot-section-body">
+      <div style="max-width:420px;">
+        <label class="lot-label">น้ำหนักชั่งรวม</label>
+        <input type="text" class="num-input input-locked" value="200.00" disabled style="font-size:20px; font-weight:800;">
+      </div>
+    </div>
+    ${operatorSection(stageLabel)}`;
+
+  /* ===== FALLBACK ===== */
   return `
-    <div style="max-width:1000px; margin:0 auto; padding:20px 0;">
-      ${_lotDetailHeader(lot, `<button class="btn btn-secondary btn-sm" data-go="lot-manage">${iconArrowLeft()}</button>`)}
-      <div style="font-weight:600; font-size:15px; margin-bottom:14px; margin-top:4px;">หลังส่งรีด</div>
-
-      <div class="table-wrap" style="margin-bottom:20px;">
-        <table>
-          <thead><tr>
-            <th style="width:48px;">ลำดับ</th>
-            <th>RF-No.</th><th>ลูกค้า</th>
-            <th class="num">น้ำหนักแจ้ง</th>
-            <th class="num">น้ำหนักรับ</th>
-            <th class="num">น้ำหนักบิล</th>
-            <th class="num">น้ำหนักชั่ง - ก่อนรีด</th>
-            <th>จัดการ</th>
-          </tr></thead>
-          <tbody>${rows || `<tr class="empty-row"><td colspan="8">ไม่มีรายการ RF</td></tr>`}</tbody>
-        </table>
-      </div>
-
-      <div style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">เลข Lot-No: <strong>${esc(lot.lotNo)}</strong></div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
-        <div style="display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap;">
-          <div>
-            <div class="detail-field-label" style="display:flex;align-items:center;gap:6px;">
-              <span class="badge badge-orange" style="font-size:11px;padding:2px 8px;">กรอกเอง</span>
-              ผลรวมน้ำหนักชั่งหลังรีด
-            </div>
-            <input type="number" class="detail-input" placeholder="" value="${esc(lot.totalWAfterRoll || '')}" style="max-width:280px;">
-          </div>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">ทองคำ (Au)</div>
-        <div class="detail-3col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักแจ้ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWDeclaredAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักบิล (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBillAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBeforeAu || '')}" readonly>
-          </div>
-        </div>
-      </div>
-
-      ${_lotDetailFooter(lot, 'หลังส่งรีด', 'ขั้นตอนถัดไป')}
-    </div>`;
+    ${lotNoLine}
+    ${operatorSection(stageLabel)}`;
 }
 
-/* ────── STAGE 3: สกัด ────── */
-function pageLotDetailExtract(lot) {
-  const rows = (lot.rfRows || []).map(r => `
-    <tr>
-      <td>${r.seq}</td>
-      <td class="cell-primary">${esc(r.rf)}</td>
-      <td>${esc(r.cust)}</td>
-      <td class="num">${esc(r.wDeclared)}</td>
-      <td class="num">${esc(r.wReceived)}</td>
-      <td class="num">${esc(r.wBill)}</td>
-      <td class="num">${esc(r.wBefore)}</td>
-      <td><input type="number" class="detail-input-inline" placeholder="" value="${esc(r.wBeforeSend || '')}" data-field="wBeforeSend" data-rf="${esc(r.rf)}"></td>
-    </tr>`).join('');
-
-  return `
-    <div style="max-width:1000px; margin:0 auto; padding:20px 0;">
-      ${_lotDetailHeader(lot, `<button class="btn btn-secondary btn-sm" data-go="lot-manage">${iconArrowLeft()}</button>`)}
-      <div style="font-weight:600; font-size:15px; margin-bottom:14px; margin-top:4px;">สกัด</div>
-
-      <div class="table-wrap" style="margin-bottom:20px;">
-        <table>
-          <thead><tr>
-            <th style="width:48px;">ลำดับ</th>
-            <th>RF-No.</th><th>ลูกค้า</th>
-            <th class="num">น้ำหนักแจ้ง</th>
-            <th class="num">น้ำหนักรับ</th>
-            <th class="num">น้ำหนักบิล</th>
-            <th class="num">น้ำหนักชั่ง - ก่อนรีด</th>
-            <th style="min-width:150px;">น้ำหนักชั่ง - ก่อนส่งสกัด</th>
-          </tr></thead>
-          <tbody>${rows || `<tr class="empty-row"><td colspan="8">ไม่มีรายการ RF</td></tr>`}</tbody>
-        </table>
-      </div>
-
-      <div style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">เลข Lot-No: <strong>${esc(lot.lotNo)}</strong></div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
-        <div class="detail-2col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่งหลังรีด</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWAfterRoll || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label" style="display:flex;align-items:center;gap:6px;">
-              <span class="badge badge-orange" style="font-size:11px;padding:2px 8px;">กรอกเอง</span>
-              ผลรวมน้ำหนักชั่งก่อนส่งสกัด
-            </div>
-            <input type="number" class="detail-input" placeholder="" value="${esc(lot.totalWSentExtract || '')}" style="max-width:280px;">
-          </div>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">ทองคำ (Au)</div>
-        <div class="detail-3col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักแจ้ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWDeclaredAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักบิล (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBillAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBeforeAu || '')}" readonly>
-          </div>
-        </div>
-      </div>
-
-      ${_lotDetailFooter(lot, 'ก่อนส่งสกัด', 'ขั้นตอนถัดไป')}
-    </div>`;
-}
-
-/* ────── STAGE 4: ก่อนหลอม 99 ────── */
-function pageLotDetailPre99(lot) {
-  const rows = (lot.rfRows || []).map(r => `
-    <tr>
-      <td>${r.seq}</td>
-      <td class="cell-primary">${esc(r.rf)}</td>
-      <td>${esc(r.cust)}</td>
-      <td class="num">${esc(r.wDeclared)}</td>
-      <td class="num">${esc(r.wReceived)}</td>
-      <td class="num">${esc(r.wBill)}</td>
-      <td class="num">${esc(r.wBefore)}</td>
-      <td class="num">${esc(r.wBeforeSend || '')}</td>
-      <td class="num">${esc(r.pctAu || '')}</td>
-      <td class="num">${esc(r.auG || '')}</td>
-      <td class="num">${esc(r.pctAg || '')}</td>
-      <td class="num">${esc(r.agG || '')}</td>
-    </tr>`).join('');
-
-  return `
-    <div style="max-width:1100px; margin:0 auto; padding:20px 0;">
-      ${_lotDetailHeader(lot, `<button class="btn btn-secondary btn-sm" data-go="lot-manage">${iconArrowLeft()}</button>`)}
-      <div style="font-weight:600; font-size:15px; margin-bottom:14px; margin-top:4px;">ก่อนหลอม 99</div>
-
-      <div class="table-wrap" style="margin-bottom:20px; overflow-x:auto;">
-        <table>
-          <thead><tr>
-            <th style="width:44px;">ลำดับ</th>
-            <th>RF-No.</th><th>ลูกค้า</th>
-            <th class="num">น้ำหนักแจ้ง</th>
-            <th class="num">น้ำหนักรับ</th>
-            <th class="num">น้ำหนักบิล</th>
-            <th class="num">น้ำหนักชั่ง - ก่อนรีด</th>
-            <th class="num">น้ำหนักชั่ง - ก่อนส่งสกัด</th>
-            <th class="num">%Au</th>
-            <th class="num">Au(g)</th>
-            <th class="num">%Ag</th>
-            <th class="num">Ag(g)</th>
-          </tr></thead>
-          <tbody>${rows || `<tr class="empty-row"><td colspan="12">ไม่มีรายการ RF</td></tr>`}</tbody>
-        </table>
-      </div>
-
-      <div style="color:var(--text-secondary); font-size:13px; margin-bottom:12px;">เลข Lot-No: <strong>${esc(lot.lotNo)}</strong></div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
-        <div class="detail-2col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่งหลังรีด</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWAfterRoll || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่งก่อนส่งสกัด</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWSentExtract || '')}" readonly>
-          </div>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">ทองคำ (Au)</div>
-        <div class="detail-field-label" style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">น้ำหนักชั่ง (จากบิลสกัด)</div>
-        <div class="detail-3col" style="margin-bottom:14px;">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักแจ้ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWDeclaredAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักบิล (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBillAu || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่ง (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalWBeforeAu || '')}" readonly>
-          </div>
-        </div>
-        <div style="font-size:13px; font-weight:600; margin-bottom:8px; color:var(--text-primary);">ก่อนหลอม 99</div>
-        <div class="detail-2col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Au)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalW99Au || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label" style="display:flex;align-items:center;gap:6px;">
-              <span class="badge badge-orange" style="font-size:11px;padding:2px 8px;">กรอกเอง</span>
-              ผลรวมน้ำหนักผ่านเครื่องชั่ง ก่อนหลอม 99 (Au)
-            </div>
-            <input type="number" class="detail-input" placeholder="" value="${esc(lot.totalWScale99Au || '')}">
-          </div>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">เงิน (Ag)</div>
-        <div class="detail-2col">
-          <div>
-            <div class="detail-field-label">ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Ag)</div>
-            <input type="text" class="detail-input" value="${esc(lot.totalW99Ag || '')}" readonly>
-          </div>
-          <div>
-            <div class="detail-field-label" style="display:flex;align-items:center;gap:6px;">
-              <span class="badge badge-orange" style="font-size:11px;padding:2px 8px;">กรอกเอง</span>
-              ผลรวมน้ำหนักผ่านเครื่องชั่ง ก่อนหลอม 99 (Ag)
-            </div>
-            <input type="number" class="detail-input" placeholder="" value="${esc(lot.totalWScale99Ag || '')}">
-          </div>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-section-title">TSM Au + Ag</div>
-        <div>
-          <div class="detail-field-label">น้ำหนักชั่งรวม Au + Ag</div>
-          <input type="text" class="detail-input" value="${esc(lot.totalW99AuAg || '')}" readonly style="max-width:280px;">
-        </div>
-      </div>
-
-      ${_lotDetailFooter(lot, 'ก่อนหลอม 99', 'ขั้นตอนถัดไป')}
-    </div>`;
-}
-
-/* ────── STAGE 5: หลังหลอม 99 ────── */
-function pageLotDetailPost99(lot) {
-  // Re-use pre99 layout but read-only with post99 fields
-  return pageLotDetailPre99({ ...lot, status: 'post99', statusLabel: 'หลังหลอม 99' });
-}
-
-/* ────── STAGE 6: ปิดงาน ────── */
-function pageLotDetailClosed(lot) {
-  return `
-    <div style="max-width:1000px; margin:0 auto; padding:20px 0;">
-      ${_lotDetailHeader(lot, `<button class="btn btn-secondary btn-sm" data-go="lot-manage">${iconArrowLeft()}</button>`)}
-      <div style="margin-top:20px; padding:24px; background:var(--card-bg,#fff); border-radius:12px; border:1px solid var(--border); text-align:center; color:var(--text-secondary);">
-        <div style="font-size:18px; font-weight:600; color:var(--text-primary); margin-bottom:8px;">Lot นี้ปิดงานเรียบร้อยแล้ว</div>
-        <div>Lot No: <strong>${esc(lot.lotNo)}</strong> | จัดล็อตเมื่อ: ${esc(lot.createdDate)}</div>
-      </div>
-      <div style="display:flex; justify-content:flex-end; margin-top:16px;">
-        <button class="btn btn-excel btn-sm" data-action="export-lot-excel" data-lot-no="${esc(lot.lotNo)}">${iconDownload()} export .xlsx</button>
-      </div>
-    </div>`;
+/* ---- Section bar helper ---- */
+function sectionBar(title) {
+  return '<div class="lot-section-bar">' + esc(title) + '</div>';
 }

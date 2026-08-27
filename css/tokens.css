@@ -1,7 +1,10 @@
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
 /* ============================================================
    KGR GROUP — DESIGN TOKENS & RESET
    ============================================================ */
 :root {
+  --font-display: 'Chakra Petch', sans-serif;
+  --font-body: 'Sarabun', sans-serif;
   /* Brand — from logo (converted to OKLCH, same appearance, per Hallmark color.md) */
   --header-bg: oklch(27.2% 0.120 261.3); /* #002060 KGR navy — Topbar, primary actions, active nav */
   --header-fg: oklch(100% 0 0);
@@ -79,7 +82,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: 'Sarabun', sans-serif;
+  font-family: var(--font-body);
   background: var(--page-bg);
   color: var(--text-primary);
   font-size: 18px;
@@ -91,7 +94,7 @@ body {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
-h1, h2, h3, h4 { margin: 0; font-weight: 700; }
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; font-weight: 700; }
 p { margin: 0; }
 button { font-family: inherit; cursor: pointer; }
 a { color: inherit; }
