@@ -249,18 +249,37 @@ a{color:inherit;}
    FORM ELEMENTS
    ============================================================ */
 .field{display:flex; flex-direction:column; gap:6px;}
-.field label{font-size:16px; font-weight:600; color:var(--text-primary);}
+.field label{font-size:18px; font-weight:600; color:var(--text-primary);}
 .field label .req{color:var(--st-hold-fg); margin-left:2px;}
+.percent-input-lg{font-size:26px !important; font-weight:800 !important; border:2px solid var(--btn-primary) !important; background:var(--card-highlight-bg) !important;}
+.percent-input-lg:disabled{background:var(--zebra) !important; border-color:var(--border) !important; color:var(--text-secondary) !important; font-weight:600 !important;}
 .field .hint{font-size:16px; color:var(--text-secondary);}
 input[type=text], input[type=date], input[type=number], select, textarea{
-  font-family:inherit; font-size:16px; color:var(--text-primary);
+  font-family:inherit; font-size:18px; color:var(--text-primary);
   border:1px solid var(--border-strong); border-radius:10px; padding:13px 14px;
-  min-height:50px;
+  min-height:52px;
   background:var(--surface); width:100%; transition:border-color .12s;
 }
-input.num-input{font-family:'IBM Plex Mono'; text-align:right;}
+input.num-input{font-family:'IBM Plex Mono'; text-align:right; font-size:20px; font-weight:600;}
 input:focus, select:focus, textarea:focus{outline:2px solid var(--btn-primary); outline-offset:1px; border-color:var(--btn-primary); box-shadow:0 0 0 3px rgba(0,86,255,0.12);}
 input:disabled, .input-locked{background:var(--zebra); color:var(--text-secondary); border-color:var(--border); cursor:not-allowed;}
+/* ขาด/เกิน — the ONE field allowed to carry meaningful color (minimal accent rule) */
+input.diff-mismatch{color:var(--st-hold-fg); font-weight:700; border-color:var(--st-hold-bd); background:var(--st-hold-bg);}
+input.diff-match{color:var(--st-done-fg); font-weight:700; border-color:var(--st-done-bd); background:var(--st-done-bg);}
+
+/* Segmented control — replaces dropdowns for ชนิดหลอม / รูปแบบ */
+.seg-control{display:flex; gap:10px; flex-wrap:wrap;}
+.seg-btn{
+  flex:1; min-width:140px; min-height:56px; border-radius:12px; border:2px solid var(--border-strong);
+  background:var(--surface); color:var(--text-primary); font-family:inherit; font-size:18px; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:border-color .12s var(--ease-out), background .12s var(--ease-out), color .12s var(--ease-out);
+}
+.seg-btn svg{width:20px; height:20px;}
+.seg-btn:hover{border-color:var(--btn-primary);}
+.seg-btn.active{border-color:var(--header-bg); background:var(--header-bg); color:var(--fg-on-dark);}
+.seg-btn:focus-visible{outline:2px solid var(--btn-primary); outline-offset:2px;}
+
 .search-row{display:flex; gap:var(--space-2xs); align-items:center; flex-wrap:wrap;}
 .search-row input{max-width:280px;}
 .search-hint{font-size:16px; color:var(--text-secondary); display:flex; align-items:center; gap:6px;}
@@ -591,6 +610,30 @@ td.right{text-align:right;}
 .panel-head .title svg{width:18px; height:18px; color:var(--btn-primary);}
 .panel-body{padding:var(--space-md);}
 
+/* TDC Approve — per-RF card (replaces a too-wide table) */
+.tdc-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-sm); margin-bottom:var(--space-md); overflow:hidden;
+}
+.tdc-card-head{
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  padding:18px 22px; background:var(--zebra); border-bottom:1px solid var(--border);
+}
+.tdc-card-rf{font-size:22px; font-weight:800; color:var(--text-primary);}
+.tdc-card-cust{font-size:16px; color:var(--text-secondary); margin-top:2px;}
+.tdc-card-weight{text-align:right;}
+.tdc-card-weight .val{font-family:'IBM Plex Mono'; font-size:22px; font-weight:700; color:var(--text-primary);}
+.tdc-card-weight .lbl{font-size:14px; color:var(--text-secondary); display:block;}
+.tdc-card-body{padding:22px;}
+.tdc-info-row{display:flex; flex-wrap:wrap; gap:24px; margin-bottom:18px; font-size:17px;}
+.tdc-info-row .item .lbl{font-size:14px; color:var(--text-secondary); display:block; margin-bottom:2px;}
+.tdc-info-row .item .val{font-weight:600; color:var(--text-primary);}
+.tdc-metal-panel{border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:14px; overflow:hidden;}
+.tdc-metal-head{padding:10px 16px; background:var(--zebra); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px;}
+.tdc-metal-body{padding:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media (max-width:680px){ .tdc-metal-body{grid-template-columns:1fr;} }
+.tdc-card-foot{padding:16px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px;}
+
 /* calc table */
 .calc-service-row{margin-bottom:14px;}
 .calc-service-row label{font-size:16px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;}
@@ -875,22 +918,23 @@ const ICONS = {
 
 /* ---------- ORDERS ---------- */
 const ORDERS = [
-  {rf:'NN-123', date:'14/08/2569', cust:'ห้างทองแม่ทองสุก', w:'100.00', status:'sched', statusLabel:'นัดทอง'},
-  {rf:'RF-B001', date:'04/08/2569', cust:'ห้างทองเยาวราชกิจ', w:'128.45', status:'info', statusLabel:'NEW'},
-  {rf:'RF-B003', date:'03/08/2569', cust:'ห้างทองชั่วเช่งเฮง', w:'96.20', status:'info', statusLabel:'NEW'},
-  {rf:'RF-B002', date:'03/08/2569', cust:'ห้างทองแม่ทองสุก', w:'412.80', status:'info', statusLabel:'NEW'},
-  {rf:'RF-B005', date:'31/07/2569', cust:'ห้างทองใบเยาวราช', w:'318.90', status:'progress', statusLabel:'หลอม'},
+  {rf:'RF-2569-0079', date:'04/08/2569', cust:'ห้างทองเยาวราชกิจ', w:'128.45', status:'info', statusLabel:'สร้าง Order', station:1, cancelled:false, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
+  {rf:'RF-2569-0078', date:'03/08/2569', cust:'ห้างทองชั่วเช่งเฮง', w:'96.20', status:'info', statusLabel:'สร้าง Order', station:1, cancelled:false, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
+  {rf:'RF-2569-0077', date:'03/08/2569', cust:'ห้างทองแม่ทองสุก', w:'412.80', status:'info', statusLabel:'หลอมทองเก่า', station:2, cancelled:false, lotNo:'—', meltedW:'406.10', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
+  {rf:'RF-2569-0076', date:'31/07/2569', cust:'ห้างทองใบเยาวราช', w:'318.90', status:'progress', statusLabel:'หักทอง', station:4, cancelled:false, lotNo:'LOT-202608-0009', meltedW:'312.50', auCalc:'301.60', auReturn:'286.52', agCalc:'6.25', agReturn:'5.94'},
+  {rf:'RF-2569-0071', date:'26/07/2569', cust:'ห้างทองศิริทองคำ', w:'264.10', status:'progress', statusLabel:'ก่อนส่งรีด', station:5, cancelled:false, lotNo:'LOT-202608-0007', meltedW:'260.80', auCalc:'251.72', auReturn:'239.13', agCalc:'5.22', agReturn:'4.96'},
+  {rf:'RF-2569-0069', date:'24/07/2569', cust:'โรงงานทองไทยเจริญ', w:'447.50', status:'progress', statusLabel:'ก่อนส่งสกัด', station:7, cancelled:false, lotNo:'LOT-202608-0006', meltedW:'441.00', auCalc:'425.56', auReturn:'404.28', agCalc:'8.82', agReturn:'8.38'},
+  {rf:'RF-2569-0075', date:'28/07/2569', cust:'โรงงานทองไทยเจริญ', w:'220.10', status:'done', statusLabel:'ปิดงาน', station:9, cancelled:false, lotNo:'LOT-202608-0002', meltedW:'216.90', auCalc:'209.30', auReturn:'198.84', agCalc:'4.34', agReturn:'4.12'},
+  {rf:'RF-2569-0060', date:'20/07/2569', cust:'ห้างทองแม่ทองย้อย', w:'150.00', status:'hold', statusLabel:'ยกเลิก', station:1, cancelled:true, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
 ];
 const ORDER_TABS = [
-  {key:'all', label:'ทั้งหมด', count:5},
-  {key:'new', label:'NEW', count:3},
-  {key:'melt', label:'หลอม', count:1},
-  {key:'test', label:'ทดสอบ %', count:0},
-  {key:'sched', label:'นัดทอง', count:1},
-  {key:'tdc', label:'TDC', count:1},
-  {key:'lot', label:'จัด Lot', count:6},
-  {key:'closed', label:'ปิดงาน', count:13},
-  {key:'cancel', label:'ยกเลิก', count:1},
+  {key:'all', label:'ทั้งหมด'},
+  {key:'new', label:'สร้าง Order'},
+  {key:'melt', label:'หลอมทองเก่า'},
+  {key:'test', label:'ทดสอบ %'},
+  {key:'deduct', label:'หักทอง'},
+  {key:'closed', label:'ปิดงาน'},
+  {key:'cancel', label:'ยกเลิก'},
 ];
 
 /* ---------- LOT ALLOCATE (จัด Lot) ---------- */
@@ -950,22 +994,6 @@ const CUSTOMERS = [
 ];
 const CUSTOMERS_TRASH = [
   {name:'ทองไทย เอ็กซ์ปอร์ต', phone:'021239999', orders:0, date:'02/08/2569', deletedBy:'สุดา บัญชีทอง', deletedAt:'10/08/2569 14:20'},
-];
-
-/* ---------- STOCK ---------- */
-const STOCK_PREP_STATS = {receivedTotal:'1,763.90', meltedTotal:'1,498.91', au:'652.25', auBack:'519.03', ag:'307.13', agBack:'291.77'};
-const STOCK_DONE_STATS = {receivedTotal:'17,276.50', meltedTotal:'17,226.06', au:'15,692.39', auBack:'5,099.45', ag:'731.34', agBack:'694.78'};
-const STOCK_ROWS = [
-  {rf:'37517', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', lot:'LOT-202608-0015', date:'18/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'1,984.70'},
-  {rf:'RF-TT-001', cust:'ห้างทองชั่วเช่งเฮง', lot:'LOT-202608-0016', date:'17/08/2569', status:'done', statusLabel:'หลอม99 แล้ว', w:'100.00'},
-  {rf:'37461', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', lot:'LOT-202608-0014', date:'15/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'343.90'},
-  {rf:'AA-555', cust:'ห้างทองเยาวราชกิจ', lot:'—', date:'14/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'100.00'},
-  {rf:'RF-20260814-001', cust:'วิไล รุ่งเรือง', lot:'LOT-202608-0013', date:'14/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'9,999.00'},
-  {rf:'RO-3', cust:'ห้างทองชั่วเช่งเฮง', lot:'LOT-202608-0012', date:'13/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'100.00'},
-  {rf:'RO-2', cust:'ห้างทองใบเยาวราช', lot:'LOT-202608-0011', date:'13/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'100.00'},
-  {rf:'RO-1', cust:'ห้างทองแม่ทองย้อย', lot:'LOT-202608-0014', date:'13/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'100.00'},
-  {rf:'RF-TEST', cust:'สมชาย ใจดี', lot:'—', date:'13/08/2569', status:'progress', statusLabel:'ปิดงานแล้ว', w:'100.00'},
-  {rf:'RF-26081301', cust:'โรงงานทองไทยเจริญ', lot:'—', date:'13/08/2569', status:'sched', statusLabel:'จัด Lot แล้ว', w:'300.00'},
 ];
 
 /* ---------- ACCOUNTING / INVOICES ---------- */
@@ -1143,6 +1171,19 @@ function todayStr(){
   const d = new Date();
   return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+(d.getFullYear()+543);
 }
+function wfIsValidRfNo(rf){
+  return /^RF-2569-\d{4}$/.test(String(rf||'').trim());
+}
+function wfParseThaiDate(str){
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(str||'').trim());
+  if(!m) return null;
+  return parseInt(m[3],10)*10000 + parseInt(m[2],10)*100 + parseInt(m[1],10);
+}
+function wfIsFutureDate(str){
+  const d = wfParseThaiDate(str), t = wfParseThaiDate(todayStr());
+  if(d==null || t==null) return false;
+  return d > t;
+}
 
 const WfFormula = {
   diffWeight(declared, received){ return wfRound2(wfNum(declared) - wfNum(received)); },
@@ -1177,7 +1218,12 @@ function wfFreshOrder(rfNo){
     station6: { sumWeighedAfterRolling:null, confirmation:{receiverName:'',senderName:'',timestamp:null} },
     station7: { weighedBeforeExtractionTable:null, panel:{sumWeighedAfterRolling:null,sumWeighedBeforeExtraction:null}, confirmation:{receiverName:'',senderName:'',timestamp:null} },
     station8: { rows:[], panel:{sumWeighedAfterRolling:null,sumWeighedBeforeExtraction:null,sumBeforeMelt99Au:null,sumBeforeMelt99Ag:null,totalWeighedAuAg:null,inputThroughMachineAu:null,inputThroughMachineAg:null}, confirmation:{receiverName:'',senderName:'',timestamp:null} },
-    station9: { panel:{percentAuAfter:99.99,percentAgAfter:99.99,sumWeighedAfterMelt99Au:null,drossWeight:null,shortageGrams:null,tester:'',testDate:todayStr()}, closeJob:{closedBy:null,closedAt:null} },
+    station9: { panel:{
+      percentAuAfter:99.99, percentAgAfter:99.99,
+      sumWeighedAfterMelt99Au:null, drossWeightAu:null, shortageGramsAu:null,
+      sumWeighedAfterMelt99Ag:null, drossWeightAg:null, shortageGramsAg:null,
+      tester:'', testDate:todayStr(),
+    }, closeJob:{closedBy:null,closedAt:null} },
     station10: { summary:{}, decision:null, decidedBy:null, decidedAt:null },
   };
 }
@@ -1187,7 +1233,8 @@ let order = wfFreshOrder();
 function wfSyncOrdersTable(){
   const idx = ORDERS.findIndex(o=>o.rf === order.rfNo);
   const st = WF_STATIONS.find(s=>s.n===state.wfCurrent) || WF_STATIONS[0];
-  const colorMap = {1:'info',2:'progress',3:'progress',4:'sched',5:'info',6:'done',7:'sched',8:'hold',9:'done',10:'sched'};
+  const colorMap = {1:'info',2:'info',3:'info',4:'progress',5:'progress',6:'progress',7:'progress',8:'progress',9:'done',10:'done'};
+  const s4 = order.station4;
   const record = {
     rf: order.rfNo,
     date: order.station1.receiveDate || todayStr(),
@@ -1196,6 +1243,11 @@ function wfSyncOrdersTable(){
     status: colorMap[state.wfCurrent] || 'info',
     statusLabel: st.label,
     station: state.wfCurrent,
+    lotNo: order.lotNo || '—',
+    meltedW: wfFmt(wfNum(order.station2.weightAfterMeltAu)),
+    auCalc: wfFmt(s4.auCalculatedWeight), auReturn: wfFmt(s4.auReturnWeight),
+    agCalc: wfFmt(s4.agCalculatedWeight), agReturn: wfFmt(s4.agReturnWeight),
+    cancelled: idx>=0 ? ORDERS[idx].cancelled : false,
   };
   if(idx >= 0) ORDERS[idx] = record; else ORDERS.unshift(record);
 }
@@ -1386,6 +1438,7 @@ function pageWorkflow(){
 }
 
 function wfRefresh(){
+  if(state.page==='workflow') renderBreadcrumb();
   const stepperEl = $('#wfStepper');
   if(stepperEl){
     stepperEl.innerHTML = WF_STATIONS.map(s=>{
@@ -1412,8 +1465,8 @@ function wfStationS1(){
   return `
     <div class="panel"><div class="panel-body">
       <div class="grid grid-2" style="margin-bottom:16px;">
-        <div class="field"><label>RF No<span class="req">*</span></label><input type="text" id="wf_s1_rfNo" value="${esc(s.rfNo)}"></div>
-        <div class="field"><label>วันที่รับ<span class="req">*</span></label><input type="text" id="wf_s1_receiveDate" value="${esc(s.receiveDate)}"></div>
+        <div class="field"><label>RF No<span class="req">*</span></label><input type="text" id="wf_s1_rfNo" value="${esc(s.rfNo)}" placeholder="RF-2569-xxxx"></div>
+        <div class="field"><label>วันที่รับ</label><input type="text" class="input-locked" id="wf_s1_receiveDate" value="${esc(s.receiveDate)}" disabled></div>
       </div>
       <div class="grid grid-2" style="margin-bottom:16px;">
         <div class="field"><label>ลูกค้า<span class="req">*</span></label>
@@ -1423,26 +1476,24 @@ function wfStationS1(){
           </select>
         </div>
         <div class="field"><label>ชนิดหลอม<span class="req">*</span></label>
-          <select id="wf_s1_metalType">
-            <option value="">เลือกชนิดหลอม</option>
-            <option value="gold" ${s.metalType==='gold'?'selected':''}>ทอง (Au)</option>
-            <option value="silver" ${s.metalType==='silver'?'selected':''}>เงิน (Ag)</option>
-          </select>
+          <div class="seg-control" id="wf_s1_metalType_seg">
+            <button type="button" class="seg-btn ${s.metalType==='gold'?'active':''}" data-seg-value="gold">ทอง (Au)</button>
+            <button type="button" class="seg-btn ${s.metalType==='silver'?'active':''}" data-seg-value="silver">เงิน (Ag)</button>
+          </div>
         </div>
       </div>
       <div class="grid grid-3" style="margin-bottom:16px;">
         <div class="field"><label>น้ำหนักแจ้ง (g)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s1_declaredWeight" value="${s.declaredWeight??''}" placeholder="0.00"></div>
         <div class="field"><label>น้ำหนักรับ (g)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s1_receivedWeight" value="${s.receivedWeight??''}" placeholder="0.00"></div>
-        <div class="field"><label>ขาด/เกิน (g)</label><input class="num-input input-locked" type="text" id="wf_s1_diffWeight" value="${wfFmt(s.diffWeight)}" disabled></div>
+        <div class="field"><label>ขาด/เกิน (g)</label><input class="num-input input-locked ${s.diffWeight===0?'diff-match':(s.diffWeight!=null?'diff-mismatch':'')}" type="text" id="wf_s1_diffWeight" value="${wfFmt(s.diffWeight)}" disabled></div>
       </div>
       <div class="grid grid-2">
         <div class="field"><label>รายละเอียด</label><input type="text" id="wf_s1_detail" value="${esc(s.detail)}" placeholder="รายละเอียดเพิ่มเติม"></div>
         <div class="field"><label>รูปแบบ<span class="req">*</span></label>
-          <select id="wf_s1_jobFormat">
-            <option value="">เลือกรูปแบบ</option>
-            <option value="bar" ${s.jobFormat==='bar'?'selected':''}>แบบแท่ง</option>
-            <option value="pellet" ${s.jobFormat==='pellet'?'selected':''}>แบบเม็ด</option>
-          </select>
+          <div class="seg-control" id="wf_s1_jobFormat_seg">
+            <button type="button" class="seg-btn ${s.jobFormat==='bar'?'active':''}" data-seg-value="bar">แบบแท่ง</button>
+            <button type="button" class="seg-btn ${s.jobFormat==='pellet'?'active':''}" data-seg-value="pellet">แบบเม็ด</button>
+          </div>
         </div>
       </div>
     </div></div>
@@ -1467,7 +1518,7 @@ function wfStationS2(){
           <div class="field"><label>น้ำหนักตัวอย่างลูกค้า (Au)</label><input class="num-input" type="text" id="wf_s2_customerSampleWeightAu" value="${s.customerSampleWeightAu??''}" placeholder="0.00"></div>
         </div>
         <div class="grid grid-2">
-          <div class="field"><label>ขาด (Au)</label><input class="num-input input-locked" type="text" id="wf_s2_shortageAu" value="${wfFmt(s.shortageAu)}" disabled></div>
+          <div class="field"><label>ขาด (Au)</label><input class="num-input input-locked ${s.shortageAu===0?'diff-match':(s.shortageAu!=null?'diff-mismatch':'')}" type="text" id="wf_s2_shortageAu" value="${wfFmt(s.shortageAu)}" disabled></div>
           <div class="field"><label>ขี้เบ้า (Au)</label><input class="num-input" type="text" id="wf_s2_drossAu" value="${s.drossAu??''}" placeholder="0.00"></div>
         </div>
       </div>
@@ -1482,7 +1533,7 @@ function wfStationS2(){
           <div class="field"><label>น้ำหนักตัวอย่างลูกค้า (Ag)</label><input class="num-input" type="text" id="wf_s2_customerSampleWeightAg" value="${s.customerSampleWeightAg??''}" placeholder="0.00" ${isSilver?'':'disabled'}></div>
         </div>
         <div class="grid grid-2">
-          <div class="field"><label>ขาด (Ag)</label><input class="num-input input-locked" type="text" id="wf_s2_shortageAg" value="${wfFmt(s.shortageAg)}" disabled></div>
+          <div class="field"><label>ขาด (Ag)</label><input class="num-input input-locked ${s.shortageAg===0?'diff-match':(s.shortageAg!=null?'diff-mismatch':'')}" type="text" id="wf_s2_shortageAg" value="${wfFmt(s.shortageAg)}" disabled></div>
           <div class="field"><label>ขี้เบ้า (Ag)</label><input class="num-input" type="text" id="wf_s2_drossAg" value="${s.drossAg??''}" placeholder="0.00" ${isSilver?'':'disabled'}></div>
         </div>
       </div>
@@ -1500,14 +1551,41 @@ function wfStationS2(){
 /* ---------------- STATION 3 — ทดสอบ % ---------------- */
 function wfStationS3(){
   const s = order.station3;
+  const s2 = order.station2;
+  const isSilver = order.metalType === 'silver';
   return `
-    <div class="panel"><div class="panel-body">
-      <div class="grid grid-2" style="margin-bottom:16px;">
-        <div class="field"><label>% Au<span class="req">*</span></label><input class="num-input" type="text" id="wf_s3_percentAu" value="${s.percentAu??''}" placeholder="0.00"></div>
-        <div class="field"><label>% Ag</label><input class="num-input" type="text" id="wf_s3_percentAg" value="${s.percentAg??''}" placeholder="0.00" ${order.metalType==='silver'?'':'disabled'}></div>
+    <div class="panel">
+      <div class="panel-head">ผลทดสอบเปอร์เซ็นต์ความบริสุทธิ์</div>
+      <div class="panel-body">
+        <div class="grid grid-2">
+          <div class="field">
+            <label>% Au<span class="req">*</span></label>
+            <input class="num-input percent-input-lg" type="text" id="wf_s3_percentAu" value="${s.percentAu??''}" placeholder="0.00">
+          </div>
+          <div class="field">
+            <label>% Ag</label>
+            <input class="num-input percent-input-lg" type="text" id="wf_s3_percentAg" value="${s.percentAg??''}" placeholder="0.00" ${isSilver?'':'disabled'}>
+          </div>
+        </div>
       </div>
-      <div class="field" style="max-width:320px;"><label>ช่างทดสอบ</label><input type="text" class="input-locked" value="${esc(s.testerName||'—')}" disabled></div>
-    </div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">ข้อมูลอ้างอิงจาก Station 2 (แก้ไขไม่ได้)</div>
+      <div class="panel-body">
+        <div class="grid grid-2" style="margin-bottom:16px;">
+          <div class="field"><label>น้ำหนักตัวอย่าง (g) — Au</label><input class="num-input input-locked" type="text" value="${wfFmt(wfNum(s2.sampleWeightAu))}" disabled></div>
+          <div class="field"><label>น้ำหนักตัวอย่างลูกค้า (g) — Au</label><input class="num-input input-locked" type="text" value="${wfFmt(wfNum(s2.customerSampleWeightAu))}" disabled></div>
+        </div>
+        <div class="grid grid-2" style="${isSilver?'':'opacity:.55;'}">
+          <div class="field"><label>น้ำหนักตัวอย่าง (g) — Ag</label><input class="num-input input-locked" type="text" value="${wfFmt(wfNum(s2.sampleWeightAg))}" disabled></div>
+          <div class="field"><label>น้ำหนักตัวอย่างลูกค้า (g) — Ag</label><input class="num-input input-locked" type="text" value="${wfFmt(wfNum(s2.customerSampleWeightAg))}" disabled></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="max-width:340px; margin-bottom:16px;"><label>ช่างทดสอบ / ผู้ส่งงาน</label><input type="text" class="input-locked" value="${esc(s.testerName||'—')}" disabled></div>
+
     <div class="table-foot" style="border:none; padding:0; justify-content:flex-end; gap:10px;">
       <button class="btn btn-danger-ghost" id="wf_btnCancel3">ยกเลิก RF-No</button>
       <button class="btn btn-primary" id="wf_btnNext3">ขั้นตอนถัดไป →</button>
@@ -1717,7 +1795,9 @@ function wfStationS8(){
 /* ---------------- STATION 9 — ปิดงาน ---------------- */
 function wfStationS9(){
   const p = order.station9.panel;
-  p.shortageGrams = WfFormula.meltShortage(p.sumWeighedAfterMelt99Au, order.station8.panel.sumBeforeMelt99Au);
+  p.shortageGramsAu = WfFormula.meltShortage(p.sumWeighedAfterMelt99Au, order.station8.panel.sumBeforeMelt99Au);
+  p.shortageGramsAg = WfFormula.meltShortage(p.sumWeighedAfterMelt99Ag, order.station8.panel.sumBeforeMelt99Ag);
+  if(p.sumWeighedAfterMelt99Ag == null) p.sumWeighedAfterMelt99Ag = order.station8.panel.sumBeforeMelt99Ag; // 9.15 default อ้างอิงข้อ 8.4/8.8
   const rows = order.station8.rows.map(r=>`
     <tr><td class="cell-primary">${esc(r.rfNo)}</td><td class="num">${wfFmt(r.percentAu)}%</td><td class="num">${wfFmt(r.auGrams)}</td><td class="num">${wfFmt(r.percentAg)}%</td><td class="num">${wfFmt(r.agGrams)}</td></tr>`).join('');
   return `
@@ -1727,21 +1807,50 @@ function wfStationS9(){
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <div class="panel"><div class="panel-body">
-      <div class="grid grid-2" style="margin-bottom:16px;">
-        <div class="field"><label>% Au หลังหลอม 99 (default)</label><input class="num-input" type="text" id="wf_s9_percentAuAfter" value="${p.percentAuAfter}"></div>
-        <div class="field"><label>% Ag หลังหลอม 99 (default)</label><input class="num-input" type="text" id="wf_s9_percentAgAfter" value="${p.percentAgAfter}" ${order.metalType==='silver'?'':'disabled'}></div>
-      </div>
-      <div class="grid grid-3" style="margin-bottom:16px;">
-        <div class="field"><label>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Au)</label><input class="num-input" type="text" id="wf_s9_afterMelt99Au" value="${p.sumWeighedAfterMelt99Au??''}" placeholder="0.00"></div>
-        <div class="field"><label>ขี้เบ้า</label><input class="num-input" type="text" id="wf_s9_dross" value="${p.drossWeight??''}" placeholder="0.00"></div>
-        <div class="field"><label>ขาด (g)</label><input class="num-input input-locked" type="text" id="wf_s9_shortage" value="${wfFmt(p.shortageGrams)}" disabled></div>
-      </div>
-      <div class="grid grid-2">
-        <div class="field"><label>ผู้ทดสอบ</label><input type="text" id="wf_s9_tester" value="${esc(p.tester)}" placeholder="ชื่อผู้ทดสอบ"></div>
-        <div class="field"><label>วันที่ทดสอบ</label><input type="text" id="wf_s9_testDate" value="${esc(p.testDate)}"></div>
+
+    <div class="panel"><div class="panel-head">ค่าที่ดึงมาจากขั้นตอนก่อนหน้า</div><div class="panel-body">
+      <div class="grid grid-3">
+        <div class="field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station6.sumWeighedAfterRolling)}" disabled></div>
+        <div class="field"><label>น้ำหนักชั่งก่อนสกัด</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station7.panel.sumWeighedBeforeExtraction)}" disabled></div>
+        <div class="field"><label>น้ำหนักชั่งรวม (Au+Ag)</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station8.panel.totalWeighedAuAg)}" disabled></div>
       </div>
     </div></div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="badge badge-progress">Au</span></div>
+      <div class="panel-body">
+        <div class="grid grid-2" style="margin-bottom:16px;">
+          <div class="field"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Au)</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station8.panel.sumBeforeMelt99Au)}" disabled></div>
+          <div class="field"><label>% Au หลังหลอม 99</label><input class="num-input input-locked" type="text" value="${p.percentAuAfter}" disabled></div>
+        </div>
+        <div class="grid grid-3">
+          <div class="field"><label>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Au)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s9_afterMelt99Au" value="${p.sumWeighedAfterMelt99Au??''}" placeholder="0.00"></div>
+          <div class="field"><label>ขี้เบ้า (Au)</label><input class="num-input" type="text" id="wf_s9_drossAu" value="${p.drossWeightAu??''}" placeholder="0.00"></div>
+          <div class="field"><label>ขาด (g) Au</label><input class="num-input input-locked ${p.shortageGramsAu===0?'diff-match':(p.shortageGramsAu!=null?'diff-mismatch':'')}" type="text" id="wf_s9_shortageAu" value="${wfFmt(p.shortageGramsAu)}" disabled></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="${order.metalType==='silver'?'':'opacity:.55;'}">
+      <div class="panel-head"><span class="badge badge-sched">Ag</span>${order.metalType==='silver'?'':'<span class="badge badge-hold" style="margin-left:8px;">ปิดใช้งาน — เลือกชนิดหลอม = เงิน ที่ Station 1</span>'}</div>
+      <div class="panel-body">
+        <div class="grid grid-2" style="margin-bottom:16px;">
+          <div class="field"><label>ผลรวมน้ำหนักชั่งก่อนหลอม 99 (Ag)</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station8.panel.sumBeforeMelt99Ag)}" disabled></div>
+          <div class="field"><label>% Ag หลังหลอม 99</label><input class="num-input input-locked" type="text" value="${p.percentAgAfter}" disabled></div>
+        </div>
+        <div class="grid grid-3">
+          <div class="field"><label>ผลรวมน้ำหนักชั่งหลังหลอม 99 (Ag)</label><input class="num-input" type="text" id="wf_s9_afterMelt99Ag" value="${p.sumWeighedAfterMelt99Ag??''}" placeholder="0.00" ${order.metalType==='silver'?'':'disabled'}></div>
+          <div class="field"><label>ขี้เบ้า (Ag)</label><input class="num-input" type="text" id="wf_s9_drossAg" value="${p.drossWeightAg??''}" placeholder="0.00" ${order.metalType==='silver'?'':'disabled'}></div>
+          <div class="field"><label>ขาด (g) Ag</label><input class="num-input input-locked ${p.shortageGramsAg===0?'diff-match':(p.shortageGramsAg!=null?'diff-mismatch':'')}" type="text" id="wf_s9_shortageAg" value="${wfFmt(p.shortageGramsAg)}" disabled></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:16px;">
+      <div class="field"><label>ผู้ทดสอบ</label><input type="text" class="input-locked" value="${esc(p.tester || 'เจ้าหน้าที่ระบบ (Current User)')}" disabled></div>
+      <div class="field"><label>วันที่ทดสอบ</label><input type="text" class="input-locked" value="${esc(p.testDate)}" disabled></div>
+    </div>
+
     <div class="table-foot" style="border:none; padding:0; justify-content:flex-end;">
       <button class="btn btn-danger" id="wf_btnClose9">ปิดงาน</button>
     </div>
@@ -1840,14 +1949,20 @@ function wfSyncStation4Fields(){
 
 function wfBindStationEvents(){
   // Station 1
-  const s1Metal = $('#wf_s1_metalType');
-  if(s1Metal) s1Metal.addEventListener('change', ()=>{ order.station1.metalType = s1Metal.value; order.metalType = s1Metal.value || null; wfRefresh(); });
-  ['wf_s1_rfNo','wf_s1_receiveDate','wf_s1_detail'].forEach(id=>{
+  $$('#wf_s1_metalType_seg .seg-btn').forEach(btn=>btn.addEventListener('click', ()=>{
+    order.station1.metalType = btn.dataset.segValue;
+    order.metalType = btn.dataset.segValue || null;
+    $$('#wf_s1_metalType_seg .seg-btn').forEach(b=>b.classList.toggle('active', b===btn));
+  }));
+  ['wf_s1_rfNo','wf_s1_detail'].forEach(id=>{
     const el=$('#'+id); if(!el) return;
     el.addEventListener('input', ()=>{ order.station1[id.replace('wf_s1_','')] = el.value; if(id==='wf_s1_rfNo') order.rfNo = el.value; });
   });
-  const s1Job = $('#wf_s1_jobFormat');
-  if(s1Job) s1Job.addEventListener('change', ()=>{ order.station1.jobFormat = s1Job.value; order.jobType = s1Job.value || null; });
+  $$('#wf_s1_jobFormat_seg .seg-btn').forEach(btn=>btn.addEventListener('click', ()=>{
+    order.station1.jobFormat = btn.dataset.segValue;
+    order.jobType = btn.dataset.segValue || null;
+    $$('#wf_s1_jobFormat_seg .seg-btn').forEach(b=>b.classList.toggle('active', b===btn));
+  }));
   const s1Cust = $('#wf_s1_customerName');
   if(s1Cust) s1Cust.addEventListener('change', ()=>{ order.station1.customerName = s1Cust.value; });
   ['wf_s1_declaredWeight','wf_s1_receivedWeight'].forEach(id=>{
@@ -1855,13 +1970,21 @@ function wfBindStationEvents(){
     el.addEventListener('input', ()=>{
       order.station1[id.replace('wf_s1_','')] = el.value;
       order.station1.diffWeight = WfFormula.diffWeight(order.station1.declaredWeight, order.station1.receivedWeight);
-      $('#wf_s1_diffWeight').value = wfFmt(order.station1.diffWeight);
+      const diffEl = $('#wf_s1_diffWeight');
+      diffEl.value = wfFmt(order.station1.diffWeight);
+      wfPaintDiffField(diffEl, order.station1.diffWeight === 0);
     });
   });
   const btnNext1 = $('#wf_btnNext1');
   if(btnNext1) btnNext1.addEventListener('click', ()=>{
     if(!order.station1.rfNo || !order.station1.customerName || !order.station1.metalType || order.station1.declaredWeight==null || order.station1.receivedWeight==null || !order.station1.jobFormat){
       toast('กรุณากรอกข้อมูลที่มี * ให้ครบก่อน'); return;
+    }
+    if(!wfIsValidRfNo(order.station1.rfNo)){
+      toast('รูปแบบ RF No ไม่ถูกต้อง — ต้องเป็น RF-2569-xxxx (ตัวเลข 4 หลัก)'); return;
+    }
+    if(wfIsFutureDate(order.station1.receiveDate)){
+      toast('วันที่รับต้องไม่เกินวันที่ปัจจุบัน'); return;
     }
     wfOpenConfirmModal({title:'ยืนยันขั้นตอนถัดไป — Station 1 → 2', receiverLabel:'ผู้รับ (ช่างหลอม)', senderLabel:'ผู้ส่ง',
       onConfirm:(receiver)=>{
@@ -1879,8 +2002,8 @@ function wfBindStationEvents(){
       order.station2[id.replace('wf_s2_','')] = el.value;
       order.station2.shortageAu = WfFormula.shortage(order.station2.weightAfterMeltAu, order.station2.sampleWeightAu, order.station2.customerSampleWeightAu, order.station1.receivedWeight);
       order.station2.shortageAg = WfFormula.shortage(order.station2.weightAfterMeltAg, order.station2.sampleWeightAg, order.station2.customerSampleWeightAg, order.station1.receivedWeight);
-      $('#wf_s2_shortageAu').value = wfFmt(order.station2.shortageAu);
-      $('#wf_s2_shortageAg').value = wfFmt(order.station2.shortageAg);
+      const shortAuEl = $('#wf_s2_shortageAu'); shortAuEl.value = wfFmt(order.station2.shortageAu); wfPaintDiffField(shortAuEl, order.station2.shortageAu===0);
+      const shortAgEl = $('#wf_s2_shortageAg'); shortAgEl.value = wfFmt(order.station2.shortageAg); wfPaintDiffField(shortAgEl, order.station2.shortageAg===0);
     });
   });
   const btnNext2 = $('#wf_btnNext2');
@@ -1984,13 +2107,15 @@ function wfBindStationEvents(){
   });
 
   // Station 9
-  ['wf_s9_percentAuAfter','wf_s9_percentAgAfter','wf_s9_afterMelt99Au','wf_s9_dross','wf_s9_tester','wf_s9_testDate'].forEach(id=>{
+  ['wf_s9_afterMelt99Au','wf_s9_drossAu','wf_s9_afterMelt99Ag','wf_s9_drossAg'].forEach(id=>{
     const el=$('#'+id); if(!el) return;
-    const key = {wf_s9_percentAuAfter:'percentAuAfter', wf_s9_percentAgAfter:'percentAgAfter', wf_s9_afterMelt99Au:'sumWeighedAfterMelt99Au', wf_s9_dross:'drossWeight', wf_s9_tester:'tester', wf_s9_testDate:'testDate'}[id];
+    const key = {wf_s9_afterMelt99Au:'sumWeighedAfterMelt99Au', wf_s9_drossAu:'drossWeightAu', wf_s9_afterMelt99Ag:'sumWeighedAfterMelt99Ag', wf_s9_drossAg:'drossWeightAg'}[id];
     el.addEventListener('input', ()=>{
       order.station9.panel[key] = el.value;
-      order.station9.panel.shortageGrams = WfFormula.meltShortage(order.station9.panel.sumWeighedAfterMelt99Au, order.station8.panel.sumBeforeMelt99Au);
-      const shortageEl = $('#wf_s9_shortage'); if(shortageEl) shortageEl.value = wfFmt(order.station9.panel.shortageGrams);
+      order.station9.panel.shortageGramsAu = WfFormula.meltShortage(order.station9.panel.sumWeighedAfterMelt99Au, order.station8.panel.sumBeforeMelt99Au);
+      order.station9.panel.shortageGramsAg = WfFormula.meltShortage(order.station9.panel.sumWeighedAfterMelt99Ag, order.station8.panel.sumBeforeMelt99Ag);
+      const shortageAuEl = $('#wf_s9_shortageAu'); if(shortageAuEl){ shortageAuEl.value = wfFmt(order.station9.panel.shortageGramsAu); wfPaintDiffField(shortageAuEl, order.station9.panel.shortageGramsAu===0); }
+      const shortageAgEl = $('#wf_s9_shortageAg'); if(shortageAgEl){ shortageAgEl.value = wfFmt(order.station9.panel.shortageGramsAg); wfPaintDiffField(shortageAgEl, order.station9.panel.shortageGramsAg===0); }
     });
   });
   const btnClose9 = $('#wf_btnClose9');
@@ -2164,7 +2289,20 @@ function pageDashboard(){
    ORDERS
    ============================================================ */
 function pageOrders(){
-  const rows = ORDERS.map(o=>`
+  // map each tab key -> the station number it represents (via WF_STATIONS), if any
+  const tabToStation = {};
+  WF_STATIONS.forEach(s=>{ tabToStation[s.key] = s.n; });
+
+  function matchesTab(o, tabKey){
+    if(tabKey==='all') return !o.cancelled;
+    if(tabKey==='cancel') return !!o.cancelled;
+    if(o.cancelled) return false;
+    return o.station === tabToStation[tabKey];
+  }
+
+  const visible = ORDERS.filter(o=>matchesTab(o, state.orderTab));
+
+  const rows = visible.map(o=>`
     <tr class="clickable" data-detail="${esc(o.rf)}">
       <td class="cell-primary">${esc(o.rf)}</td>
       <td>${esc(o.date)}</td>
@@ -2174,14 +2312,14 @@ function pageOrders(){
       <td class="right">
         <div class="table-actions">
           <button class="icon-btn" title="ดูรายละเอียด" data-detail="${esc(o.rf)}">${iconEye()}</button>
-          <button class="icon-btn" title="ยกเลิก Order" data-action="cancel-order" data-rf="${esc(o.rf)}">${iconTrash()}</button>
+          ${o.cancelled ? '' : `<button class="icon-btn" title="ยกเลิก Order" data-action="cancel-order" data-rf="${esc(o.rf)}">${iconTrash()}</button>`}
         </div>
       </td>
     </tr>`).join('');
 
   return `
     <div class="page-head">
-      <div><h1>Orders</h1><div class="desc">รายการ Order ทองทั้งหมด แยกตามสถานะการดำเนินงาน</div></div>
+      <div><h1>รายการสั่งซื้อ</h1><div class="desc">รายการ Order ทองทั้งหมด แยกตามสถานะการดำเนินงาน</div></div>
       <button class="btn btn-primary" data-action="new-order">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         สร้าง Order
@@ -2195,7 +2333,10 @@ function pageOrders(){
     </div>
 
     <div class="tabs">
-      ${ORDER_TABS.map(t=>`<div class="tab ${state.orderTab===t.key?'active':''}" data-tab="order" data-key="${t.key}">${esc(t.label)}<span class="count">${t.count}</span></div>`).join('')}
+      ${ORDER_TABS.map(t=>{
+        const n = ORDERS.filter(o=>matchesTab(o, t.key)).length;
+        return `<div class="tab ${state.orderTab===t.key?'active':''}" data-tab="order" data-key="${t.key}">${esc(t.label)}<span class="count">${n}</span></div>`;
+      }).join('')}
     </div>
 
     <div class="table-wrap">
@@ -2204,7 +2345,7 @@ function pageOrders(){
         <tbody>${rows || `<tr class="empty-row"><td colspan="6">ไม่พบรายการในสถานะนี้</td></tr>`}</tbody>
       </table>
       <div class="table-foot">
-        <span>แสดง 1-${ORDERS.length} จาก ${ORDERS.length} รายการ</span>
+        <span>แสดง ${visible.length ? 1 : 0}-${visible.length} จาก ${visible.length} รายการ</span>
         <div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div>
       </div>
     </div>
@@ -2408,40 +2549,92 @@ function pageLotManage(){
 /* ============================================================
    TDC APPROVE (อนุมัติส่ง TDC)
    ============================================================ */
-const TDC_APPROVE_DATA = KANBAN_COLS.find(c=>c.key==='tdc')?.items.map(it=>({...it, sampleW:'', custSampleW:''})) || [];
+const TDC_APPROVE_DATA = [
+  ...(KANBAN_COLS.find(c=>c.key==='tdc')?.items.map(it=>({
+    ...it,
+    metalType:'gold',
+    detail:'ทองแท่ง 96.5% รอบส่งออก',
+    declaredWeight: it.w, meltedWeight:'98.75',
+    percentAu:'96.50', percentAg:'0.00',
+    sampleW:'', custSampleW:'', sampleWAg:'', custSampleWAg:'',
+  })) || []),
+  {
+    rf:'RF-2569-0074', cust:'ห้างทองศิริทองคำ', date:'12/08/2569', w:'264.10',
+    metalType:'gold', detail:'ทองเม็ด 96.5% ส่งลูกค้าโดยตรง',
+    declaredWeight:'264.10', meltedWeight:'260.80',
+    percentAu:'96.80', percentAg:'0.00',
+    sampleW:'0.50', custSampleW:'0.50', sampleWAg:'', custSampleWAg:'',
+  },
+  {
+    rf:'RF-2569-0073', cust:'โรงงานทองไทยเจริญ', date:'11/08/2569', w:'447.50',
+    metalType:'silver', detail:'เงินแท่ง 99.9% ส่งออก TDC',
+    declaredWeight:'447.50', meltedWeight:'441.00',
+    percentAu:'0.00', percentAg:'99.90',
+    sampleW:'', custSampleW:'', sampleWAg:'1.20', custSampleWAg:'1.20',
+  },
+  {
+    rf:'RF-2569-0071', cust:'ห้างทองแม่ทองย้อย', date:'09/08/2569', w:'152.30',
+    metalType:'gold', detail:'ทองแท่ง 96.5% รอบส่งออก',
+    declaredWeight:'152.30', meltedWeight:'149.90',
+    percentAu:'96.40', percentAg:'0.00',
+    sampleW:'0.30', custSampleW:'0.30', sampleWAg:'', custSampleWAg:'',
+  },
+];
 
 function pageTdcApprove(){
-  const rows = TDC_APPROVE_DATA.map((r,i)=>`
-    <tr>
-      <td class="cell-primary">${esc(r.rf)}</td>
-      <td>${esc(r.cust)}</td>
-      <td>${esc(r.date)}</td>
-      <td class="num">${esc(r.w)} g</td>
-      <td><input type="text" class="num-input" data-tdc-sample="${i}" placeholder="0.00" value="${esc(r.sampleW)}"></td>
-      <td><input type="text" class="num-input" data-tdc-cust-sample="${i}" placeholder="0.00" value="${esc(r.custSampleW)}"></td>
-      <td class="right"><button class="btn btn-primary btn-sm" data-action="tdc-approve-row" data-idx="${i}">${iconCheckSm()} อนุมัติ</button></td>
-    </tr>`).join('');
+  const cards = TDC_APPROVE_DATA.map((r,i)=>{
+    const isSilver = r.metalType === 'silver';
+    return `
+    <div class="tdc-card">
+      <div class="tdc-card-head">
+        <div>
+          <div class="tdc-card-rf">${esc(r.rf)}</div>
+          <div class="tdc-card-cust">${esc(r.cust)} • รับเมื่อ ${esc(r.date)}</div>
+        </div>
+        <div class="tdc-card-weight"><span class="val">${esc(r.w)} g</span><span class="lbl">น้ำหนักรับ</span></div>
+      </div>
+      <div class="tdc-card-body">
+        <div class="tdc-info-row">
+          <div class="item"><span class="lbl">รายละเอียด</span><span class="val">${esc(r.detail)}</span></div>
+          <div class="item"><span class="lbl">น้ำหนักแจ้ง</span><span class="val">${wfFmt(wfNum(r.declaredWeight))} g</span></div>
+          <div class="item"><span class="lbl">น้ำหนักหลังหลอม</span><span class="val">${wfFmt(wfNum(r.meltedWeight))} g</span></div>
+        </div>
+
+        <div class="tdc-metal-panel">
+          <div class="tdc-metal-head"><span class="badge badge-progress">Au — ทอง</span><span style="font-weight:700; margin-left:auto;">${wfFmt(wfNum(r.percentAu))}%</span></div>
+          <div class="tdc-metal-body">
+            <div class="field"><label>น้ำหนักตัวอย่าง (g)</label><input type="text" class="num-input input-locked" value="${wfFmt(wfNum(r.sampleW))}" disabled></div>
+            <div class="field"><label>น้ำหนักตัวอย่างลูกค้า (g)</label><input type="text" class="num-input input-locked" value="${wfFmt(wfNum(r.custSampleW))}" disabled></div>
+          </div>
+        </div>
+
+        <div class="tdc-metal-panel" style="${isSilver?'':'opacity:.55;'} margin-bottom:0;">
+          <div class="tdc-metal-head"><span class="badge badge-sched">Ag — เงิน</span><span style="font-weight:700; margin-left:auto;">${wfFmt(wfNum(r.percentAg))}%</span>${isSilver?'':'<span class="badge badge-hold" style="margin-left:10px;">Order นี้ไม่มีเงิน</span>'}</div>
+          <div class="tdc-metal-body">
+            <div class="field"><label>น้ำหนักตัวอย่าง (g)</label><input type="text" class="num-input input-locked" value="${wfFmt(wfNum(r.sampleWAg))}" disabled></div>
+            <div class="field"><label>น้ำหนักตัวอย่างลูกค้า (g)</label><input type="text" class="num-input input-locked" value="${wfFmt(wfNum(r.custSampleWAg))}" disabled></div>
+          </div>
+        </div>
+      </div>
+      <div class="tdc-card-foot">
+        <button class="btn btn-danger-ghost" data-action="tdc-reject-row" data-idx="${i}">ปฏิเสธ</button>
+        <button class="btn btn-primary" data-action="tdc-approve-row" data-idx="${i}">${iconCheckSm()} อนุมัติ</button>
+      </div>
+    </div>`;
+  }).join('');
 
   return `
     <div class="page-head">
-      <div><h1>อนุมัติส่ง TDC</h1><div class="desc">ตรวจสอบน้ำหนักตัวอย่างก่อนอนุมัติส่งรายการให้ TDC</div></div>
+      <div><h1>อนุมัติส่ง TDC</h1><div class="desc">ตรวจสอบข้อมูลและน้ำหนักตัวอย่างก่อนอนุมัติส่งรายการให้ TDC</div></div>
+      <span class="badge badge-progress" style="font-size:16px; padding:8px 16px;">รออนุมัติ ${TDC_APPROVE_DATA.length} รายการ</span>
     </div>
 
-    <div class="search-row" style="margin-bottom:16px;">
+    <div class="search-row" style="margin-bottom:20px;">
       <input type="text" placeholder="ค้นหา RF No / ลูกค้า">
       <button class="btn btn-secondary" data-action="manual-search">${iconSearch()} ค้นหา</button>
     </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th>RF No</th><th>ลูกค้า</th><th>วันที่</th><th class="num">น้ำหนักส่ง</th>
-          <th>น้ำหนักตัวอย่าง (g)</th><th>น้ำหนักตัวอย่างลูกค้า (g)</th><th class="right">จัดการ</th>
-        </tr></thead>
-        <tbody>${rows || `<tr class="empty-row"><td colspan="7">ไม่มีรายการรออนุมัติ</td></tr>`}</tbody>
-      </table>
-      <div class="table-foot"><span>แสดง 1-${TDC_APPROVE_DATA.length} จาก ${TDC_APPROVE_DATA.length} รายการ</span><div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div></div>
-    </div>
+    ${cards || `<div class="panel"><div class="panel-body" style="text-align:center; color:var(--text-secondary); padding:40px;">ไม่มีรายการรออนุมัติ</div></div>`}
   `;
 }
 
@@ -2509,7 +2702,25 @@ function pageCustomers(){
    STOCK
    ============================================================ */
 function pageStock(){
-  const statBlock = (title, stats, tone)=>`
+  const PREP_STATIONS = [4,5,6,7]; // หักทองเสร็จสิ้น (4) จนถึงก่อนเริ่มหลอม 99 (ก่อน 8)
+  const DONE_STATIONS_MIN = 9;      // ปิดสถานีหลอม 99 (9) เป็นต้นไป
+
+  const active = ORDERS.filter(o=>!o.cancelled);
+  const prepList = active.filter(o=>PREP_STATIONS.includes(o.station));
+  const doneList = active.filter(o=>o.station >= DONE_STATIONS_MIN);
+
+  function aggregate(list){
+    const sum = (key)=> wfFmt(list.reduce((s,o)=>s+wfNum(o[key]), 0));
+    return {
+      receivedTotal: sum('w'), meltedTotal: sum('meltedW'),
+      au: sum('auCalc'), auBack: sum('auReturn'),
+      ag: sum('agCalc'), agBack: sum('agReturn'),
+    };
+  }
+  const prepStats = aggregate(prepList);
+  const doneStats = aggregate(doneList);
+
+  const statBlock = (title, stats)=>`
     <div class="card card-pad" style="flex:1;">
       <div class="section-label">${esc(title)}</div>
       <div class="grid-2" style="margin-bottom:14px;">
@@ -2530,19 +2741,20 @@ function pageStock(){
       </div>
     </div>`;
 
-  const rows = STOCK_ROWS.map(r=>`
-    <tr class="clickable" data-detail="${esc(r.rf)}">
-      <td class="cell-primary">${esc(r.rf)}</td>
-      <td>${esc(r.cust)}</td>
-      <td>${esc(r.lot)}</td>
-      <td>${esc(r.date)}</td>
-      <td><span class="badge badge-${r.status}">${esc(r.statusLabel)}</span></td>
-      <td class="num">${esc(r.w)} g</td>
+  const stockList = state.stockTab==='done' ? doneList : prepList;
+  const rows = stockList.map(o=>`
+    <tr class="clickable" data-detail="${esc(o.rf)}">
+      <td class="cell-primary">${esc(o.rf)}</td>
+      <td>${esc(o.cust)}</td>
+      <td>${esc(o.lotNo||'—')}</td>
+      <td>${esc(o.date)}</td>
+      <td><span class="badge badge-${o.status}">${esc(o.statusLabel)}</span></td>
+      <td class="num">${esc(o.w)} g</td>
     </tr>`).join('');
 
   return `
     <div class="page-head">
-      <div><h1>Stock</h1><div class="desc">รายการหลอมทองคำตามช่วงวันที่ที่เลือก</div></div>
+      <div><h1>คลังสินค้า</h1><div class="desc">สรุปสต็อกทองคำ/เงิน แบบ Real-time ตามขั้นตอนที่ใบงานกำลังดำเนินอยู่จริง</div></div>
     </div>
 
     <div class="search-row" style="margin-bottom:18px;">
@@ -2552,16 +2764,21 @@ function pageStock(){
     </div>
 
     <div style="display:flex; gap:16px; margin-bottom:22px; flex-wrap:wrap;">
-      ${statBlock('Stock จัดเตรียม (ยังไม่สกัด — อยู่ในขั้นตอน Operation)', STOCK_PREP_STATS)}
-      ${statBlock('Stock ที่เสร็จสิ้นกระบวนการแล้ว (จบขั้นตอนหลอม 99)', STOCK_DONE_STATS)}
+      ${statBlock('Stock จัดเตรียม (ยังไม่สกัด — ผ่านหักทองแล้ว ก่อนเริ่มหลอม 99)', prepStats)}
+      ${statBlock('Stock ที่เสร็จสิ้นกระบวนการแล้ว (ปิดสถานีหลอม 99)', doneStats)}
+    </div>
+
+    <div class="tabs">
+      <div class="tab ${state.stockTab==='prep'?'active':''}" data-tab="stock" data-key="prep">จัดเตรียม<span class="count">${prepList.length}</span></div>
+      <div class="tab ${state.stockTab==='done'?'active':''}" data-tab="stock" data-key="done">เสร็จสิ้น<span class="count">${doneList.length}</span></div>
     </div>
 
     <div class="table-wrap">
       <table>
         <thead><tr><th>RF-No</th><th>ชื่อลูกค้า</th><th>Lot</th><th>วันที่</th><th>สถานะ</th><th class="num">น้ำหนักได้รับ</th></tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>${rows || `<tr class="empty-row"><td colspan="6">ไม่มีรายการในสถานะนี้</td></tr>`}</tbody>
       </table>
-      <div class="table-foot"><span>ทั้งหมด 26 รายการ</span><div class="pager"><button>‹</button><button class="active">1</button><button>›</button><span style="margin-left:8px;">10 ต่อหน้า</span></div></div>
+      <div class="table-foot"><span>ทั้งหมด ${stockList.length} รายการ</span><div class="pager"><button>‹</button><button class="active">1</button><button>›</button></div></div>
     </div>
   `;
 }
@@ -2570,6 +2787,13 @@ function pageStock(){
    ACCOUNTING (บัญชี)
    ============================================================ */
 function pageAccounting(){
+  function invNoSortKey(no){
+    const parts = String(no||'0/0').split('/').map(x=>parseInt(x,10)||0);
+    return (parts[0]||0)*10000 + (parts[1]||0);
+  }
+  const sortedNoNumber = INV_NO_NUMBER.slice().sort((a,b)=> wfParseThaiDate(b.date) - wfParseThaiDate(a.date));
+  const sortedWithNumber = INV_WITH_NUMBER.slice().sort((a,b)=> invNoSortKey(b.no) - invNoSortKey(a.no));
+
   const tabs = [
     {key:'nonum', label:'RF ที่ยังไม่มีเลข Invoice', count:INV_NO_NUMBER.length},
     {key:'withnum', label:'RF ที่มีเลข Invoice', count:INV_WITH_NUMBER.length},
@@ -2581,13 +2805,13 @@ function pageAccounting(){
   let body='';
   let colCount = 5;
   if(state.acctTab==='nonum'){
-    body = INV_NO_NUMBER.map(r=>`
+    body = sortedNoNumber.map(r=>`
       <tr>
         <td>${esc(r.date)}</td><td>—</td><td class="cell-primary">${esc(r.cust)}</td><td class="num">${esc(r.total)}</td>
         <td class="right"><button class="btn btn-primary btn-sm" data-action="create-invoice" data-rf="${esc(r.rf)}">${iconDoc()} สร้าง invoice</button></td>
       </tr>`).join('');
   } else if(state.acctTab==='withnum'){
-    body = INV_WITH_NUMBER.map(r=>`
+    body = sortedWithNumber.map(r=>`
       <tr>
         <td>${esc(r.date)}</td><td class="cell-primary">${esc(r.no)}</td><td>${esc(r.cust)}</td><td class="num">${esc(r.total)}</td>
         <td class="right">
@@ -2904,56 +3128,86 @@ function pageInvoiceEdit(){
 }
 
 /* ---------- PDF PREVIEW (opens as fake new tab) ---------- */
-function pdfPreviewModal(no, docTypeOverride){
+function buildInvoiceHtmlDoc(no, docTypeOverride){
   const DOC_TYPES = ['original','copy1','copy2'];
   let docType = docTypeOverride;
   if(!docType){
-    // derive deterministically from the invoice number so re-opening the same doc shows the same badge
     const key = String(no||'0');
     let sum = 0;
     for(let i=0;i<key.length;i++) sum += key.charCodeAt(i);
     docType = DOC_TYPES[sum % DOC_TYPES.length];
   }
-  return `
-    <div class="modal modal-md" style="padding:0;">
-      <div class="preview-head">
-        <div class="preview-head-title">${iconPdf()} invoice-${esc(no||'69-5')}.pdf</div>
-        <button class="modal-close" data-close-modal aria-label="ปิด">${iconX()}</button>
-      </div>
-      <div class="modal-body" style="background:var(--preview-body-bg); padding:26px;">
-        <div style="background:var(--surface); box-shadow:var(--shadow-md); border-radius:4px; padding:34px 30px; max-width:480px; margin:0 auto; font-family:'Sarabun';">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px;">
-            <div>
-              <div style="font-weight:700; font-size:16px; color:var(--header-bg);">K.G.R. GROUP</div>
-              <div style="font-size:16px; color:var(--text-secondary); margin-top:2px;">โรงงานหลอมทองคำและโลหะมีค่า</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-weight:700; font-size:16px;">ใบแจ้งหนี้ / INVOICE ${docBadge(docType)}</div>
-              <div style="font-size:16px; color:var(--text-secondary);">เลขที่ ${esc(no||'69/5')}</div>
-            </div>
-          </div>
-          <div style="font-size:16px; color:var(--text-secondary); margin-bottom:16px;">วันที่ 18/08/2569</div>
-          <table style="width:100%; border-collapse:collapse; font-size:16px;">
-            <thead><tr style="background:var(--table-head-bg); color:var(--fg-on-dark);"><th style="padding:7px 9px; text-align:left;">รายการ</th><th style="padding:7px 9px; text-align:right;">จำนวนเงิน</th></tr></thead>
-            <tbody>
-              <tr><td style="padding:8px 9px; border-bottom:1px solid var(--border);">ค่าหลอมทอง 99.99% (Lot 202608-0016)</td><td style="padding:8px 9px; text-align:right; border-bottom:1px solid var(--border); font-family:'IBM Plex Mono';">2,450.00</td></tr>
-            </tbody>
-          </table>
-          <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-            <div style="min-width:200px; font-size:16px;">
-              <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>รวมเป็นเงิน</span><span class="num">2,450.00</span></div>
-              <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>ภาษีมูลค่าเพิ่ม 7%</span><span class="num">171.50</span></div>
-              <div style="display:flex; justify-content:space-between; padding:5px 0; font-weight:700; border-top:1px solid var(--text-primary); margin-top:3px;"><span>รวมทั้งสิ้น</span><span class="num">2,621.50</span></div>
-            </div>
-          </div>
+  return `<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<title>invoice-${esc(no||'69-5')}.pdf — Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --header-bg:#002060; --text-primary:#1E293B; --text-secondary:#4B5563; --border:#E2E8F0;
+  --table-head-bg:#003399; --fg-on-dark:#fff; --preview-body-bg:#EFF0F5; --surface:#fff;
+  --shadow-md:0 4px 14px rgba(0,26,51,.12);
+  --doc-original-bg:#FEF9C3; --doc-original-fg:#854D0E; --doc-original-bd:#FDE68A;
+  --doc-copy1-bg:#DCFCE7; --doc-copy1-fg:#166534; --doc-copy1-bd:#86EFAC;
+  --doc-copy2-bg:#DBEAFE; --doc-copy2-fg:#1E40AF; --doc-copy2-bd:#93C5FD;
+}
+*{box-sizing:border-box;}
+body{margin:0; font-family:'Sarabun',sans-serif; background:var(--preview-body-bg); color:var(--text-primary);}
+.toolbar{
+  position:sticky; top:0; background:var(--header-bg); color:#fff; padding:12px 20px;
+  display:flex; align-items:center; justify-content:space-between; font-size:14px; z-index:10;
+}
+.toolbar b{font-weight:700;}
+.toolbar button{
+  background:#fff; color:var(--header-bg); border:none; border-radius:8px; padding:9px 16px;
+  font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit;
+}
+.page-wrap{padding:32px 20px 60px; display:flex; justify-content:center;}
+.doc-badge{display:inline-flex; align-items:center; font-size:12px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid transparent; margin-left:8px;}
+.doc-original{background:var(--doc-original-bg); color:var(--doc-original-fg); border-color:var(--doc-original-bd);}
+.doc-copy1{background:var(--doc-copy1-bg); color:var(--doc-copy1-fg); border-color:var(--doc-copy1-bd);}
+.doc-copy2{background:var(--doc-copy2-bg); color:var(--doc-copy2-fg); border-color:var(--doc-copy2-bd);}
+@media print{ .toolbar{display:none;} .page-wrap{padding:0;} }
+</style></head>
+<body>
+  <div class="toolbar">
+    <span>Preview ก่อนดาวน์โหลด — invoice-${esc(no||'69-5')}.pdf</span>
+    <button onclick="window.print()">ดาวน์โหลด / พิมพ์ PDF</button>
+  </div>
+  <div class="page-wrap">
+    <div style="background:var(--surface); box-shadow:var(--shadow-md); border-radius:4px; padding:34px 30px; max-width:480px; width:100%; font-family:'Sarabun';">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px;">
+        <div>
+          <div style="font-weight:700; font-size:16px; color:var(--header-bg);">K.G.R. GROUP</div>
+          <div style="font-size:14px; color:var(--text-secondary); margin-top:2px;">โรงงานหลอมทองคำและโลหะมีค่า</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:700; font-size:16px;">ใบแจ้งหนี้ / INVOICE ${docBadge(docType)}</div>
+          <div style="font-size:14px; color:var(--text-secondary);">เลขที่ ${esc(no||'69/5')}</div>
         </div>
       </div>
-      <div class="modal-foot">
-        <span class="search-hint" style="margin-right:auto;">${iconInfo()} ตรวจสอบเส้น/ระยะขอบก่อนดาวน์โหลดจริง</span>
-        <button class="btn btn-secondary" data-close-modal>ปิด</button>
-        <button class="btn btn-primary" data-action="download-pdf">${iconDownload()} ดาวน์โหลด PDF</button>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">วันที่ 18/08/2569</div>
+      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <thead><tr style="background:var(--table-head-bg); color:var(--fg-on-dark);"><th style="padding:7px 9px; text-align:left;">รายการ</th><th style="padding:7px 9px; text-align:right;">จำนวนเงิน</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:8px 9px; border-bottom:1px solid var(--border);">ค่าหลอมทอง 99.99% (Lot 202608-0016)</td><td style="padding:8px 9px; text-align:right; border-bottom:1px solid var(--border); font-family:'IBM Plex Mono';">2,450.00</td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+        <div style="min-width:200px; font-size:14px;">
+          <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>รวมเป็นเงิน</span><span>2,450.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>ภาษีมูลค่าเพิ่ม 7%</span><span>171.50</span></div>
+          <div style="display:flex; justify-content:space-between; padding:5px 0; font-weight:700; border-top:1px solid var(--text-primary); margin-top:3px;"><span>รวมทั้งสิ้น</span><span>2,621.50</span></div>
+        </div>
       </div>
-    </div>`;
+    </div>
+  </div>
+</body></html>`;
+}
+function openInvoicePreviewTab(no, docTypeOverride){
+  const html = buildInvoiceHtmlDoc(no, docTypeOverride);
+  const b64 = btoa(unescape(encodeURIComponent(html)));
+  const win = window.open('data:text/html;base64,' + b64, '_blank');
+  if(!win) toast('เบราว์เซอร์บล็อกการเปิดแท็บใหม่ — กรุณาอนุญาต pop-up สำหรับเว็บนี้');
 }
 
 /* ============================================================
@@ -3373,6 +3627,7 @@ function bindPageEvents(){
     if(group==='order') state.orderTab = key;
     if(group==='lot') state.lotStage = key;
     if(group==='acct') state.acctTab = key;
+    if(group==='stock') state.stockTab = key;
     renderPage();
   }));
 
@@ -3404,18 +3659,15 @@ function bindPageEvents(){
   $$('[data-action="manual-search"]').forEach(el=>el.addEventListener('click', ()=>toast('ค้นหาแล้ว — โหลดผลลัพธ์ล่าสุด')));
 
   // TDC approve
-  $$('[data-tdc-sample]').forEach(el=>el.addEventListener('change', ()=>{
-    const i = parseInt(el.dataset.tdcSample);
-    if(TDC_APPROVE_DATA[i]) TDC_APPROVE_DATA[i].sampleW = el.value;
-  }));
-  $$('[data-tdc-cust-sample]').forEach(el=>el.addEventListener('change', ()=>{
-    const i = parseInt(el.dataset.tdcCustSample);
-    if(TDC_APPROVE_DATA[i]) TDC_APPROVE_DATA[i].custSampleW = el.value;
-  }));
   $$('[data-action="tdc-approve-row"]').forEach(el=>el.addEventListener('click', ()=>{
     const i = parseInt(el.dataset.idx);
     const row = TDC_APPROVE_DATA[i];
     if(row) toast(`อนุมัติส่ง TDC สำหรับ ${row.rf} เรียบร้อย`);
+  }));
+  $$('[data-action="tdc-reject-row"]').forEach(el=>el.addEventListener('click', ()=>{
+    const i = parseInt(el.dataset.idx);
+    const row = TDC_APPROVE_DATA[i];
+    if(row) toast(`ปฏิเสธรายการ ${row.rf} แล้ว`);
   }));
 
   // Report & Export
@@ -3442,7 +3694,7 @@ function bindPageEvents(){
   });
   $$('[data-action="cancel-order"]').forEach(el=>el.addEventListener('click', e=>{
     e.stopPropagation();
-    openModal(confirmDeleteModal(el.dataset.rf, 'confirm-cancel-order'));
+    openModal(confirmDeleteModal(el.dataset.rf, 'confirm-cancel-order', `data-rf="${esc(el.dataset.rf)}"`));
     bindModalEvents();
   }));
 
@@ -3498,7 +3750,7 @@ function bindPageEvents(){
   $$('[data-action="edit-invoice"]').forEach(el=>el.addEventListener('click', ()=>{
     state.invoiceNo = el.dataset.no||null; state.invoiceMode='edit'; state.invoiceTemplate='gold'; goPage('invoice-edit');
   }));
-  $$('[data-action="preview-invoice"]').forEach(el=>el.addEventListener('click', ()=>{ openModal(pdfPreviewModal(el.dataset.no, el.dataset.doctype)); bindModalEvents(); }));
+  $$('[data-action="preview-invoice"]').forEach(el=>el.addEventListener('click', ()=>{ openInvoicePreviewTab(el.dataset.no, el.dataset.doctype); }));
   const genInv = $('[data-action="create-general-invoice"]');
   if(genInv) genInv.addEventListener('click', ()=>{ openModal(invoiceTemplatePickerModal()); bindModalEvents(); });
 
@@ -3506,7 +3758,7 @@ function bindPageEvents(){
   const draftBtn = $('[data-action="draft-invoice"]');
   if(draftBtn) draftBtn.addEventListener('click', ()=>toast('บันทึกร่างแล้ว'));
   const savePreviewBtn = $('[data-action="save-and-preview-invoice"]');
-  if(savePreviewBtn) savePreviewBtn.addEventListener('click', ()=>{ openModal(pdfPreviewModal(state.invoiceNo||'ใหม่')); bindModalEvents(); });
+  if(savePreviewBtn) savePreviewBtn.addEventListener('click', ()=>{ openInvoicePreviewTab(state.invoiceNo||'ใหม่'); });
   const autoFormula = $('[data-action="auto-formula"]');
   if(autoFormula) autoFormula.addEventListener('click', ()=>toast('คำนวณอัตโนมัติจากสูตร — อัปเดตยอดแล้ว'));
   const showHistInv = $('[data-action="show-history-inv"]');
@@ -3558,25 +3810,6 @@ function updateLotSelection(){
 function bindModalEvents(){
   $$('[data-close-modal]').forEach(el=>el.addEventListener('click', closeModal));
 
-  // RF detail modal — stepper navigation
-  $$('[data-detail-step]').forEach(el=>el.addEventListener('click', ()=>{
-    state.detailStep = parseInt(el.dataset.detailStep);
-    closeModal(); openModal(genericDetailModal(state.detailRf)); bindModalEvents();
-  }));
-  const saveDetailStep = $('[data-action="save-detail-step"]');
-  if(saveDetailStep) saveDetailStep.addEventListener('click', ()=>{
-    toast(`บันทึกข้อมูล ${state.detailRf} เรียบร้อย`);
-  });
-  const advanceDetailStep = $('[data-action="advance-detail-step"]');
-  if(advanceDetailStep) advanceDetailStep.addEventListener('click', ()=>{
-    if(state.detailStep < RF_DETAIL_STEPS.length){
-      state.detailStep += 1;
-      toast(`ส่งต่อไปขั้นตอน "${RF_DETAIL_STEPS.find(s=>s.n===state.detailStep)?.t}" แล้ว`);
-      closeModal(); openModal(genericDetailModal(state.detailRf)); bindModalEvents();
-    }
-  });
-
-
   // add-customer modal — cascading location dropdowns
   const custProvinceInput = $('#custProvinceInput');
   const custProvince = $('#custProvince');
@@ -3607,17 +3840,16 @@ function bindModalEvents(){
     state.invoiceNo = null; state.invoiceMode = 'new';
     closeModal(); goPage('invoice-edit');
   }));
-  $$('[data-wizard-step]').forEach(el=>el.addEventListener('click', ()=>{
-    state.wizardStep = parseInt(el.dataset.wizardStep);
-    closeModal(); openModal(orderWizardModal()); bindModalEvents();
-  }));
-  const wizSave = $('[data-action="wizard-save"]');
-  if(wizSave) wizSave.addEventListener('click', ()=>{ toast('บันทึกร่างเรียบร้อย'); closeModal(); });
-  const wizSend = $('[data-action="wizard-send"]');
-  if(wizSend) wizSend.addEventListener('click', ()=>{ toast('ส่งหลอมเรียบร้อย — ย้ายไปขั้นตอนถัดไป'); closeModal(); renderSidebar(); });
 
   const confirmCancelOrder = $('[data-action="confirm-cancel-order"]');
-  if(confirmCancelOrder) confirmCancelOrder.addEventListener('click', ()=>{ toast('ย้าย Order ไปถังขยะแล้ว (กู้คืนได้)'); closeModal(); });
+  if(confirmCancelOrder) confirmCancelOrder.addEventListener('click', (e)=>{
+    const rf = e.currentTarget.dataset.rf;
+    const rec = ORDERS.find(o=>o.rf===rf);
+    if(rec){ rec.cancelled = true; rec.status = 'hold'; rec.statusLabel = 'ยกเลิก'; }
+    toast('ย้าย Order ไปถังขยะแล้ว (กู้คืนได้)');
+    closeModal();
+    if(state.page==='orders') renderPage();
+  });
   const confirmDelCust = $('[data-action="confirm-delete-customer"]');
   if(confirmDelCust) confirmDelCust.addEventListener('click', (e)=>{
     const idx = e.currentTarget.dataset.idx;
@@ -3637,7 +3869,7 @@ function bindModalEvents(){
   const saveInv = $('[data-action="save-invoice"]');
   if(saveInv) saveInv.addEventListener('click', ()=>{ toast('บันทึก invoice แล้ว — ปุ่ม "แก้ไข" และ "Preview" ใช้งานได้ตลอด'); closeModal(); renderPage(); });
   const doPreview = $('[data-action="do-preview"]');
-  if(doPreview) doPreview.addEventListener('click', (e)=>{ closeModal(); openModal(pdfPreviewModal(e.currentTarget.dataset.no)); bindModalEvents(); });
+  if(doPreview) doPreview.addEventListener('click', (e)=>{ closeModal(); openInvoicePreviewTab(e.currentTarget.dataset.no); });
   const dlPdf = $('[data-action="download-pdf"]');
   if(dlPdf) dlPdf.addEventListener('click', ()=>toast('ดาวน์โหลด PDF สำเร็จ'));
 
@@ -3652,7 +3884,51 @@ renderSidebar();
 renderBreadcrumb();
 renderPage();
 
-/* ---------- Enter key advances focus to next field ---------- */
+/* ---------- Numeric-only input lock for all weight/number fields (.num-input) ---------- */
+function wfNumericKeyGuard(e){
+  const navKeys = ['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'];
+  if(navKeys.includes(e.key)) return;
+  if(e.ctrlKey || e.metaKey) return; // allow copy/paste/select-all shortcuts
+  if(e.key === '.'){
+    if(e.target.value.includes('.')) e.preventDefault(); // only one decimal point allowed
+    return;
+  }
+  if(!/^[0-9]$/.test(e.key)) e.preventDefault(); // block letters, symbols, spacebar, Thai/English text
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.target && e.target.classList && e.target.classList.contains('num-input')) wfNumericKeyGuard(e);
+});
+document.addEventListener('input', (e)=>{
+  const el = e.target;
+  if(!(el && el.classList && el.classList.contains('num-input'))) return;
+  let v = el.value.replace(/[^0-9.]/g, ''); // strip anything pasted/IME-typed that isn't digit/dot
+  const firstDot = v.indexOf('.');
+  if(firstDot !== -1) v = v.slice(0, firstDot+1) + v.slice(firstDot+1).replace(/\./g, '');
+  if(v !== el.value){
+    const pos = el.selectionStart - (el.value.length - v.length);
+    el.value = v;
+    try{ el.setSelectionRange(pos, pos); }catch(_){}
+  }
+});
+/* Auto-apply inputmode="decimal" (big numeric keypad on mobile/tablet) to every .num-input, present or future */
+(function(){
+  function applyDecimalMode(root){
+    (root.querySelectorAll ? root : document).querySelectorAll('.num-input:not([inputmode])').forEach(el=>{
+      el.setAttribute('inputmode','decimal');
+    });
+  }
+  applyDecimalMode(document);
+  new MutationObserver(()=>applyDecimalMode(document)).observe(document.body, {childList:true, subtree:true});
+})();
+
+/* ---------- Minimal-accent rule: colour ONLY the ขาด/เกิน diff field ---------- */
+function wfPaintDiffField(el, isMatch){
+  if(!el) return;
+  el.classList.remove('diff-match','diff-mismatch');
+  el.classList.add(isMatch ? 'diff-match' : 'diff-mismatch');
+}
+
+
 document.addEventListener('keydown', (e)=>{
   if(e.key !== 'Enter') return;
   const el = e.target;
