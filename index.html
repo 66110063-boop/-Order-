@@ -612,14 +612,14 @@ td.right{text-align:right;}
 
 /* TDC Approve — per-RF card (replaces a too-wide table) */
 .tdc-card{
-  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow-sm); margin-bottom:var(--space-md); overflow:hidden;
+  background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--header-bg);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); margin-bottom:var(--space-md); overflow:hidden;
 }
 .tdc-card-head{
   display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
-  padding:18px 22px; background:var(--zebra); border-bottom:1px solid var(--border);
+  padding:18px 22px; background:var(--card-highlight-bg); border-bottom:1px solid var(--card-highlight-border);
 }
-.tdc-card-rf{font-size:22px; font-weight:800; color:var(--text-primary);}
+.tdc-card-rf{font-size:22px; font-weight:800; color:var(--header-bg);}
 .tdc-card-cust{font-size:16px; color:var(--text-secondary); margin-top:2px;}
 .tdc-card-weight{text-align:right;}
 .tdc-card-weight .val{font-family:'IBM Plex Mono'; font-size:22px; font-weight:700; color:var(--text-primary);}
