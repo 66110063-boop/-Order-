@@ -1,0 +1,97 @@
+/* ============================================================
+   KGR GROUP — DESIGN TOKENS & RESET
+   ============================================================ */
+:root {
+  /* Brand — from logo (converted to OKLCH, same appearance, per Hallmark color.md) */
+  --header-bg: oklch(27.2% 0.120 261.3); /* #002060 KGR navy — Topbar, primary actions, active nav */
+  --header-fg: oklch(100% 0 0);
+  --btn-primary: oklch(53.5% 0.259 262.6); /* #0056FF KGR bright blue — accent, badges, hover, focus */
+  --btn-primary-fg: oklch(100% 0 0);
+  --btn-primary-hover: oklch(45.4% 0.217 262.4);
+  --table-head-bg: oklch(37.1% 0.173 262.1);
+  --table-head-fg: oklch(100% 0 0);
+  --text-primary: oklch(27.9% 0.037 260.0); /* #1E293B — high-contrast readable text on light bg */
+  --card-highlight-bg: oklch(95.2% 0.023 258.4);
+  --soft-blue: oklch(97.0% 0.014 254.6); /* #EFF6FF — general status highlight, clean & professional */
+  --page-bg: oklch(98.4% 0.003 247.9); /* #F8FAFC — clean light-grey canvas */
+  --surface: oklch(100% 0 0); /* #FFFFFF — cards, sidebar, inputs, table surface */
+
+  /* Extension neutrals (added for consistency, not from logo) — all tinted toward the brand hue */
+  --text-secondary: oklch(44.6% 0.026 256.8); /* #4B5563 — darker for elderly-friendly contrast */
+  --border: oklch(92.9% 0.013 255.5); /* #E2E8F0 — thin card/table hairlines */
+  --border-strong: oklch(80.7% 0.039 272.4);
+  --zebra: oklch(97.5% 0.005 258.3);
+  --sidebar-bg: oklch(100% 0 0); /* #FFFFFF — matches surface, enterprise SaaS convention */
+  --sidebar-active: oklch(27.2% 0.120 261.3); /* #002060 KGR navy — selected menu state per brand spec */
+  --sidebar-fg: oklch(37.2% 0.039 257.3); /* dark slate #334155 — inactive nav text/icon */
+  --sidebar-fg-active: oklch(100% 0 0);
+  --sidebar-active-pill-bg: oklch(95.2% 0.023 258.4); /* soft blue-tint highlight (sidebar is white now, needs contrast) */
+  --fg-on-dark: oklch(100% 0 0); /* white text on any colored/dark fill */
+  --nav-hover-bg: oklch(97.5% 0.010 258.4);
+  --nav-hover-fg: oklch(27.2% 0.120 261.3);
+
+  /* Status — fixed triads, never mixed */
+  --st-progress-bg: oklch(94.4% 0.031 59.7); --st-progress-fg: oklch(45.7% 0.121 50.0); --st-progress-bd: oklch(81.2% 0.099 61.7);
+  --st-done-bg: oklch(94.3% 0.032 155.4);    --st-done-fg: oklch(52.2% 0.140 146.9);    --st-done-bd: oklch(81.1% 0.098 152.9);
+  --st-hold-bg: oklch(92.8% 0.030 20.3);     --st-hold-fg: oklch(46.5% 0.169 27.7);     --st-hold-bd: oklch(78.9% 0.091 21.8);
+  /* Status — extensions (documented separately in spec) */
+  --st-info-bg: oklch(95.7% 0.007 260.7);    --st-info-fg: oklch(39.4% 0.033 257.1);    --st-info-bd: oklch(88.5% 0.019 266.0);
+  --st-sched-bg: oklch(93.9% 0.027 299.5);   --st-sched-fg: oklch(43.2% 0.211 292.8);   --st-sched-bd: oklch(81.6% 0.080 298.5);
+  /* Document-type badges — ต้นฉบับ/สำเนา */
+  --doc-original-bg: oklch(97.3% 0.069 103.2); --doc-original-fg: oklch(47.6% 0.103 61.9); --doc-original-bd: oklch(92.4% 0.115 95.7);
+  --doc-copy1-bg: oklch(96.2% 0.043 156.7);    --doc-copy1-fg: oklch(44.8% 0.108 151.3);   --doc-copy1-bd: oklch(87.1% 0.136 154.4);
+  --doc-copy2-bg: oklch(93.2% 0.032 255.6);    --doc-copy2-fg: oklch(42.4% 0.181 265.6);   --doc-copy2-bd: oklch(80.9% 0.096 251.8);
+
+  /* Component-specific tokens */
+  --sidebar-label: oklch(74.6% 0.042 258.8);
+  --main-bg: oklch(98.4% 0.003 247.9); /* #F8FAFC — same clean grey canvas as page-bg */
+  --card-highlight-border: oklch(89.0% 0.053 264.3);
+  --stat-label: oklch(39.3% 0.150 260.4);
+  --kanban-col-bg: oklch(98.0% 0.005 275.0);
+  --calc-subtotal-bg: oklch(97.1% 0.016 58.6);
+  --calc-subtotal-border: oklch(86.4% 0.074 64.6);
+  --calc-subtotal-fg: oklch(43.6% 0.099 54.6);
+  --lane2-badge: oklch(65.1% 0.134 61.2);
+  --preview-body-bg: oklch(95.2% 0.008 271.3);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  /* Spacing scale — 4pt grid */
+  --space-3xs: 4px;
+  --space-2xs: 8px;
+  --space-xs: 12px;
+  --space-sm: 16px;
+  --space-md: 20px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
+  --space-3xl: 56px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --shadow-sm: 0 1px 2px rgba(0,26,51,0.06);
+  --shadow-md: 0 4px 16px rgba(0,32,96,0.10);
+  --shadow-lg: 0 12px 40px rgba(0,32,96,0.18);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--page-bg);
+  color: var(--text-primary);
+  font-size: 18px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.num, .mono {
+  font-family: 'IBM Plex Mono', 'IBM Plex Sans Thai', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+h1, h2, h3, h4 { margin: 0; font-weight: 700; }
+p { margin: 0; }
+button { font-family: inherit; cursor: pointer; }
+a { color: inherit; }
