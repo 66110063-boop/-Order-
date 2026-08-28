@@ -18,6 +18,7 @@ function renderPage() {
     history: pageHistory,
     users: pageUsers,
     'invoice-edit': pageInvoiceEdit,
+    'invoice-general-edit': pageInvoiceGeneralEdit,
     report: pageReport,
     'tdc-approve': pageTdcApprove,
     workflow: pageWorkflow,

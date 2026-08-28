@@ -2,6 +2,16 @@
    KGR GROUP — STOCK, ACCOUNTING & INVOICE VIEWS
    ============================================================ */
 
+function docBadge(type) {
+  const labels = {
+    original: 'ต้นฉบับ',
+    copy1: 'สำเนา 1',
+    copy2: 'สำเนา 2'
+  };
+  const label = labels[type] || type || '';
+  return `<span class="doc-badge doc-${type}">${esc(label)}</span>`;
+}
+
 /* STOCK VIEW */
 function pageStock() {
   const PREP_STATIONS = [4, 5, 6, 7];
@@ -95,8 +105,8 @@ function pageAccounting() {
   const sortedWithNumber = INV_WITH_NUMBER.slice().sort((a, b) => invNoSortKey(b.no) - invNoSortKey(a.no));
 
   const tabs = [
-    { key: 'nonum', label: 'RF ที่ยังไม่มีเลข Invoice', count: INV_NO_NUMBER.length },
-    { key: 'withnum', label: 'RF ที่มีเลข Invoice', count: INV_WITH_NUMBER.length },
+    { key: 'nonum', label: 'RF ที่ยังไม่สร้าง Invoice', count: INV_NO_NUMBER.length },
+    { key: 'withnum', label: 'RF ที่สร้าง Invoice', count: INV_WITH_NUMBER.length },
     { key: 'general', label: 'Invoice ทั่วไป', count: INV_GENERAL.length },
   ];
   const DOC_TYPES = ['original', 'copy1', 'copy2'];
@@ -132,7 +142,6 @@ function pageAccounting() {
           <div class="table-actions" style="justify-content:flex-end;">
             <button class="btn btn-secondary btn-sm" data-action="preview-invoice" data-no="${esc(r.no)}" data-doctype="${docType(i)}">${iconEye()} Preview</button>
             <button class="btn btn-secondary btn-sm" data-action="edit-invoice" data-no="${esc(r.no)}">${iconEdit()} แก้ไข</button>
-            <button class="btn btn-secondary btn-sm" data-action="export-excel-invoice" data-no="${esc(r.no)}">${iconDownload()} Excel</button>
           </div>
         </td>
       </tr>`).join('');
@@ -141,9 +150,8 @@ function pageAccounting() {
   return `
     <div class="page-head">
       <div><h1>บัญชี</h1><div class="desc">จัดการ Invoice — แก้ไขและ Preview ได้ตลอดเวลา แม้บันทึกแล้ว</div></div>
-      <button class="btn btn-primary" data-action="create-general-invoice">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        สร้าง invoice (ทั่วไป)
+      <button class="btn btn-primary" data-action="create-general-invoice" style="display:inline-flex; align-items:center; gap:8px; background:var(--header-bg); border-color:var(--header-bg);">
+        ${iconPlus()} สร้าง Invoice (ทั่วไป)
       </button>
     </div>
 
@@ -226,34 +234,65 @@ function invoiceEditModal(no) {
 function pageInvoiceEdit() {
   const no = state.invoiceNo;
   const mode = state.invoiceMode;
-  const inv = [...INV_WITH_NUMBER, ...INV_GENERAL].find(i => i.no === no)
-    || { no: no || 'RF-2569-0081', rf: 'RF-2569-0081', date: '17/08/2569', cust: 'บริษัท ทองไทย จำกัด', addr: 'กรุงเทพมหานคร', tax: '0105560000000', total: '85,936,000.00' };
-
   const isNew = (mode === 'new');
+
+  let inv = [...INV_WITH_NUMBER, ...INV_GENERAL].find(i => i.no === no || i.rf === no);
+  if (!inv && isNew) {
+    const rfSource = INV_NO_NUMBER.find(x => x.rf === no);
+    if (rfSource) {
+      inv = {
+        no: `INV-${rfSource.rf.split('-')[1]}`,
+        rf: rfSource.rf,
+        date: rfSource.date,
+        cust: rfSource.cust,
+        addr: rfSource.cust === 'โรงงานทองไทยเจริญ' ? '12/3 ถนนพระราม 3 บางคอแหลม กรุงเทพฯ' : '88/1 ถนนลาดพร้าว จอมพล จตุจักร กรุงเทพฯ',
+        tax: rfSource.cust === 'โรงงานทองไทยเจริญ' ? '0105561023456' : '0105560011223',
+        total: rfSource.total
+      };
+    }
+  }
+  if (!inv) {
+    inv = { no: no || 'RF-2569-0081', rf: 'RF-2569-0081', date: '17/08/2569', cust: 'บริษัท ทองไทย จำกัด', addr: 'กรุงเทพมหานคร', tax: '0105560000000', total: '85,936,000.00' };
+  }
+
+  let rfWDeclared = 0;
+  let rfWMelted = 0;
+  let rfAuReturn = 0;
+  let purityLabel = state.invoicePurity || '96.5';
+
+  const rfData = ORDERS.find(o => o.rf === inv.rf || o.rf === no);
+  if (rfData) {
+    rfWDeclared = parseFloat(String(rfData.wDeclared || rfData.w || '0').replace(/,/g, '')) / 1000;
+    rfWMelted = parseFloat(String(rfData.meltedW || '0').replace(/,/g, '')) / 1000;
+    rfAuReturn = parseFloat(String(rfData.auReturn || '0').replace(/,/g, '')) / 1000;
+    if (!state.invoicePurity && rfData.percentAu) {
+      purityLabel = rfData.percentAu;
+    }
+  }
 
   const TEMPLATES = {
     gold: {
       panelTitle: 'รายละเอียดและการคำนวณสกัดทอง',
       serviceName: 'ค่าดำเนินการสกัดทอง',
-      unit: 'kg.',
+      unit: 'g.',
       rows: [
-        { label: 'น้ำหนักเข้าตาม RF', value: '0' },
-        { label: 'น้ำหนักเข้าจริง', value: '0' },
-        { label: 'น้ำหนักคืนทอง 96.5%', value: '0.0114', active: true },
-        { label: 'น้ำหนักคำนวณสกัด 96.5', value: '20' },
-        { label: 'ราคาทองอ้างอิง', value: '65,500', unit: 'บาท' },
+        { label: 'น้ำหนักเข้าตาม RF', value: rfWDeclared },
+        { label: 'น้ำหนักเข้าจริง', value: rfWMelted },
+        { label: `น้ำหนักคืนทอง ${purityLabel}%`, value: rfAuReturn, active: true },
+        { label: `น้ำหนักคำนวณสกัด ${purityLabel}`, value: rfWMelted },
+        { label: 'ราคาทองอ้างอิง', value: '44,500', unit: 'บาท' },
       ],
-      subtotal: '85,936,000.00',
+      subtotal: inv.total || '0.00',
     },
     silver: {
       panelTitle: 'รายละเอียดและการคำนวณสกัดเงิน',
       serviceName: 'ค่าดำเนินการสกัดเงิน',
-      unit: 'kg.',
+      unit: 'g.',
       rows: [
-        { label: 'น้ำหนักเข้าตาม RF', value: '0' },
-        { label: 'น้ำหนักเข้าจริง', value: '0' },
-        { label: 'น้ำหนักคืนเงิน 99.9%', value: '0.0000', active: true },
-        { label: 'น้ำหนักคำนวณสกัด 99.9', value: '0' },
+        { label: 'น้ำหนักเข้าตาม RF', value: rfWDeclared },
+        { label: 'น้ำหนักเข้าจริง', value: rfWMelted },
+        { label: 'น้ำหนักคืนเงิน 99.9%', value: '0.00', active: true },
+        { label: 'น้ำหนักคำนวณสกัด 99.9', value: rfWMelted },
         { label: 'ราคาเงินอ้างอิง', value: '0', unit: 'บาท' },
       ],
       subtotal: '0.00',
@@ -270,6 +309,13 @@ function pageInvoiceEdit() {
   };
   const tpl = TEMPLATES[state.invoiceTemplate] || TEMPLATES.gold;
 
+  const subtotalVal = parseFloat(String(inv.total || tpl.subtotal).replace(/,/g, '')) || 0;
+  const vatVal = subtotalVal * 0.07;
+  const grandVal = subtotalVal + vatVal;
+
+  const formatCurrency = (val) => val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+
   return `
   <div class="inv-page">
     <!-- TOP BAR -->
@@ -277,47 +323,42 @@ function pageInvoiceEdit() {
       <div class="inv-topbar-left">
         <button class="inv-back" data-go="accounting">${iconArrowLeft()}</button>
         <div class="inv-title">
-          <h1>${isNew ? 'สร้าง Invoice ใหม่' : 'แก้ไข Invoice'}</h1>
+          <h1>แก้ไข invoice · ${esc(inv.rf || inv.no || 'RF-0007')}</h1>
           <div class="sub">จัดการข้อมูลรายการสกัดทอง และคำนวณยอดเงิน</div>
         </div>
       </div>
       <div class="inv-topbar-right">
         <button class="btn btn-secondary btn-sm" data-go="accounting">ยกเลิก</button>
-        <button class="inv-btn-history btn-sm" data-action="show-history-inv">${iconClock()} ประวัติแก้ไข</button>
-        <button class="inv-btn-draft btn-sm" data-action="draft-invoice">${iconSave()} บันทึกร่าง</button>
-        <button class="btn btn-primary btn-sm" data-action="save-and-preview-invoice">
-          ${iconEye()} บันทึกและดูตัวอย่าง
+        <button class="btn btn-primary btn-sm" data-action="save-invoice">บันทึก</button>
+        <button class="btn btn-primary btn-sm" data-action="save-and-preview-invoice" style="background:#0d47a1;">
+          ${iconEye()} Preview
         </button>
       </div>
     </div>
 
-    <!-- HEADER INFO ROW -->
+    <!-- HEADER INFO ROW (Grid 5 ช่องเรียงแนวนอน) -->
     <div class="panel" style="margin-bottom:18px;">
       <div class="panel-body" style="padding:14px 18px;">
-        <div class="inv-header-row">
+        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:14px;">
           <div class="field">
-            <label>เลขที่ Invoice</label>
-            <input type="text" value="${esc(inv.no || 'INV-2569-0081')}">
+            <label>เลขที่</label>
+            <input type="text" id="inv_no" value="${esc(inv.no || '69/5')}">
           </div>
           <div class="field">
-            <label>เลขอ้างอิง (RF No.)</label>
-            <input type="text" value="${esc(inv.rf || inv.no || 'RF-2569-0081')}">
-          </div>
-          <div class="field">
-            <label>วันที่ออกเอกสาร</label>
-            <input type="text" value="${esc(inv.date || '17/08/2569')}">
+            <label>วันที่</label>
+            <input type="text" id="inv_date" value="${esc(inv.date || '26/08/2569')}">
           </div>
           <div class="field">
             <label>ชื่อลูกค้า</label>
-            <input type="text" value="${esc(inv.cust || 'บริษัท ทองไทย จำกัด')}">
+            <input type="text" id="inv_cust" value="${esc(inv.cust || '')}">
           </div>
           <div class="field">
             <label>ที่อยู่</label>
-            <input type="text" value="${esc(inv.addr || 'กรุงเทพมหานคร')}">
+            <input type="text" id="inv_addr" value="${esc(inv.addr || '')}">
           </div>
           <div class="field">
             <label>เลขประจำตัวผู้เสียภาษี</label>
-            <input type="text" value="${esc(inv.tax || '0105560000000')}">
+            <input type="text" id="inv_tax" value="${esc(inv.tax || '')}">
           </div>
         </div>
       </div>
@@ -326,45 +367,58 @@ function pageInvoiceEdit() {
     <!-- BODY: LEFT + RIGHT -->
     <div class="inv-body">
 
-      <!-- LEFT: คำนวณ -->
+      <!-- LEFT: รายการ -->
       <div class="inv-left">
-        <div class="panel">
-          <div class="panel-head">
-            <div class="title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 3H8l1-3z"/><rect x="5" y="6" width="14" height="15" rx="1.5"/><path d="M9 11h6M9 15h4"/></svg>
-              ${esc(tpl.panelTitle)}
-            </div>
-            <button class="btn btn-secondary btn-sm" data-action="auto-formula">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M9 3h6l1 3H8l1-3z"/><path d="M12 8v8M8 12h8"/></svg>
-              สูตรคำนวณอัตโนมัติ
-            </button>
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="panel-head" style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+            <div class="title" style="font-weight:700; font-size:16px;">รายการ</div>
+            <div class="title" style="font-weight:700; font-size:16px; margin-right:20px;">จำนวนเงิน (บาท)</div>
           </div>
-          <div class="panel-body">
-            <div class="calc-service-row">
-              <label>ชื่อรายการบริการ</label>
-              <input type="text" value="${esc(tpl.serviceName)}" placeholder="ระบุชื่อรายการบริการ" style="width:100%; max-width:420px;">
+          <div class="panel-body" style="padding:16px 20px;">
+            <!-- MAIN ITEM 1 -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; gap:20px;">
+              <div style="flex:1;">
+                <input type="text" id="item_name_1" value="1. ค่าดำเนินการสกัดทอง" style="font-weight:700; font-size:16px; width:100%; border:none; border-bottom:1px dashed var(--border); padding:4px 0; background:transparent; color:var(--text-primary);">
+                
+                <!-- SUB-ITEMS (INDENTED) -->
+                <div style="margin-left:24px; margin-top:14px; display:flex; flex-direction:column; gap:12px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="color:var(--text-secondary); min-width:140px;">น้ำหนักเข้า:</span>
+                    <input type="text" id="calc_w_in" class="num-input" value="${esc(rfWDeclared.toFixed(6))}" style="width:120px; text-align:right;">
+                    <span style="color:var(--text-secondary);">kg.</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="color:var(--text-secondary); min-width:140px;">น้ำหนักคืน ${purityLabel}:</span>
+                    <input type="text" id="calc_w_return" class="num-input" value="${esc(rfAuReturn.toFixed(6))}" style="width:120px; text-align:right;">
+                    <span style="color:var(--text-secondary);">kg.</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="color:var(--text-secondary); min-width:140px;">ค่าสกัดทอง ${purityLabel}:</span>
+                    <input type="text" id="calc_w_calc" class="num-input" value="${esc(rfWMelted.toFixed(6))}" style="width:120px; text-align:right;">
+                    <span style="color:var(--text-secondary);">kg.</span>
+                    <span style="color:var(--text-secondary);">X ราคาทอง</span>
+                    <input type="text" id="calc_price" class="num-input" value="65000" style="width:120px; text-align:right;">
+                    <span style="color:var(--text-secondary);">บาท</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- AMOUNT RIGHT SIDE -->
+              <div style="width:180px; text-align:right;">
+                <input type="text" id="item_amount_1" class="num-input input-locked" value="${esc(formatCurrency(subtotalVal))}" style="width:100%; text-align:right; font-weight:700; font-size:16px; background:var(--surface);" disabled>
+              </div>
             </div>
-
-            <div class="calc-rows">
-              ${tpl.rows.map(r => `
-              <div class="calc-row">
-                <div class="calc-row-label ${r.active ? 'active' : ''}">${esc(r.label)}</div>
-                <div class="calc-row-input"><input type="text" class="num-input ${r.active ? 'highlight' : ''}" value="${esc(r.value)}" placeholder="0"></div>
-                <div class="calc-unit">${esc(r.unit || tpl.unit)}</div>
-              </div>`).join('')}
-            </div>
-
-            <div class="calc-subtotal">
-              <span class="lbl">ผลลัพธ์คำนวณขั้นต้น (Subtotal):</span>
-              <span class="val">${esc(tpl.subtotal)}<span class="unit">บาท</span></span>
+            
+            <!-- ADD ITEM BUTTON -->
+            <div style="border-top:1px dashed var(--border); padding-top:14px;">
+              <button class="btn btn-secondary btn-sm" id="btnAddItem" data-action="add-item-mock">${iconPlus()} เพิ่มรายการ</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: สรุปยอด + หมายเหตุ -->
+      <!-- RIGHT: สรุปยอด -->
       <div class="inv-right">
-
         <!-- สรุปยอดเงินสุทธิ -->
         <div class="panel">
           <div class="panel-head-blue">
@@ -376,47 +430,20 @@ function pageInvoiceEdit() {
           <div class="panel-body">
             <div class="summary-currency">THB (บาท)</div>
             <div class="summary-row">
-              <span>ยอดรวมค่าสกัด (Subtotal)</span>
-              <span>85,936,000.00</span>
+              <span>รวมเป็นเงิน</span>
+              <span id="summary_subtotal">${esc(formatCurrency(subtotalVal))}</span>
             </div>
             <div class="summary-row">
-              <span>ภาษีมูลค่าเพิ่ม (VAT) <b>7%</b></span>
-              <span>6,015,520.00</span>
+              <span>ภาษีมูลค่าเพิ่ม 7.00%</span>
+              <span id="summary_vat">${esc(formatCurrency(vatVal))}</span>
             </div>
             <div class="summary-total-box">
-              <div class="summary-total-label">ยอดเงินรวมทั้งสิ้น (GRAND TOTAL)</div>
-              <div class="summary-grand">฿91,951,520.00</div>
+              <div class="summary-total-label">รวมทั้งสิ้น</div>
+              <div class="summary-grand" id="summary_grand">฿${esc(formatCurrency(grandVal))}</div>
               <div class="summary-grand-note">* รวมภาษีมูลค่าเพิ่มเรียบร้อยแล้ว</div>
             </div>
           </div>
         </div>
-
-        <!-- หมายเหตุ + เงื่อนไขชำระ -->
-        <div class="panel note-panel">
-          <div class="panel-head">
-            <div class="title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
-              หมายเหตุ และ เงื่อนไขการชำระเงิน
-            </div>
-          </div>
-          <div class="panel-body" style="display:flex; flex-direction:column; gap:12px;">
-            <div class="field">
-              <label style="font-size:16px;">หมายเหตุท้ายเอกสาร</label>
-              <textarea placeholder="ระบุความถึงลูกค้า หรือรายละเอียดการส่งมอบ..."></textarea>
-            </div>
-            <div class="field">
-              <label style="font-size:16px;">เงื่อนไขการชำระเงิน</label>
-              <select>
-                <option>ชำระทันทีเมื่อได้รับเอกสาร (Cash on Delivery)</option>
-                <option>ชำระภายใน 7 วัน</option>
-                <option>ชำระภายใน 15 วัน</option>
-                <option>ชำระภายใน 30 วัน</option>
-                <option>ตกลงพิเศษ</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>`;
@@ -431,6 +458,27 @@ function buildInvoiceHtmlDoc(no, docTypeOverride) {
     for (let i = 0; i < key.length; i++) sum += key.charCodeAt(i);
     docType = DOC_TYPES[sum % DOC_TYPES.length];
   }
+
+  const inv = [...INV_GENERAL, ...INV_WITH_NUMBER, ...INV_NO_NUMBER].find(i => i.no === no || i.rf === no) || {
+    no: no || '69/5',
+    date: '26/08/2569',
+    cust: 'ลูกค้าทั่วไป',
+    total: '2,450.00',
+    items: [{ name: 'ค่าหลอมทอง 99.99% (Lot 202608-0016)', amount: 2450.00 }]
+  };
+
+  let items = inv.items;
+  if (!items) {
+    const amt = parseFloat(String(inv.total || '0').replace(/,/g, ''));
+    items = [{ name: 'ค่าสกัด/ดำเนินการสกัดทองคำ', amount: amt }];
+  }
+
+  const subtotalVal = items.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+  const vatVal = subtotalVal * 0.07;
+  const grandVal = subtotalVal + vatVal;
+
+  const formatCurrency = (val) => val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   return `<!DOCTYPE html>
 <html lang="th"><head><meta charset="UTF-8">
 <title>invoice-${esc(no || '69-5')}.pdf — Preview</title>
@@ -479,18 +527,24 @@ body{margin:0; font-family:'Sarabun',sans-serif; background:var(--preview-body-b
           <div style="font-size:14px; color:var(--text-secondary);">เลขที่ ${esc(no || '69/5')}</div>
         </div>
       </div>
-      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">วันที่ 18/08/2569</div>
+      <div style="font-size:14px; color:var(--text-secondary); margin-bottom:8px;">วันที่ ${esc(inv.date || '26/08/2569')}</div>
+      <div style="font-size:14px; color:var(--text-primary); margin-bottom:16px;">ลูกค้า: <b>${esc(inv.cust || '')}</b></div>
       <table style="width:100%; border-collapse:collapse; font-size:14px;">
         <thead><tr style="background:var(--table-head-bg); color:var(--fg-on-dark);"><th style="padding:7px 9px; text-align:left;">รายการ</th><th style="padding:7px 9px; text-align:right;">จำนวนเงิน</th></tr></thead>
         <tbody>
-          <tr><td style="padding:8px 9px; border-bottom:1px solid var(--border);">ค่าหลอมทอง 99.99% (Lot 202608-0016)</td><td style="padding:8px 9px; text-align:right; border-bottom:1px solid var(--border); font-family:'IBM Plex Mono';">2,450.00</td></tr>
+          ${items.map(item => `
+            <tr>
+              <td style="padding:8px 9px; border-bottom:1px solid var(--border);">${esc(item.name)}</td>
+              <td style="padding:8px 9px; text-align:right; border-bottom:1px solid var(--border); font-family:'IBM Plex Mono';">${esc(formatCurrency(item.amount))}</td>
+            </tr>
+          `).join('')}
         </tbody>
       </table>
       <div style="display:flex; justify-content:flex-end; margin-top:14px;">
         <div style="min-width:200px; font-size:14px;">
-          <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>รวมเป็นเงิน</span><span>2,450.00</span></div>
-          <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>ภาษีมูลค่าเพิ่ม 7%</span><span>171.50</span></div>
-          <div style="display:flex; justify-content:space-between; padding:5px 0; font-weight:700; border-top:1px solid var(--text-primary); margin-top:3px;"><span>รวมทั้งสิ้น</span><span>2,621.50</span></div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>รวมเป็นเงิน</span><span>${esc(formatCurrency(subtotalVal))}</span></div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0;"><span>ภาษีมูลค่าเพิ่ม 7%</span><span>${esc(formatCurrency(vatVal))}</span></div>
+          <div style="display:flex; justify-content:space-between; padding:5px 0; font-weight:700; border-top:1px solid var(--text-primary); margin-top:3px;"><span>รวมทั้งสิ้น</span><span>${esc(formatCurrency(grandVal))}</span></div>
         </div>
       </div>
     </div>
@@ -504,3 +558,172 @@ function openInvoicePreviewTab(no, docTypeOverride) {
   const win = window.open('data:text/html;base64,' + b64, '_blank');
   if (!win) toast('เบราว์เซอร์บล็อกการเปิดแท็บใหม่ — กรุณาอนุญาต pop-up สำหรับเว็บนี้');
 }
+
+function pageInvoiceGeneralEdit() {
+  const no = state.invoiceNo;
+  const mode = state.invoiceMode;
+  const isNew = (mode === 'new');
+
+  const inv = INV_GENERAL.find(i => i.no === no) || {
+    no: no || '',
+    date: todayStr(),
+    cust: '',
+    addr: '',
+    tax: '',
+    items: [{ name: '', subDesc: '', amount: 0.00 }]
+  };
+
+  if (!inv.items) {
+    inv.items = [{ name: '', subDesc: '', amount: 0.00 }];
+  }
+
+  const subtotalVal = inv.items.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+  const vatVal = subtotalVal * 0.07;
+  const grandVal = subtotalVal + vatVal;
+
+  const formatCurrency = (val) => val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return `
+  <div class="inv-page">
+    <!-- TOP BAR -->
+    <div class="inv-topbar">
+      <div class="inv-topbar-left">
+        <button class="inv-back" data-go="accounting">${iconArrowLeft()}</button>
+        <div class="inv-title">
+          <h1>${isNew ? 'สร้าง invoice (ทั่วไป)' : `แก้ไข invoice (ทั่วไป) · ${esc(inv.no)}`}</h1>
+          <div class="sub">จัดการข้อมูลรายการใบแจ้งหนี้ทั่วไป และคำนวณยอดเงิน</div>
+        </div>
+      </div>
+      <div class="inv-topbar-right">
+        <button class="btn btn-secondary btn-sm" data-go="accounting">ยกเลิก</button>
+        <button class="btn btn-primary btn-sm" data-action="save-general-invoice">บันทึก</button>
+        <button class="btn btn-primary btn-sm" data-action="preview-general-invoice" style="background:#0d47a1;">
+          ${iconEye()} Preview
+        </button>
+      </div>
+    </div>
+
+    <!-- CLIENT SELECTOR & HEADER INFO ROW -->
+    <div class="panel" style="margin-bottom:18px;">
+      <div class="panel-body" style="padding:18px 20px;">
+        <div class="field" style="margin-bottom:18px;">
+          <label style="font-weight:700;">ลูกค้า <span style="color:red;">*</span></label>
+          <select id="client_select" style="width:100%; max-width:320px; height:40px; padding:0 12px; border-radius:8px; border:1px solid var(--border-strong);">
+            <option value="">เลือกลูกค้า</option>
+            ${CUSTOMERS.map(c => `<option value="${esc(c.name)}" ${inv.cust === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:14px; border-top:1px solid var(--border); padding-top:18px;">
+          <div class="field">
+            <label>เลขที่</label>
+            <input type="text" id="inv_no" value="${esc(inv.no)}" placeholder="กรอกเลขที่บิล">
+          </div>
+          <div class="field">
+            <label>วันที่</label>
+            <input type="text" id="inv_date" value="${esc(inv.date || todayStr())}">
+          </div>
+          <div class="field">
+            <label>ชื่อลูกค้า</label>
+            <input type="text" id="inv_cust" value="${esc(inv.cust || '')}">
+          </div>
+          <div class="field">
+            <label>ที่อยู่</label>
+            <input type="text" id="inv_addr" value="${esc(inv.addr || '')}">
+          </div>
+          <div class="field">
+            <label>เลขประจำตัวผู้เสียภาษี</label>
+            <input type="text" id="inv_tax" value="${esc(inv.tax || '')}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY: LEFT + RIGHT -->
+    <div class="inv-body">
+
+      <!-- LEFT: รายการ -->
+      <div class="inv-left">
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="panel-head" style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
+            <div class="title" style="font-weight:700; font-size:16px;">รายการ</div>
+            <div class="title" style="font-weight:700; font-size:16px; margin-right:60px;">จำนวนเงิน (บาท)</div>
+          </div>
+          <div class="panel-body" style="padding:16px 20px;">
+            <div id="general_items_container">
+              ${inv.items.map((item, idx) => `
+                <div class="general-item-row" style="margin-bottom: 20px; border-bottom: 1px dashed var(--border); padding-bottom: 16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px;">
+                    <div style="flex:1;">
+                      <!-- Row 1: Number + Item Name Input -->
+                      <div style="display:flex; gap:10px; align-items:center;">
+                        <span class="row-number-span" style="font-weight:700; font-size:15px; min-width:20px;">${idx + 1}.</span>
+                        <input type="text" class="item-name-input" value="${esc(item.name || '')}" placeholder="กรุณากรอกรายละเอียด" style="font-weight:600; font-size:15px; width:100%; border:none; border-bottom:1px solid var(--border); padding:4px 0; background:transparent; color:var(--text-primary);">
+                      </div>
+                      
+                      <!-- Sub-items container -->
+                      <div class="sub-items-container" style="margin-left: 30px; margin-top: 8px; display:flex; flex-direction:column; gap:8px;">
+                        <input type="text" class="item-sub-desc-input" value="${esc(item.subDesc || '')}" placeholder="กรุณากรอกรายละเอียดข้อย่อย" style="font-size:13.5px; width:100%; border:none; border-bottom:1px dashed var(--border); padding:2px 0; background:transparent; color:var(--text-secondary);">
+                      </div>
+
+                      <!-- Add Sub-item Link -->
+                      <div style="margin-left: 30px; margin-top: 8px;">
+                        <a href="javascript:void(0)" class="btn-add-sub-item" style="font-size:13px; color:var(--btn-primary); text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                          + เพิ่มข้อย่อย
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- Right Side: Amount Input + Trash -->
+                    <div style="display:flex; align-items:center; gap:10px; width:240px; justify-content:flex-end; padding-top:4px;">
+                      <input type="text" class="num-input item-amount-input" value="${item.amount ? item.amount.toFixed(2) : '0.00'}" style="width:120px; text-align:right; font-weight:700;">
+                      <span style="color:var(--text-secondary);">บาท</span>
+                      <button class="btn-delete-row" style="background:transparent; border:none; color:#c62828; cursor:pointer; font-size:16px; display:inline-flex; align-items:center; justify-content:center; padding:6px;" title="ลบรายการ">${iconTrash()}</button>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- ADD ITEM BUTTON -->
+            <div style="border-top:1px dashed var(--border); padding-top:14px; margin-top:10px;">
+              <button class="btn btn-secondary btn-sm" id="btn_add_general_item" style="display:inline-flex; align-items:center; gap:6px;">
+                ${iconPlus()} เพิ่มรายการ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: สรุปยอด -->
+      <div class="inv-right">
+        <!-- สรุปยอดเงินสุทธิ -->
+        <div class="panel">
+          <div class="panel-head-blue">
+            <div class="title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              สรุปยอดเงินสุทธิ
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="summary-currency">THB (บาท)</div>
+            <div class="summary-row">
+              <span>รวมเป็นเงิน</span>
+              <span id="summary_subtotal">${esc(formatCurrency(subtotalVal))}</span>
+            </div>
+            <div class="summary-row">
+              <span>ภาษีมูลค่าเพิ่ม 7.00%</span>
+              <span id="summary_vat">${esc(formatCurrency(vatVal))}</span>
+            </div>
+            <div class="summary-total-box">
+              <div class="summary-total-label">รวมทั้งสิ้น</div>
+              <div class="summary-grand" id="summary_grand">฿${esc(formatCurrency(grandVal))}</div>
+              <div class="summary-grand-note">* รวมภาษีมูลค่าเพิ่มเรียบร้อยแล้ว</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+

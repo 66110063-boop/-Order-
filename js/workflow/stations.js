@@ -68,11 +68,18 @@ function wfSyncOrdersTable() {
     meltedW: wfFmt(wfNum(order.station2.weightAfterMeltAu)),
     auCalc: wfFmt(s4.auCalculatedWeight), auReturn: wfFmt(s4.auReturnWeight),
     agCalc: wfFmt(s4.agCalculatedWeight), agReturn: wfFmt(s4.agReturnWeight),
-    cancelled: idx >= 0 ? ORDERS[idx].cancelled : false,
     percentAu: order.station3.percentAu, percentAg: order.station3.percentAg,
     percentApprovalStatus: order.percentApproval.status,
+    auSample: order.station2.sampleWeightAu ? wfFmt(order.station2.sampleWeightAu) : null,
+    auSampleCust: order.station2.customerSampleWeightAu ? wfFmt(order.station2.customerSampleWeightAu) : null,
+    wDeclared: order.station1.declaredWeight ? wfFmt(order.station1.declaredWeight) : null,
+    cancelled: idx >= 0 ? ORDERS[idx].cancelled : false,
   };
-  if (idx >= 0) ORDERS[idx] = record; else ORDERS.unshift(record);
+  if (idx >= 0) {
+    ORDERS[idx] = { ...ORDERS[idx], ...record };
+  } else {
+    ORDERS.unshift(record);
+  }
 }
 
 function wfMoveKanbanCard() {
@@ -187,43 +194,46 @@ function wfRefresh() {
 function wfStationS1() {
   const s = order.station1;
   return `
-    <div class="panel"><div class="panel-body">
-      <div class="grid grid-2" style="margin-bottom:16px;">
-        <div class="field"><label>RF No<span class="req">*</span></label><input type="text" id="wf_s1_rfNo" value="${esc(s.rfNo)}" placeholder="RF-2569-xxxx"></div>
-        <div class="field"><label>วันที่รับ</label><input type="text" class="input-locked" id="wf_s1_receiveDate" value="${esc(s.receiveDate)}" disabled></div>
-      </div>
-      <div class="grid grid-2" style="margin-bottom:16px;">
-        <div class="field"><label>ลูกค้า<span class="req">*</span></label>
-          <select id="wf_s1_customerName">
-            <option value="">เลือกลูกค้า</option>
-            ${CUSTOMERS.map(c => `<option value="${esc(c.name)}" ${s.customerName === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
-          </select>
+    <div class="panel">
+      <div class="panel-body">
+        <div class="grid grid-2" style="margin-bottom:16px;">
+          <div class="field"><label>RF No<span class="req">*</span></label><input type="text" id="wf_s1_rfNo" value="${esc(s.rfNo)}" placeholder="RF-2569-xxxx"></div>
+          <div class="field"><label>วันที่รับ</label><input type="text" class="input-locked" id="wf_s1_receiveDate" value="${esc(s.receiveDate)}" disabled></div>
         </div>
-        <div class="field"><label>ชนิดหลอม<span class="req">*</span></label>
-          <div class="seg-control" id="wf_s1_metalType_seg">
-            <button type="button" class="seg-btn ${s.metalType === 'gold' ? 'active' : ''}" data-seg-value="gold">ทอง (Au)</button>
-            <button type="button" class="seg-btn ${s.metalType === 'silver' ? 'active' : ''}" data-seg-value="silver">เงิน (Ag)</button>
+        <div class="grid grid-2" style="margin-bottom:16px;">
+          <div class="field"><label>ลูกค้า<span class="req">*</span></label>
+            <select id="wf_s1_customerName">
+              <option value="">เลือกลูกค้า</option>
+              ${CUSTOMERS.map(c => `<option value="${esc(c.name)}" ${s.customerName === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field"><label>ชนิดหลอม<span class="req">*</span></label>
+            <div class="seg-control" id="wf_s1_metalType_seg">
+              <button type="button" class="seg-btn ${s.metalType === 'gold' ? 'active' : ''}" data-seg-value="gold">ทอง (Au)</button>
+              <button type="button" class="seg-btn ${s.metalType === 'silver' ? 'active' : ''}" data-seg-value="silver">เงิน (Ag)</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-3" style="margin-bottom:16px;">
+          <div class="field"><label>น้ำหนักแจ้ง (g)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s1_declaredWeight" value="${s.declaredWeight ?? ''}" placeholder="0.00"></div>
+          <div class="field"><label>น้ำหนักรับ (g)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s1_receivedWeight" value="${s.receivedWeight ?? ''}" placeholder="0.00"></div>
+          <div class="field"><label>ขาด/เกิน (g)</label><input class="num-input input-locked ${s.diffWeight === 0 ? 'diff-match' : (s.diffWeight != null ? 'diff-mismatch' : '')}" type="text" id="wf_s1_diffWeight" value="${wfFmt(s.diffWeight)}" disabled></div>
+        </div>
+        <div class="grid grid-2">
+          <div class="field"><label>รายละเอียด</label><input type="text" id="wf_s1_detail" value="${esc(s.detail)}" placeholder="รายละเอียดเพิ่มเติม"></div>
+          <div class="field"><label>รูปแบบ<span class="req">*</span></label>
+            <div class="seg-control" id="wf_s1_jobFormat_seg">
+              <button type="button" class="seg-btn ${s.jobFormat === 'bar' ? 'active' : ''}" data-seg-value="bar">แบบแท่ง</button>
+              <button type="button" class="seg-btn ${s.jobFormat === 'pellet' ? 'active' : ''}" data-seg-value="pellet">แบบเม็ด</button>
+            </div>
           </div>
         </div>
       </div>
-      <div class="grid grid-3" style="margin-bottom:16px;">
-        <div class="field"><label>น้ำหนักแจ้ง (g)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s1_declaredWeight" value="${s.declaredWeight ?? ''}" placeholder="0.00"></div>
-        <div class="field"><label>น้ำหนักรับ (g)<span class="req">*</span></label><input class="num-input" type="text" id="wf_s1_receivedWeight" value="${s.receivedWeight ?? ''}" placeholder="0.00"></div>
-        <div class="field"><label>ขาด/เกิน (g)</label><input class="num-input input-locked ${s.diffWeight === 0 ? 'diff-match' : (s.diffWeight != null ? 'diff-mismatch' : '')}" type="text" id="wf_s1_diffWeight" value="${wfFmt(s.diffWeight)}" disabled></div>
-      </div>
-      <div class="grid grid-2">
-        <div class="field"><label>รายละเอียด</label><input type="text" id="wf_s1_detail" value="${esc(s.detail)}" placeholder="รายละเอียดเพิ่มเติม"></div>
-        <div class="field"><label>รูปแบบ<span class="req">*</span></label>
-          <div class="seg-control" id="wf_s1_jobFormat_seg">
-            <button type="button" class="seg-btn ${s.jobFormat === 'bar' ? 'active' : ''}" data-seg-value="bar">แบบแท่ง</button>
-            <button type="button" class="seg-btn ${s.jobFormat === 'pellet' ? 'active' : ''}" data-seg-value="pellet">แบบเม็ด</button>
-          </div>
-        </div>
-      </div>
-    </div></div>
-    <div class="table-foot" style="border:none; padding:0; justify-content:flex-end; gap:10px;">
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 24px;">
       <button class="btn btn-danger-ghost" id="wf_btnCancel1">ยกเลิก RF-No</button>
-      <button class="btn btn-primary" id="wf_btnNext1">ขั้นตอนถัดไป →</button>
+      <button class="btn btn-primary" id="wf_btnNext1">ขั้นตอนถัดไป &rarr;</button>
     </div>
   `;
 }

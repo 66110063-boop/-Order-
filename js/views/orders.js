@@ -162,19 +162,19 @@ function pageTdcApproveList() {
   const rows = pageItems.length ? pageItems.map((r, i) => {
     return `
       <tr>
-        <td class="cell-primary" style="cursor:pointer;" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">${esc(r.rf)}</td>
-        <td>${esc(r.date)}</td>
-        <td>${esc(r.cust)}</td>
-        <td class="num">${esc(r.wDeclared || r.w)}</td>
-        <td class="num">${esc(r.meltedW || '0.00')}</td>
-        <td class="num">${r.percentAu || '0.00'}</td>
-        <td class="num">${r.auSample || '0.00'}</td>
-        <td class="num">${r.auSampleCust || '0.00'}</td>
-        <td class="num">${r.percentAg || '0.00'}</td>
-        <td style="text-align:center;">
-          <div style="display:inline-flex; gap:6px;">
-            <button class="btn btn-sm btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}"><i class="fas fa-check" style="margin-right:4px;"></i> อนุมัติ</button>
-            <button class="btn btn-sm" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; border-radius:6px; padding:5px 12px; font-weight:600;" data-action="tdc-reject-row" data-rf="${esc(r.rf)}"><i class="fas fa-times" style="margin-right:4px;"></i> ไม่อนุมัติ</button>
+        <td class="cell-primary" style="cursor:pointer; white-space:nowrap; font-weight:700;" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">${esc(r.rf)}</td>
+        <td style="white-space:nowrap; color:var(--text-secondary);">${esc(r.date)}</td>
+        <td style="white-space:nowrap; font-weight:600; min-width:180px;">${esc(r.cust)}</td>
+        <td class="num" style="white-space:nowrap;">${esc(r.wDeclared || r.w)}</td>
+        <td class="num" style="white-space:nowrap;">${esc(r.meltedW || '0.00')}</td>
+        <td class="num" style="white-space:nowrap;">${r.percentAu || '0.00'}</td>
+        <td class="num center" style="white-space:nowrap;">${r.auSample || '0.00'}</td>
+        <td class="num center" style="white-space:nowrap;">${r.auSampleCust || '0.00'}</td>
+        <td class="num center" style="white-space:nowrap;">${r.percentAg || '0.00'}</td>
+        <td style="text-align:center; white-space:nowrap; min-width:180px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%;">
+            <button class="btn btn-sm btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}">${iconCheck()} อนุมัติ</button>
+            <button class="btn btn-sm" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; border-radius:6px; font-weight:600;" data-action="tdc-reject-row" data-rf="${esc(r.rf)}">${iconX()} ไม่อนุมัติ</button>
             <button class="btn btn-sm btn-secondary" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">ดู</button>
           </div>
         </td>
@@ -201,16 +201,16 @@ function pageTdcApproveList() {
       <table>
         <thead>
           <tr>
-            <th>RF-No.</th>
-            <th>วันที่รับ</th>
-            <th>ลูกค้า</th>
-            <th class="num">น้ำหนักแจ้ง</th>
-            <th class="num">น้ำหนักหลังหลอม</th>
-            <th class="num">%Au</th>
-            <th class="num">น้ำหนักตัวอย่าง (Au)</th>
-            <th class="num">น้ำหนักตัวอย่างลูกค้า (Au)</th>
-            <th class="num">%Ag</th>
-            <th style="text-align:center;">จัดการ</th>
+            <th style="white-space:nowrap;">RF-No.</th>
+            <th style="white-space:nowrap;">วันที่รับ</th>
+            <th style="white-space:nowrap; min-width:180px;">ลูกค้า</th>
+            <th class="num" style="white-space:nowrap;">น้ำหนักแจ้ง</th>
+            <th class="num" style="white-space:nowrap;">น้ำหนักหลังหลอม</th>
+            <th class="num" style="white-space:nowrap;">%Au</th>
+            <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่าง (Au)</th>
+            <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่างลูกค้า (Au)</th>
+            <th class="center" style="white-space:nowrap;">%Ag</th>
+            <th style="text-align:center; white-space:nowrap; min-width:180px;">จัดการ</th>
           </tr>
         </thead>
         <tbody>
@@ -219,21 +219,21 @@ function pageTdcApproveList() {
       </table>
       
       <div class="table-foot" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; font-size:15px; color:var(--text-secondary); border-top:1px solid var(--border);">
-        <div style="display:flex; align-items:center; gap:16px;">
+        <div style="display:flex; align-items:center; gap:16px; white-space:nowrap;">
           <span>แสดง ${totalItems ? startIdx + 1 : 0}-${endIdx} จาก ${totalItems} รายการ</span>
-          <div style="display:flex; align-items:center; gap:6px;">
+          <div style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
             <select id="tdcItemsPerPage" style="padding:4px 8px; border-radius:6px; border:1px solid var(--border); font-size:14px; background:var(--surface);">
               <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
               <option value="20" ${itemsPerPage === 20 ? 'selected' : ''}>20</option>
               <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
             </select>
-            <span>รายการ/หน้า</span>
+            <span style="white-space:nowrap;">รายการ/หน้า</span>
           </div>
         </div>
         <div class="pager" style="display:flex; gap:4px; align-items:center;">
-          <button class="btn btn-sm" style="border:1px solid var(--border); background:var(--surface); padding: 4px 8px;" data-action="tdc-prev-page" ${activePage === 1 ? 'disabled' : ''}>ก่อนหน้า</button>
+          <button class="btn btn-sm" style="border:1px solid var(--border); background:var(--surface); padding: 4px 8px;" data-action="tdc-prev-page" ${activePage === 1 ? 'disabled' : ''}>&lsaquo;</button>
           ${pageButtonsHtml}
-          <button class="btn btn-sm" style="border:1px solid var(--border); background:var(--surface); padding: 4px 8px;" data-action="tdc-next-page" ${activePage === totalPages ? 'disabled' : ''}>ถัดไป</button>
+          <button class="btn btn-sm" style="border:1px solid var(--border); background:var(--surface); padding: 4px 8px;" data-action="tdc-next-page" ${activePage === totalPages ? 'disabled' : ''}>&rsaquo;</button>
         </div>
       </div>
     </div>`;
@@ -282,8 +282,14 @@ function pageTdcApproveDetail(rfId) {
       </div>
     </div>
     
-    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:28px;">
-      <button class="btn btn-secondary" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; border-radius:6px; padding:8px 16px; font-weight:600;" data-action="tdc-reject-row" data-rf="${esc(r.rf)}"><i class="fas fa-times" style="margin-right:4px;"></i> ไม่อนุมัติ</button>
-      <button class="btn btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}"><i class="fas fa-check" style="margin-right:4px;"></i> อนุมัติ</button>
+    <div style="display:flex; justify-content:center; gap:20px; margin-top:28px; width:100%;">
+      <div class="decision-card reject" data-action="tdc-reject-row" data-rf="${esc(r.rf)}">
+        <input type="radio" name="approval_status" value="rejected">
+        <span class="title">ไม่อนุมัติ</span>
+      </div>
+      <div class="decision-card approve" data-action="tdc-approve-row" data-rf="${esc(r.rf)}">
+        <input type="radio" name="approval_status" value="approved">
+        <span class="title">อนุมัติ</span>
+      </div>
     </div>`;
 }

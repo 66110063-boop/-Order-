@@ -98,6 +98,27 @@ function invoiceTemplatePickerModal() {
     </div>`;
 }
 
+function invoiceTypePickerModal(rf) {
+  return `
+    <div class="modal modal-md">
+      <div class="modal-head">
+        <h3>เลือกรูปแบบ Invoice</h3>
+        <button class="modal-close" data-close-modal>${iconX()}</button>
+      </div>
+      <div class="modal-body" style="text-align:center; padding: 24px 16px;">
+        <div style="font-size:16px; margin-bottom:24px; color:var(--text-primary); line-height:1.6;">
+          บิลรับงานนี้มี 2 ชิ้นทอง กรุณาเลือกความบริสุทธิ์ที่พร้อมเริ่มทำบิลภาษี
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-primary" data-action="start-invoice-gold" data-rf="${esc(rf)}" data-purity="96.5" style="width:100%; justify-content:center; min-height:48px; font-size:17px; font-weight:600;">หลอมทอง 96.5</button>
+          <button class="btn btn-primary" data-action="start-invoice-gold" data-rf="${esc(rf)}" data-purity="99.99" style="width:100%; justify-content:center; min-height:48px; font-size:17px; font-weight:600; background:#0d47a1;">หลอมทอง 99.99</button>
+          <button class="btn btn-secondary" data-close-modal style="width:100%; justify-content:center; min-height:48px; font-size:17px; font-weight:600;">ปิดหน้าต่าง</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+
 function lotReportModal(rows) {
   const totalW = rows.reduce((s, r) => s + (parseFloat(String(r.w).replace(/,/g, '')) || 0), 0);
   const stageLabel = LOT_STAGES.find(s => s.key === state.lotStage)?.label || 'ทั้งหมด';
@@ -254,6 +275,16 @@ function bindModalEvents() {
     state.invoiceNo = null; state.invoiceMode = 'new';
     closeModal(); goPage('invoice-edit');
   }));
+  $$('[data-action="start-invoice-gold"]').forEach(el => el.addEventListener('click', (e) => {
+    const rf = e.currentTarget.dataset.rf;
+    const purity = e.currentTarget.dataset.purity;
+    state.invoiceTemplate = 'gold';
+    state.invoicePurity = purity;
+    state.invoiceNo = rf || null;
+    state.invoiceMode = 'new';
+    closeModal();
+    goPage('invoice-edit');
+  }));
 
   const confirmCancelOrder = $('[data-action="confirm-cancel-order"]');
   if (confirmCancelOrder) confirmCancelOrder.addEventListener('click', (e) => {
@@ -310,6 +341,282 @@ function bindModalEvents() {
 }
 
 function bindPageEvents() {
+  if (state.page === 'invoice-edit') {
+    const calcWIn = $('#calc_w_in');
+    const calcWReturn = $('#calc_w_return');
+    const calcWCalc = $('#calc_w_calc');
+    const calcPrice = $('#calc_price');
+    const itemAmount = $('#item_amount_1');
+
+    const summarySubtotal = $('#summary_subtotal');
+    const summaryVat = $('#summary_vat');
+    const summaryGrand = $('#summary_grand');
+
+    function runInvoiceCalculation() {
+      if (!calcWCalc || !calcPrice || !itemAmount) return;
+      const w = parseFloat(calcWCalc.value) || 0;
+      const p = parseFloat(calcPrice.value) || 0;
+      const subtotal = w * p;
+      const vat = subtotal * 0.07;
+      const grand = subtotal + vat;
+
+      const formatCurrency = (val) => val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      itemAmount.value = formatCurrency(subtotal);
+      if (summarySubtotal) summarySubtotal.innerText = formatCurrency(subtotal);
+      if (summaryVat) summaryVat.innerText = formatCurrency(vat);
+      if (summaryGrand) summaryGrand.innerText = `฿${formatCurrency(grand)}`;
+    }
+
+    if (calcWCalc) calcWCalc.addEventListener('input', runInvoiceCalculation);
+    if (calcPrice) calcPrice.addEventListener('input', runInvoiceCalculation);
+    if (calcWIn) calcWIn.addEventListener('input', runInvoiceCalculation);
+    if (calcWReturn) calcWReturn.addEventListener('input', runInvoiceCalculation);
+
+    // Initial run to calculate when page loads
+    runInvoiceCalculation();
+
+    // Bind save button
+    const btnSaveInvoice = $('[data-action="save-invoice"]');
+    if (btnSaveInvoice) {
+      btnSaveInvoice.addEventListener('click', () => {
+        const noInput = $('#inv_no') ? $('#inv_no').value : '';
+        const custInput = $('#inv_cust') ? $('#inv_cust').value : '';
+        const dateInput = $('#inv_date') ? $('#inv_date').value : '';
+        const totalFormatted = itemAmount ? itemAmount.value : '0.00';
+
+        const existing = [...INV_WITH_NUMBER, ...INV_GENERAL].find(i => i.no === state.invoiceNo || i.rf === state.invoiceNo);
+        if (existing) {
+          existing.no = noInput || existing.no;
+          existing.cust = custInput || existing.cust;
+          existing.date = dateInput || existing.date;
+          existing.total = totalFormatted;
+        } else {
+          const idx = INV_NO_NUMBER.findIndex(x => x.rf === state.invoiceNo);
+          if (idx !== -1) {
+            const rfSource = INV_NO_NUMBER.splice(idx, 1)[0];
+            INV_WITH_NUMBER.unshift({
+              no: noInput || `INV-${rfSource.rf.split('-')[1]}`,
+              rf: rfSource.rf,
+              date: dateInput || rfSource.date,
+              cust: custInput || rfSource.cust,
+              total: totalFormatted
+            });
+          }
+        }
+
+        toast('บันทึกการแก้ไขเรียบร้อยแล้ว');
+        goPage('accounting');
+      });
+    }
+
+    const btnPreview = $('[data-action="save-and-preview-invoice"]');
+    if (btnPreview) {
+      btnPreview.addEventListener('click', () => {
+        const noInput = $('#inv_no') ? $('#inv_no').value : 'ใหม่';
+        openInvoicePreviewTab(noInput);
+      });
+    }
+
+    const btnAddItem = $('#btnAddItem');
+    if (btnAddItem) {
+      btnAddItem.addEventListener('click', () => {
+        toast('เพิ่มรายการเรียบร้อย (ระบบจำลอง)');
+      });
+    }
+  }
+
+  if (state.page === 'invoice-general-edit') {
+    const clientSelect = $('#client_select');
+    const invCust = $('#inv_cust');
+    const invAddr = $('#inv_addr');
+    const invTax = $('#inv_tax');
+    const itemsContainer = $('#general_items_container');
+    const btnAddGeneralItem = $('#btn_add_general_item');
+
+    const summarySubtotal = $('#summary_subtotal');
+    const summaryVat = $('#summary_vat');
+    const summaryGrand = $('#summary_grand');
+
+    const customerDetails = {
+      'บริษัท ทองไทย จำกัด': { addr: '12/12 สินปูน เขาพนม กระบี่ 80240', tax: '0105560000000' },
+      'วิไล รุ่งเรือง': { addr: '7/7 ซอยลาดพร้าว 15 จอมพล จตุจักร กรุงเทพฯ 10900', tax: '0105560000001' },
+      'บริษัท บีบีบี จำกัด': { addr: '99/9 ถนนพระราม 9 ห้วยขวาง กรุงเทพฯ 10310', tax: '0105560000002' },
+      'ห้างทองแม่ทองย้อย': { addr: '88/1 ถนนลาดพร้าว จอมพล จตุจักร กรุงเทพฯ 10900', tax: '0105560011223' },
+      'โรงงานทองไทยเจริญ': { addr: '12/3 ถนนพระราม 3 บางคอแหลม กรุงเทพฯ 10120', tax: '0105561023456' },
+      'ห้างทองศิริทองคำ': { addr: '45/6 ถนนเยาวราช สัมพันธวงศ์ กรุงเทพฯ 10100', tax: '0105560000005' },
+      'ห้างทองซั่วเข่งเฮง': { addr: '78/9 ถนนเยาวราช สัมพันธวงศ์ กรุงเทพฯ 10100', tax: '0105560000006' },
+      'อรุณี แสงทอง': { addr: '55/5 ถนนสีลม บางรัก กรุงเทพฯ 10500', tax: '0105560000007' }
+    };
+
+    if (clientSelect) {
+      clientSelect.addEventListener('change', (e) => {
+        const name = e.target.value;
+        const details = customerDetails[name];
+        if (invCust) invCust.value = name;
+        if (details) {
+          if (invAddr) invAddr.value = details.addr;
+          if (invTax) invTax.value = details.tax;
+        } else {
+          if (invAddr) invAddr.value = '';
+          if (invTax) invTax.value = '';
+        }
+      });
+    }
+
+    function runGeneralInvoiceCalculation() {
+      if (!itemsContainer) return;
+      let subtotal = 0;
+      $$('.item-amount-input', itemsContainer).forEach(el => {
+        subtotal += parseFloat(el.value) || 0;
+      });
+      const vat = subtotal * 0.07;
+      const grand = subtotal + vat;
+
+      const formatCurrency = (val) => val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      if (summarySubtotal) summarySubtotal.innerText = formatCurrency(subtotal);
+      if (summaryVat) summaryVat.innerText = formatCurrency(vat);
+      if (summaryGrand) summaryGrand.innerText = `฿${formatCurrency(grand)}`;
+    }
+
+    function bindItemRowEvents(row) {
+      const amtInput = row.querySelector('.item-amount-input');
+      if (amtInput) {
+        amtInput.addEventListener('input', runGeneralInvoiceCalculation);
+      }
+      const delBtn = row.querySelector('.btn-delete-row');
+      if (delBtn) {
+        delBtn.addEventListener('click', () => {
+          row.remove();
+          $$('.general-item-row', itemsContainer).forEach((r, i) => {
+            const span = r.querySelector('.row-number-span');
+            if (span) span.innerText = `${i + 1}.`;
+          });
+          runGeneralInvoiceCalculation();
+        });
+      }
+      const subBtn = row.querySelector('.btn-add-sub-item');
+      if (subBtn) {
+        subBtn.addEventListener('click', () => {
+          const container = row.querySelector('.sub-items-container');
+          if (container) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'item-sub-desc-input';
+            input.placeholder = 'กรุณากรอกรายละเอียดข้อย่อย';
+            input.style.cssText = "font-size:13.5px; width:100%; border:none; border-bottom:1px dashed var(--border); padding:2px 0; background:transparent; color:var(--text-secondary); margin-top:6px;";
+            container.appendChild(input);
+          }
+        });
+      }
+    }
+
+    if (itemsContainer) {
+      $$('.general-item-row', itemsContainer).forEach(row => bindItemRowEvents(row));
+    }
+
+    if (btnAddGeneralItem) {
+      btnAddGeneralItem.addEventListener('click', () => {
+        if (!itemsContainer) return;
+        const index = $$('.general-item-row', itemsContainer).length + 1;
+        const temp = document.createElement('div');
+        temp.innerHTML = `
+          <div class="general-item-row" style="margin-bottom: 20px; border-bottom: 1px dashed var(--border); padding-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px;">
+              <div style="flex:1;">
+                <!-- Row 1: Number + Item Name Input -->
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <span class="row-number-span" style="font-weight:700; font-size:15px; min-width:20px;">${index}.</span>
+                  <input type="text" class="item-name-input" placeholder="กรุณากรอกรายละเอียด" style="font-weight:600; font-size:15px; width:100%; border:none; border-bottom:1px solid var(--border); padding:4px 0; background:transparent; color:var(--text-primary);">
+                </div>
+                
+                <!-- Sub-items container -->
+                <div class="sub-items-container" style="margin-left: 30px; margin-top: 8px; display:flex; flex-direction:column; gap:8px;">
+                  <input type="text" class="item-sub-desc-input" placeholder="กรุณากรอกรายละเอียดข้อย่อย" style="font-size:13.5px; width:100%; border:none; border-bottom:1px dashed var(--border); padding:2px 0; background:transparent; color:var(--text-secondary);">
+                </div>
+
+                <!-- Add Sub-item Link -->
+                <div style="margin-left: 30px; margin-top: 8px;">
+                  <a href="javascript:void(0)" class="btn-add-sub-item" style="font-size:13px; color:var(--btn-primary); text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                    + เพิ่มข้อย่อย
+                  </a>
+                </div>
+              </div>
+
+              <!-- Right Side: Amount Input + Trash -->
+              <div style="display:flex; align-items:center; gap:10px; width:240px; justify-content:flex-end; padding-top:4px;">
+                <input type="text" class="num-input item-amount-input" value="0.00" style="width:120px; text-align:right; font-weight:700;">
+                <span style="color:var(--text-secondary);">บาท</span>
+                <button class="btn-delete-row" style="background:transparent; border:none; color:#c62828; cursor:pointer; font-size:16px; display:inline-flex; align-items:center; justify-content:center; padding:6px;" title="ลบรายการ">${iconTrash()}</button>
+              </div>
+            </div>
+          </div>`;
+        const newRow = temp.firstElementChild;
+        itemsContainer.appendChild(newRow);
+        bindItemRowEvents(newRow);
+        runGeneralInvoiceCalculation();
+      });
+    }
+
+    const btnSaveGen = $('[data-action="save-general-invoice"]');
+    if (btnSaveGen) {
+      btnSaveGen.addEventListener('click', () => {
+        const noInput = $('#inv_no') ? $('#inv_no').value : '';
+        const custInput = $('#inv_cust') ? $('#inv_cust').value : '';
+        const dateInput = $('#inv_date') ? $('#inv_date').value : '';
+        const addrInput = $('#inv_addr') ? $('#inv_addr').value : '';
+        const taxInput = $('#inv_tax') ? $('#inv_tax').value : '';
+
+        const items = [];
+        let totalVal = 0;
+        $$('.general-item-row', itemsContainer).forEach(row => {
+          const name = row.querySelector('.item-name-input')?.value || '';
+          const amount = parseFloat(row.querySelector('.item-amount-input')?.value) || 0;
+          items.push({ name, amount });
+          totalVal += amount;
+        });
+
+        const formatCurrency = (val) => val.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const existingIdx = INV_GENERAL.findIndex(i => i.no === state.invoiceNo);
+        if (existingIdx !== -1) {
+          INV_GENERAL[existingIdx] = {
+            no: noInput || state.invoiceNo,
+            cust: custInput,
+            date: dateInput,
+            addr: addrInput,
+            tax: taxInput,
+            total: formatCurrency(totalVal),
+            items
+          };
+        } else {
+          INV_GENERAL.unshift({
+            no: noInput || `69/${INV_GENERAL.length + INV_WITH_NUMBER.length + 1}`,
+            cust: custInput,
+            date: dateInput,
+            addr: addrInput,
+            tax: taxInput,
+            total: formatCurrency(totalVal),
+            items
+          });
+        }
+
+        toast('บันทึกเอกสารบัญชี (ทั่วไป) สำเร็จ');
+        state.acctTab = 'general';
+        goPage('accounting');
+      });
+    }
+
+    const btnPreviewGen = $('[data-action="preview-general-invoice"]');
+    if (btnPreviewGen) {
+      btnPreviewGen.addEventListener('click', () => {
+        const noInput = $('#inv_no') ? $('#inv_no').value : 'ใหม่';
+        openInvoicePreviewTab(noInput);
+      });
+    }
+  }
+
   $$('[data-tab]').forEach(el => el.addEventListener('click', () => {
     const group = el.dataset.tab, key = el.dataset.key;
     if (group === 'order') state.orderTab = key;
@@ -453,8 +760,11 @@ function bindPageEvents() {
       order.station1.customerName = existing.cust || '';
       order.station1.receiveDate = existing.date || todayStr();
       order.station1.receivedWeight = wfNum(existing.w);
-      order.station1.declaredWeight = wfNum(existing.w);
+      order.station1.declaredWeight = wfNum(existing.wDeclared || existing.w);
       order.station1.diffWeight = WfFormula.diffWeight(order.station1.declaredWeight, order.station1.receivedWeight);
+      order.station2.weightAfterMeltAu = existing.meltedW ?? null;
+      order.station2.sampleWeightAu = existing.auSample ?? null;
+      order.station2.customerSampleWeightAu = existing.auSampleCust ?? null;
       order.station3.percentAu = existing.percentAu ?? null;
       order.station3.percentAg = existing.percentAg ?? null;
       order.percentApproval.status = existing.percentApprovalStatus || 'none';
@@ -561,15 +871,32 @@ function bindPageEvents() {
     toast('ยังไม่มีผู้ใช้งานที่ถูกลบในช่วงนี้');
   });
 
-  $$('[data-action="create-invoice"]').forEach(el => el.addEventListener('click', () => {
-    state.invoiceNo = el.dataset.rf || null; state.invoiceMode = 'new'; state.invoiceTemplate = 'gold'; goPage('invoice-edit');
+  $$('[data-action="create-invoice"]').forEach(el => el.addEventListener('click', (e) => {
+    const rf = e.currentTarget.dataset.rf;
+    openModal(invoiceTypePickerModal(rf));
+    bindModalEvents();
   }));
-  $$('[data-action="edit-invoice"]').forEach(el => el.addEventListener('click', () => {
-    state.invoiceNo = el.dataset.no || null; state.invoiceMode = 'edit'; state.invoiceTemplate = 'gold'; goPage('invoice-edit');
+  $$('[data-action="edit-invoice"]').forEach(el => el.addEventListener('click', (e) => {
+    const no = e.currentTarget.dataset.no;
+    const isGeneral = INV_GENERAL.some(i => i.no === no);
+    state.invoiceNo = no || null;
+    state.invoiceMode = 'edit';
+    if (isGeneral) {
+      state.invoiceTemplate = 'general';
+      goPage('invoice-general-edit');
+    } else {
+      state.invoiceTemplate = 'gold';
+      goPage('invoice-edit');
+    }
   }));
   $$('[data-action="preview-invoice"]').forEach(el => el.addEventListener('click', () => { openInvoicePreviewTab(el.dataset.no, el.dataset.doctype); }));
   const genInv = $('[data-action="create-general-invoice"]');
-  if (genInv) genInv.addEventListener('click', () => { openModal(invoiceTemplatePickerModal()); bindModalEvents(); });
+  if (genInv) genInv.addEventListener('click', () => {
+    state.invoiceNo = null;
+    state.invoiceMode = 'new';
+    state.invoiceTemplate = 'general';
+    goPage('invoice-general-edit');
+  });
 
   const draftBtn = $('[data-action="draft-invoice"]');
   if (draftBtn) draftBtn.addEventListener('click', () => toast('บันทึกร่างแล้ว'));
