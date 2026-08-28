@@ -81,19 +81,52 @@ function orderWizardModal() {
     </div>`).join('');
 
   const step1 = `
-    <div class="grid-4" style="grid-template-columns:repeat(4,1fr); gap:14px;">
-      <div class="field"><label>RF No<span class="req">*</span></label><input type="text" placeholder="เช่น RF-B010"></div>
-      <div class="field"><label>วันที่รับ<span class="req">*</span></label><input type="date"></div>
-      <div class="field"><label>ลูกค้า<span class="req">*</span></label>
-        <select><option>เลือกลูกค้า</option>${CUSTOMERS.map(c => `<option>${esc(c.name)}</option>`).join('')}</select>
+    <div style="max-width: 860px; margin: 0 auto;">
+      <div class="panel" style="margin-bottom: var(--space-md);">
+        <div class="panel-head"><div class="title">ข้อมูลอ้างอิง</div></div>
+        <div class="panel-body">
+          <div class="grid-3">
+            <div class="field"><label>RF No<span class="req">*</span></label><input type="text" placeholder="เช่น RF-B010"></div>
+            <div class="field"><label>วันที่รับ<span class="req">*</span></label><input type="date"></div>
+            <div class="field"><label>ลูกค้า<span class="req">*</span></label>
+              <select><option>เลือกลูกค้า</option>${CUSTOMERS.map(c => `<option>${esc(c.name)}</option>`).join('')}</select>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="field"><label>ชนิดหลอม<span class="req">*</span></label><select><option>ทอง</option><option>เงิน</option></select></div>
-      <div class="field"><label>น้ำหนักแจ้ง (g)<span class="req">*</span></label><input class="num-input" type="text" placeholder="0.00"></div>
-      <div class="field"><label>น้ำหนักรับ (g)<span class="req">*</span></label><input class="num-input" type="text" placeholder="0.00"></div>
-      <div class="field"><label>ขาด/เกิน (auto)</label><input class="num-input input-locked" type="text" value="0.00" disabled></div>
-      <div class="field"><label>รูปแบบ<span class="req">*</span></label><select><option>แบบแท่ง</option><option>แบบเม็ด</option></select></div>
+      <div class="panel" style="margin-bottom: var(--space-md);">
+        <div class="panel-head"><div class="title">ประเภทงาน</div></div>
+        <div class="panel-body">
+          <div class="grid-2">
+            <div class="field">
+              <label>ชนิดหลอม<span class="req">*</span></label>
+              <div class="seg-control">
+                <button class="seg-btn active">ทองคำ (Au)</button>
+                <button class="seg-btn">เงิน (Ag)</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>รูปแบบ<span class="req">*</span></label>
+              <div class="seg-control">
+                <button class="seg-btn active">แบบแท่ง</button>
+                <button class="seg-btn">แบบเม็ด</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="title">รายละเอียดน้ำหนัก</div></div>
+        <div class="panel-body">
+          <div class="grid-3">
+            <div class="field"><label>น้ำหนักแจ้ง (g)<span class="req">*</span></label><input class="num-input" type="text" inputmode="decimal" placeholder="0.00"></div>
+            <div class="field"><label>น้ำหนักรับ (g)<span class="req">*</span></label><input class="num-input" type="text" inputmode="decimal" placeholder="0.00"></div>
+            <div class="field"><label>ขาด/เกิน (auto)</label><input class="num-input input-locked" type="text" value="0.00" disabled></div>
+          </div>
+          <div class="field" style="margin-top:14px;"><label>รายละเอียด</label><input type="text" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></div>
+        </div>
+      </div>
     </div>
-    <div class="field" style="margin-top:14px;"><label>รายละเอียด</label><input type="text" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></div>
   `;
   const placeholderStep = (label) => `<div style="padding:50px 0; text-align:center; color:var(--text-secondary);">
       <div style="font-size:16px;">ขั้นตอน "${esc(label)}" จะเปิดใช้งานหลังจากบันทึกสเตปก่อนหน้า</div>
@@ -174,7 +207,7 @@ function pageTdcApproveList() {
         <td style="text-align:center; white-space:nowrap; min-width:180px;">
           <div style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%;">
             <button class="btn btn-sm btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}">${iconCheck()} อนุมัติ</button>
-            <button class="btn btn-sm" style="background:#ffebee; color:#c62828; border:1px solid #ffcdd2; border-radius:6px; font-weight:600;" data-action="tdc-reject-row" data-rf="${esc(r.rf)}">${iconX()} ไม่อนุมัติ</button>
+            <button class="btn btn-sm btn-danger-ghost" data-action="tdc-reject-row" data-rf="${esc(r.rf)}">${iconX()} ไม่อนุมัติ</button>
             <button class="btn btn-sm btn-secondary" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">ดู</button>
           </div>
         </td>

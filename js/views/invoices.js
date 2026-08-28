@@ -330,7 +330,7 @@ function pageInvoiceEdit() {
       <div class="inv-topbar-right">
         <button class="btn btn-secondary btn-sm" data-go="accounting">ยกเลิก</button>
         <button class="btn btn-primary btn-sm" data-action="save-invoice">บันทึก</button>
-        <button class="btn btn-primary btn-sm" data-action="save-and-preview-invoice" style="background:#0d47a1;">
+        <button class="btn btn-primary btn-sm" data-action="save-and-preview-invoice">
           ${iconEye()} Preview
         </button>
       </div>
@@ -597,7 +597,7 @@ function pageInvoiceGeneralEdit() {
       <div class="inv-topbar-right">
         <button class="btn btn-secondary btn-sm" data-go="accounting">ยกเลิก</button>
         <button class="btn btn-primary btn-sm" data-action="save-general-invoice">บันทึก</button>
-        <button class="btn btn-primary btn-sm" data-action="preview-general-invoice" style="background:#0d47a1;">
+        <button class="btn btn-primary btn-sm" data-action="preview-general-invoice">
           ${iconEye()} Preview
         </button>
       </div>
@@ -678,7 +678,7 @@ function pageInvoiceGeneralEdit() {
                     <div style="display:flex; align-items:center; gap:10px; width:240px; justify-content:flex-end; padding-top:4px;">
                       <input type="text" class="num-input item-amount-input" value="${item.amount ? item.amount.toFixed(2) : '0.00'}" style="width:120px; text-align:right; font-weight:700;">
                       <span style="color:var(--text-secondary);">บาท</span>
-                      <button class="btn-delete-row" style="background:transparent; border:none; color:#c62828; cursor:pointer; font-size:16px; display:inline-flex; align-items:center; justify-content:center; padding:6px;" title="ลบรายการ">${iconTrash()}</button>
+                      <button class="btn-delete-row" style="background:transparent; border:none; color:var(--st-hold-fg); cursor:pointer; font-size:16px; display:inline-flex; align-items:center; justify-content:center; padding:6px;" title="ลบรายการ">${iconTrash()}</button>
                     </div>
                   </div>
                 </div>
