@@ -523,3 +523,66 @@ function _lotSections(d, stage, stageLabel) {
 function sectionBar(title) {
   return '<div class="panel-head">' + esc(title) + '</div>';
 }
+
+
+window.LotsView = (function() {
+  function initEvents() {
+    try {
+      $$('[data-action="open-lot-type"]').forEach(el => el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.lotAllocateType = el.dataset.type;
+        if (typeof renderPage === 'function') renderPage();
+      }));
+      
+      $$('.lot-type-card').forEach(el => el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const btn = el.querySelector('[data-action="open-lot-type"]');
+        if (btn) {
+          state.lotAllocateType = btn.dataset.type;
+          if (typeof renderPage === 'function') renderPage();
+        }
+      }));
+
+      $$('[data-action="export-lot-excel"]').forEach(btn => btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lotId = e.currentTarget.dataset.lot;
+        if (typeof window.exportLotReportToExcel === 'function') {
+          window.exportLotReportToExcel(lotId);
+        }
+      }));
+
+      $$('[data-action="next-lot-stage"]').forEach(btn => btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lotId = state.lotDetailId;
+        if (!lotId) return;
+
+        let lotData = null, currentStage = null;
+        for (const sKey in window.LOT_MANAGE_DATA) {
+          const found = window.LOT_MANAGE_DATA[sKey].find(x => x.lot === lotId);
+          if (found) { lotData = found; currentStage = sKey; break; }
+        }
+        if (!lotData) return;
+        
+        const stageFlow = ['new', 'presend', 'postsend', 'extract', 'pre99', 'post99', 'closed'];
+        const currIdx = stageFlow.indexOf(currentStage);
+        if (currIdx >= 0 && currIdx < stageFlow.length - 1) {
+          const nextStage = stageFlow[currIdx + 1];
+          window.LOT_MANAGE_DATA[currentStage] = window.LOT_MANAGE_DATA[currentStage].filter(x => x.lot !== lotId);
+          window.LOT_MANAGE_DATA[nextStage] = window.LOT_MANAGE_DATA[nextStage] || [];
+          window.LOT_MANAGE_DATA[nextStage].push(lotData);
+          state.lotDetailStage = nextStage;
+          toast('บันทึกและเปลี่ยนสถานะไปขั้นถัดไปเรียบร้อยแล้ว');
+          if (typeof renderPage === 'function') renderPage();
+        } else {
+          toast('สิ้นสุดกระบวนการแล้ว');
+          state.lotDetailId = null;
+          if (typeof renderPage === 'function') renderPage();
+        }
+      }));
+    } catch(err) {
+      console.error('LotsView Event Error:', err);
+    }
+  }
+
+  return { initEvents };
+})();

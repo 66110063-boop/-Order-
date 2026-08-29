@@ -23,8 +23,30 @@ function renderPage() {
     workflow: pageWorkflow,
     'rf-summary': () => pageRfSummary(state.rfSummaryTarget),
   };
-  c.innerHTML = builders[state.page] ? builders[state.page]() : '<div>ไม่พบหน้า</div>';
-  bindPageEvents();
+  try {
+    c.innerHTML = builders[state.page] ? builders[state.page]() : '<div>ไม่พบหน้า</div>';
+  } catch (err) {
+    console.error('Error rendering page:', state.page, err);
+    c.innerHTML = `<div style="padding: 24px; color: #e11d48; text-align: center;"><h2>เกิดข้อผิดพลาด (Render Error)</h2><p>${err.message}</p></div>`;
+  }
+  
+  try {
+    if (typeof bindPageEvents === 'function') bindPageEvents();
+    
+    // Trigger Namespace initEvents
+    const ns = {
+      dashboard: window.DashboardView,
+      orders: window.OrdersView,
+      'lot-allocate': window.LotsView,
+      'lot-manage': window.LotsView
+    };
+    if (ns[state.page] && typeof ns[state.page].initEvents === 'function') {
+      ns[state.page].initEvents();
+    }
+  } catch(err) {
+    console.error('Error binding events for page:', state.page, err);
+  }
+
   if (state.page === 'workflow') {
     wfRefresh();
     const btnBack = $('[data-action="wf-back"]');

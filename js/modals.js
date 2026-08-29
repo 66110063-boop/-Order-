@@ -726,12 +726,12 @@ function bindPageEvents() {
     exportTdcToExcel();
   }));
 
-  $('[data-action="tdc-inspect-modal"]').forEach(el => el.addEventListener('click', (e) => {
+  $$('[data-action="tdc-inspect-modal"]').forEach(el => el.addEventListener('click', (e) => {
     e.stopPropagation();
     openTdcInspectModal(e.currentTarget.dataset.rf);
   }));
 
-  $('[data-action="tdc-view-detail"]').forEach(el => el.addEventListener('click', (e) => {
+  $$('[data-action="tdc-view-detail"]').forEach(el => el.addEventListener('click', (e) => {
     state.tdcDetailId = e.currentTarget.dataset.rf;
     renderBreadcrumb();
     renderPage();
@@ -886,12 +886,11 @@ function bindPageEvents() {
     toast('ส่งออก Excel (CSV) เรียบร้อย');
   }));
 
-  const newOrderBtn = $('[data-action="new-order"]');
-  if (newOrderBtn) newOrderBtn.addEventListener('click', () => {
+  $$('[data-action="new-order"]').forEach(el => el.addEventListener('click', () => {
     order = wfFreshOrder();
     state.wfCurrent = 1; state.wfMaxUnlocked = 1; state.wfStepperLimit = 4; state.wfStepperRange = null;
     goPage('workflow');
-  });
+  }));
   $$('[data-action="cancel-order"]').forEach(el => el.addEventListener('click', e => {
     e.stopPropagation();
     openModal(confirmDeleteModal(el.dataset.rf, 'confirm-cancel-order', `data-rf="${esc(el.dataset.rf)}"`));
@@ -1067,120 +1066,6 @@ function openTdcInspectModal(rf) {
     </div>
   `;
   openModal(html);
-
-  // --- DASHBOARD EVENTS ---
-  const dashSearch = $('#dashSearchInput');
-  if (dashSearch) {
-    dashSearch.addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase().trim();
-      $('.lane-card').forEach(card => {
-        const text = card.innerText.toLowerCase();
-        card.style.display = text.includes(q) ? '' : 'none';
-      });
-      // Update counts
-      $('.lane-col').forEach(col => {
-        const visible = Array.from(col.querySelectorAll('.lane-card')).filter(c => c.style.display !== 'none').length;
-        const countEl = col.querySelector('.lc-count');
-        if (countEl) countEl.innerText = visible;
-      });
-    });
-  }
-
-  $('.lane-card').forEach(el => el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const rf = el.dataset.detail;
-    state.rfSummaryTarget = rf;
-    state.page = 'rf-summary';
-    renderPage();
-  }));
-  
-  $('[data-action="new-order"]').forEach(btn => btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    order = window.wfFreshOrder ? window.wfFreshOrder() : {};
-    state.wfCurrent = 1; state.wfMaxUnlocked = 1; state.wfStepperLimit = 4; state.wfStepperRange = null;
-    state.page = 'workflow';
-    renderPage();
-  }));
-
-  // --- ORDERS TAB EVENTS ---
-  $('.tabs .tab').forEach(tab => tab.addEventListener('click', (e) => {
-    if (state.page !== 'orders') return;
-    const tabKey = e.currentTarget.dataset.tab;
-    if (tabKey) {
-      state.orderTab = tabKey;
-      renderPage();
-    }
-  }));
-
-  // --- LOTS EVENTS ---
-  $('[data-action="open-lot-type"]').forEach(el => el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    state.lotAllocateType = el.dataset.type;
-    renderPage();
-  }));
-  
-  $('.lot-type-card').forEach(el => el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const btn = el.querySelector('[data-action="open-lot-type"]');
-    if (btn) {
-      state.lotAllocateType = btn.dataset.type;
-      renderPage();
-    }
-  }));
-
-  // --- LOT EXPORT ---
-  $('[data-action="export-lot-excel"]').forEach(btn => btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const lotId = state.lotDetailId || (e.currentTarget.dataset && e.currentTarget.dataset.lot);
-    if (typeof window.exportLotReportToExcel === 'function') {
-      window.exportLotReportToExcel(lotId);
-    }
-  }));
-
-
-  // --- LOT WORKFLOW EVENTS ---
-  $$('[data-action="next-lot-stage"]').forEach(btn => btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const lotId = state.lotDetailId;
-    let lotData = null;
-    let currentStage = null;
-
-    if (!lotId) return;
-
-    // Find the lot across all stages
-    for (const sKey in window.LOT_MANAGE_DATA) {
-      const arr = window.LOT_MANAGE_DATA[sKey];
-      const found = arr.find(x => x.lot === lotId);
-      if (found) {
-        lotData = found;
-        currentStage = sKey;
-        break;
-      }
-    }
-
-    if (!lotData) return;
-    
-    const stageFlow = ['new', 'presend', 'postsend', 'extract', 'pre99', 'post99', 'closed'];
-    const currIdx = stageFlow.indexOf(currentStage);
-    if (currIdx >= 0 && currIdx < stageFlow.length - 1) {
-      const nextStage = stageFlow[currIdx + 1];
-      
-      // Remove from current
-      window.LOT_MANAGE_DATA[currentStage] = window.LOT_MANAGE_DATA[currentStage].filter(x => x.lot !== lotId);
-      // Add to next
-      window.LOT_MANAGE_DATA[nextStage] = window.LOT_MANAGE_DATA[nextStage] || [];
-      window.LOT_MANAGE_DATA[nextStage].push(lotData);
-
-      // Update state if needed
-      state.lotDetailStage = nextStage;
-      toast('บันทึกและเปลี่ยนสถานะไปขั้นถัดไปเรียบร้อยแล้ว');
-      renderPage();
-    } else {
-      toast('สิ้นสุดกระบวนการแล้ว');
-      state.lotDetailId = null;
-      renderPage();
-    }
-  }));
 
   bindModalEvents();
 }
