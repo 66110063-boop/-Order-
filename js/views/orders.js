@@ -204,11 +204,11 @@ function pageTdcApproveList() {
         <td class="num center" style="white-space:nowrap;">${r.auSample || '0.00'}</td>
         <td class="num center" style="white-space:nowrap;">${r.auSampleCust || '0.00'}</td>
         <td class="num center" style="white-space:nowrap;">${r.percentAg || '0.00'}</td>
-        <td style="text-align:center; white-space:nowrap; min-width:180px;">
-          <div style="display:flex; align-items:center; justify-content:center; width:100%;">
-            <button class="btn btn-sm btn-secondary" data-action="tdc-inspect-modal" data-rf="${esc(r.rf)}" style="gap:6px;">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ตรวจสอบ
-            </button>
+        <td style="text-align:center; white-space:nowrap; min-width:230px;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 8px; width:100%;">
+            <button data-action="tdc-view-detail" data-rf="${esc(r.rf)}" style="background: #ffffff; border: 1px solid #cbd5e1; color: #475569; padding: 5px 10px; font-size: 13px; border-radius: 6px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px;">👁️ ดู</button>
+            <button data-action="tdc-approve-row" data-rf="${esc(r.rf)}" style="background: #16a34a; border: none; color: #ffffff; padding: 5px 12px; font-size: 13px; font-weight: 600; border-radius: 6px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px;">✓ อนุมัติ</button>
+            <button data-action="tdc-reject-row" data-rf="${esc(r.rf)}" style="background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; padding: 5px 10px; font-size: 13px; font-weight: 500; border-radius: 6px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px;">✕ ไม่อนุมัติ</button>
           </div>
         </td>
       </tr>`;
@@ -247,7 +247,7 @@ function pageTdcApproveList() {
             <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่าง (Au)</th>
             <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่างลูกค้า (Au)</th>
             <th class="center" style="white-space:nowrap;">%Ag</th>
-            <th style="text-align:center; white-space:nowrap; min-width:180px;">จัดการ</th>
+            <th style="text-align:center; white-space:nowrap; min-width:230px;">จัดการ</th>
           </tr>
         </thead>
         <tbody>
