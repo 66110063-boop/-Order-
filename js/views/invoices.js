@@ -358,7 +358,7 @@ function pageInvoiceEdit() {
           </div>
           <div class="field">
             <label>เลขประจำตัวผู้เสียภาษี</label>
-            <input type="text" id="inv_tax" class="num-input" maxlength="13" inputmode="numeric" value="${esc(inv.tax || '')}">
+            <input type="text" id="inv_tax" class="num-input" style="text-align: left; font-family: var(--font-mono);" maxlength="13" inputmode="numeric" value="${esc(inv.tax || '')}">
           </div>
         </div>
       </div>
@@ -637,7 +637,7 @@ function pageInvoiceGeneralEdit() {
           </div>
           <div class="field">
             <label>เลขประจำตัวผู้เสียภาษี</label>
-            <input type="text" id="inv_tax" class="num-input" maxlength="13" inputmode="numeric" value="${esc(inv.tax || '')}">
+            <input type="text" id="inv_tax" class="num-input" style="text-align: left; font-family: var(--font-mono);" maxlength="13" inputmode="numeric" value="${esc(inv.tax || '')}">
           </div>
         </div>
       </div>
