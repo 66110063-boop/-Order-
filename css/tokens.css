@@ -14,7 +14,7 @@
   --btn-primary-hover: oklch(45.4% 0.217 262.4);
   --table-head-bg: oklch(37.1% 0.173 262.1);
   --table-head-fg: oklch(100% 0 0);
-  --text-primary: #0f172a; /* high-contrast readable text on light bg */
+  --text-primary: oklch(27.9% 0.037 260.0); /* #1E293B — high-contrast readable text on light bg */
   --card-highlight-bg: oklch(95.2% 0.023 258.4);
   --soft-blue: oklch(97.0% 0.014 254.6); /* #EFF6FF — general status highlight, clean & professional */
   --page-bg: oklch(98.4% 0.003 247.9); /* #F8FAFC — clean light-grey canvas */
@@ -22,7 +22,7 @@
 
   /* Extension neutrals (added for consistency, not from logo) — all tinted toward the brand hue */
   --text-secondary: oklch(44.6% 0.026 256.8); /* #4B5563 — darker for elderly-friendly contrast */
-  --border: #cbd5e1; /* table hairlines and inputs */
+  --border: oklch(92.9% 0.013 255.5); /* #E2E8F0 — thin card/table hairlines */
   --border-strong: oklch(80.7% 0.039 272.4);
   --zebra: oklch(97.5% 0.005 258.3);
   --sidebar-bg: oklch(100% 0 0); /* #FFFFFF — matches surface, enterprise SaaS convention */
@@ -86,14 +86,12 @@ body {
   font-family: var(--font-body);
   background: var(--page-bg);
   color: var(--text-primary);
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 18px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 .num, .mono {
   font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }

@@ -69,7 +69,7 @@ function pageDashboard() {
       </div>
       <div class="lane-col-body">
         ${col.items.length ? col.items.map(it => `
-          <div class="kcard" data-detail="${esc(it.rf)}">
+          <div class="lane-card kcard" data-detail="${esc(it.rf)}">
             <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px;">
               <div class="rf" style="font-weight:700; color:var(--header-bg); font-size:15px;">${esc(it.rf)}</div>
               <div class="num" style="font-family:var(--font-mono); font-weight:700; font-size:15px; white-space:nowrap;">${esc(it.w)} g</div>
@@ -106,7 +106,7 @@ function pageDashboard() {
     <div class="lane-col-head"><span>ปิดงาน — 30 วันล่าสุด</span><span class="lc-count">${KANBAN_CLOSED.length}</span></div>
     <div class="lane-col-body">
       ${KANBAN_CLOSED.length ? KANBAN_CLOSED.map(it => `
-        <div class="kcard" data-detail="${esc(it.rf)}">
+        <div class="lane-card kcard" data-detail="${esc(it.rf)}">
           <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px;">
             <div class="rf" style="font-weight:700; color:var(--header-bg); font-size:15px;">${esc(it.rf)}</div>
             <div class="num" style="font-family:var(--font-mono); font-weight:700; font-size:15px; white-space:nowrap;">${esc(it.w)} g</div>
@@ -136,7 +136,7 @@ function pageDashboard() {
     <!-- SEARCH BAR -->
     <div class="dash-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" placeholder="ค้นหา RF No / ลูกค้า...">
+      <input type="text" id="dashSearchInput" placeholder="ค้นหา RF No / ลูกค้า...">
       <button data-action="manual-search">ค้นหา</button>
     </div>
 
@@ -151,7 +151,7 @@ function pageDashboard() {
           <span class="lane-sub">NEW → หลอม → ทดสอบ % → TDC → หักทอง</span>
           <span class="lane-total">${l1Total} รายการ</span>
         </div>
-        <div class="lane-grid grid-5">${rfNodeHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
+        <div class="lane-cols">${rfNodeHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
       </div>
 
       <!-- LANE 2 -->
@@ -162,13 +162,13 @@ function pageDashboard() {
           <span class="lane-sub">จัดล็อต → ก่อนส่งรีด → หลังส่งรีด → สกัด → ก่อนส่งหลอม 99 → หลังส่งหลอม 99</span>
           <span class="lane-total">${l2Total} รายการ</span>
         </div>
-        <div class="lane-grid grid-6">${lotLossHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
+        <div class="lane-cols">${lotLossHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>
       </div>
 
       <!-- LANE 3 -->
       <div class="lane">
         <div class="lane-strip lane3">
-          <div class="lane-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg></div>
+          <div class="lane-badge">3</div>
           <span class="lane-title">ปิดงาน</span>
           <span class="lane-sub">รายการที่ปิดงานแล้วในช่วง 30 วันล่าสุด</span>
           <span class="lane-total">${l3Total} รายการ</span>
