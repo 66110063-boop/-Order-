@@ -1438,11 +1438,11 @@ window.exportLotReportToExcel = function(lotId) {
           <td colspan="2" class="bg-ext-sub txt">${issueDate}</td>
           <td colspan="11" class="nb"></td>
         </tr>
-        <tr><td colspan="14" class="nb" style="height:6px;"></td></tr>
-        <tr class="b c" style="background-color:#FFF2CC;">
-          <td>น้ำหนักชั่ง</td>
-          <td>ผู้รับ</td>
-          <td>เวลา</td>
+        <tr style="height:6px;"><td colspan="14" class="nb"></td></tr>
+        <tr class="b c">
+          <td class="bg-ext-sub" style="width:110px;">น้ำหนักชั่ง</td>
+          <td class="bg-ext-sub" style="width:130px;">ผู้รับ</td>
+          <td class="bg-ext-sub" style="width:120px;">เวลา</td>
           <td colspan="11" class="nb"></td>
         </tr>
         <tr>
@@ -1465,11 +1465,11 @@ window.exportLotReportToExcel = function(lotId) {
           <td colspan="2" class="bg-melt-sub txt">${issueDate}</td>
           <td colspan="11" class="nb"></td>
         </tr>
-        <tr><td colspan="14" class="nb" style="height:6px;"></td></tr>
-        <tr class="b c" style="background-color:#E2EFDA;">
-          <td>น้ำหนักชั่ง (g)</td>
-          <td>ผู้รับ</td>
-          <td>เวลา</td>
+        <tr style="height:6px;"><td colspan="14" class="nb"></td></tr>
+        <tr class="b c">
+          <td class="bg-melt-sub" style="width:110px;">น้ำหนักชั่ง (g)</td>
+          <td class="bg-melt-sub" style="width:130px;">ผู้รับ</td>
+          <td class="bg-melt-sub" style="width:120px;">เวลา</td>
           <td colspan="11" class="nb"></td>
         </tr>
         <tr>
