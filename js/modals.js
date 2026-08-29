@@ -1136,9 +1136,12 @@ window.previewTaxInvoiceModal = function(inv) {
           ${renderDoc('ต้นฉบับใบกำกับภาษี / ใบเสร็จรับเงิน (ORIGINAL)', 'badge-done')}
           ${renderDoc('สำเนาใบกำกับภาษี / สำเนาใบเสร็จรับเงิน (COPY)', 'badge-info')}
         </div>
-        <div style="background:#fff; border-top:1px solid #e2e8f0; padding:12px 20px; display:flex; justify-content:flex-end; gap:12px;">
-          <button class="btn-secondary" onclick="document.getElementById('invoicePreviewModal').remove()">ปิดหน้าต่าง</button>
-          <button class="btn-primary" onclick="window.print()">🖨️ พิมพ์เอกสาร</button>
+        <div style="padding: 16px 24px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; background: #FFFFFF; border-top: 1px solid var(--border, #E2E8F0);">
+          <button class="btn-secondary" onclick="document.getElementById('invoicePreviewModal').remove()" style="font-size: 15px; font-weight: 600; padding: 10px 20px; border-radius: 8px; border: 1px solid #CBD5E1; background: #FFFFFF; color: #475569; cursor: pointer; min-height: 42px;">ปิดหน้าต่าง</button>
+          <button class="btn-primary" onclick="window.print()" style="font-size: 15px; font-weight: 600; padding: 10px 22px; border-radius: 8px; background: var(--btn-primary, #0056FF); color: #FFFFFF; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 42px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            พิมพ์เอกสาร
+          </button>
         </div>
       </div>
     </div>

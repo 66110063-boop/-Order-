@@ -553,10 +553,80 @@ body{margin:0; font-family:'Sarabun',sans-serif; background:var(--preview-body-b
 }
 
 function openInvoicePreviewTab(no, docTypeOverride) {
-  const html = buildInvoiceHtmlDoc(no, docTypeOverride);
-  const b64 = btoa(unescape(encodeURIComponent(html)));
-  const win = window.open('data:text/html;base64,' + b64, '_blank');
-  if (!win) toast('เบราว์เซอร์บล็อกการเปิดแท็บใหม่ — กรุณาอนุญาต pop-up สำหรับเว็บนี้');
+  // รวบรวมข้อมูลจากฟอร์มปัจจุบัน (Real-time Form Data)
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    return el.tagName === 'INPUT' ? el.value : el.innerText;
+  };
+
+  const parseNum = (str) => {
+    if (!str) return 0;
+    return parseFloat(str.replace(/,/g, '').replace(/฿/g, '')) || 0;
+  };
+
+  const toBahtText = (num) => {
+    if (num === 0) return 'ศูนย์บาทถ้วน';
+    let t = num.toFixed(2).toString();
+    const txtNum = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
+    const txtUnit = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+    let [n, st] = t.split('.');
+    let res = '';
+    for (let i = 0; i < n.length; i++) {
+      let digit = parseInt(n[i]);
+      let unit = n.length - i - 1;
+      if (digit !== 0) {
+        if (unit === 0 && digit === 1 && n.length > 1) res += 'เอ็ด';
+        else if (unit === 1 && digit === 2) res += 'ยี่';
+        else if (unit === 1 && digit === 1) res += '';
+        else res += txtNum[digit];
+        res += txtUnit[unit % 6];
+      }
+    }
+    res += 'บาท';
+    if (st === '00') res += 'ถ้วน';
+    else {
+      for (let i = 0; i < 2; i++) {
+        let digit = parseInt(st[i]);
+        let unit = 1 - i;
+        if (digit !== 0) {
+          if (unit === 0 && digit === 1 && st[0] !== '0') res += 'เอ็ด';
+          else if (unit === 1 && digit === 2) res += 'ยี่';
+          else if (unit === 1 && digit === 1) res += '';
+          else res += txtNum[digit];
+          res += txtUnit[unit];
+        }
+      }
+      res += 'สตางค์';
+    }
+    return `(${res})`;
+  };
+
+  const custName = getVal('inv_cust') || (document.getElementById('client_select') ? document.getElementById('client_select').value : '');
+  const grandTotal = parseNum(getVal('summary_grand'));
+
+  const formData = {
+    no: getVal('inv_no') || no || 'ใหม่',
+    date: getVal('inv_date'),
+    cust: custName,
+    addr: getVal('inv_addr'),
+    tax: getVal('inv_tax'),
+    inWeight: getVal('calc_w_in') || '0.00000',
+    outWeight: getVal('calc_w_return') || '0.00000',
+    extractWeight: getVal('calc_w_calc') || '0.00000',
+    rate: parseNum(getVal('calc_price')),
+    subtotal: parseNum(getVal('item_amount_1')) || parseNum(getVal('summary_subtotal')),
+    vat: parseNum(getVal('summary_vat')),
+    grandTotal: grandTotal,
+    grandTotalThai: toBahtText(grandTotal)
+  };
+
+  // เรียกใช้ Modal แสดงผลทับหน้าจอ
+  if (typeof window.previewTaxInvoiceModal === 'function') {
+    window.previewTaxInvoiceModal(formData);
+  } else {
+    toast('ไม่พบฟังก์ชัน previewTaxInvoiceModal');
+  }
 }
 
 function pageInvoiceGeneralEdit() {
