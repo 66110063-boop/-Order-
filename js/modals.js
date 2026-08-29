@@ -663,6 +663,46 @@ function bindPageEvents() {
   }));
 
   /* ---- TDC Approve Handlers ---- */
+  $$('[data-action="tdc-export"]').forEach(el => el.addEventListener('click', () => {
+    const queue = ORDERS.filter(o => !o.cancelled && o.percentApprovalStatus === 'pending');
+    if (!queue.length) {
+      toast('ไม่มีข้อมูลสำหรับ Export');
+      return;
+    }
+    
+    // Create CSV header
+    const headers = ['RF-No.', 'ลูกค้า', 'น้ำหนักแจ้ง (g)', 'น้ำหนักหลังหลอม (g)', '%Au', 'น้ำหนักตัวอย่าง (Au)', 'น้ำหนักตัวอย่างลูกค้า (Au)', '%Ag', 'สถานะ'];
+    const csvRows = [headers.join(',')];
+    
+    // Add rows
+    queue.forEach(r => {
+      const row = [
+        `"${r.rf || ''}"`,
+        `"${r.cust || ''}"`,
+        `"${r.wDeclared || r.w || ''}"`,
+        `"${r.meltedW || '0.00'}"`,
+        `"${r.percentAu || '0.00'}"`,
+        `"${r.auSample || '0.00'}"`,
+        `"${r.auSampleCust || '0.00'}"`,
+        `"${r.percentAg || '0.00'}"`,
+        `"รอตรวจสอบ"`
+      ];
+      csvRows.push(row.join(','));
+    });
+    
+    const csvContent = '\uFEFF' + csvRows.join('\n'); // Add BOM for Excel UTF-8 compatibility
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TDC_Approve_Export_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('ส่งออกข้อมูลสำเร็จ');
+  }));
+
   $$('[data-action="tdc-view-detail"]').forEach(el => el.addEventListener('click', (e) => {
     state.tdcDetailId = e.currentTarget.dataset.rf;
     renderBreadcrumb();
@@ -687,9 +727,10 @@ function bindPageEvents() {
     const rf = e.currentTarget.dataset.rf;
     const ord = ORDERS.find(o => o.rf === rf);
     if (ord) {
+      ord.station = 2;
       ord.percentApprovalStatus = 'rejected';
     }
-    toast('ปฏิเสธรายการเรียบร้อยแล้ว');
+    toast('ส่งกลับไปแก้ไขที่ขั้นตอนทดสอบ % ทอง (Station 2) เรียบร้อยแล้ว');
     state.tdcDetailId = null;
     renderBreadcrumb();
     renderPage();

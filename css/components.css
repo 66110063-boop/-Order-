@@ -48,7 +48,16 @@ input[type=text], input[type=date], input[type=number], select, textarea {
 }
 input.num-input { font-family: var(--font-mono); text-align: right; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--btn-primary); outline-offset: 1px; border-color: var(--btn-primary); box-shadow: 0 0 0 3px rgba(0,86,255,0.12); }
-input:disabled, .input-locked { background: var(--zebra); color: var(--text-secondary); border-color: var(--border); cursor: not-allowed; }
+input:disabled { background: var(--zebra); color: var(--text-secondary); border-color: var(--border); cursor: not-allowed; }
+.input-locked {
+  background-color: #EEF2F7 !important;
+  border: 1.5px solid #D5DEE8 !important;
+  border-radius: 8px !important;
+  font-family: var(--font-mono); font-size: 18px; font-weight: 600; text-align: right;
+  height: 42px; min-height: 42px; padding: 6px 14px;
+  cursor: not-allowed;
+  color: var(--text-primary);
+}
 
 /* Minimal Accent Rule — ขาด/เกิน field */
 input.diff-mismatch { color: var(--st-hold-fg); font-weight: 700; border-color: var(--st-hold-bd); background: var(--st-hold-bg); }
@@ -265,7 +274,11 @@ td.center, th.center { text-align: center; }
 .badge-hold { background: var(--st-hold-bg); color: var(--st-hold-fg); border-color: var(--st-hold-bd); }
 .badge-info { background: var(--st-info-bg); color: var(--st-info-fg); border-color: var(--st-info-bd); }
 .badge-sched { background: var(--st-sched-bg); color: var(--st-sched-fg); border-color: var(--st-sched-bd); }
-
+.lot-stage-badge {
+  background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD;
+  border-radius: 20px; padding: 4px 12px; font-size: 14px; font-weight: 600;
+}
+.lot-stage-badge::before { display: none; }
 
 .btn-excel { background: #2e7d32; color: #fff; }
 .btn-excel:hover { background: #1b5e20; }
@@ -566,8 +579,7 @@ td.center, th.center { text-align: center; }
 .inv-right { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 16px; }
 
 .panel {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm); overflow: hidden;
+  border-radius: 10px; border: 1px solid #E2E8F0; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 20px;
 }
 .panel-head {
   display: flex; align-items: center; justify-content: space-between;
@@ -576,8 +588,14 @@ td.center, th.center { text-align: center; }
 .panel-head .title { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 700; }
 .panel-head .title svg { width: 18px; height: 18px; color: var(--btn-primary); }
 .panel-head-blue {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--card-highlight-bg);
+  background-color: #EAEFFC !important;
+  border-bottom: 1px solid #DCE4F5;
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 .panel-head-blue .title { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 700; color: var(--header-bg); }
 .panel-head-blue .title svg { width: 18px; height: 18px; color: var(--btn-primary); }

@@ -3,6 +3,63 @@
    ============================================================ */
 
 function pageDashboard() {
+  function syncKanbanData() {
+    KANBAN_COLS.forEach(c => c.items = []);
+    KANBAN_CLOSED.length = 0;
+
+    // Lane 1: Orders (RF Node)
+    ORDERS.forEach(o => {
+      if (o.cancelled) return;
+      const item = { rf: o.rf, cust: o.cust, date: o.date, w: o.w };
+      if (o.lotNo && o.lotNo !== '—') item.lot = o.lotNo;
+      
+      if (o.station === 9) {
+        KANBAN_CLOSED.push(item);
+      } else if (o.percentApprovalStatus === 'pending') {
+        const col = KANBAN_COLS.find(c => c.key === 'tdc');
+        if (col) col.items.push(item);
+      } else {
+        const key = WF_STATION_TO_KANBAN_KEY[o.station];
+        if (key) {
+          const col = KANBAN_COLS.find(c => c.key === key);
+          if (col) col.items.push(item);
+        }
+      }
+    });
+
+    // Lane 2: Lot Allocate
+    const lotCol = KANBAN_COLS.find(c => c.key === 'lot');
+    if (lotCol) {
+      LOT_ALLOCATE.forEach(r => {
+        lotCol.items.push({ rf: r.rf, cust: r.cust, date: r.date, w: r.w, lot: 'รอดำเนินการ' });
+      });
+    }
+
+    // Lane 2: Lot Manage
+    Object.keys(LOT_MANAGE_DATA).forEach(stageKey => {
+      if (stageKey === 'closed') {
+        LOT_MANAGE_DATA[stageKey].forEach(r => {
+          const rf = (r.rfRows && r.rfRows[0]) ? r.rfRows[0].rf : 'RF-MULTI';
+          const cust = (r.rfRows && r.rfRows[0]) ? r.rfRows[0].cust : 'หลายรายการ';
+          const w = (r.rfRows && r.rfRows[0]) ? r.rfRows[0].wBill : '0.00';
+          KANBAN_CLOSED.push({ rf, cust, date: r.date, w, lot: r.lot });
+        });
+      } else {
+        const col = KANBAN_COLS.find(c => c.key === stageKey);
+        if (col) {
+          LOT_MANAGE_DATA[stageKey].forEach(r => {
+            const rf = (r.rfRows && r.rfRows[0]) ? r.rfRows[0].rf : 'RF-MULTI';
+            const cust = (r.rfRows && r.rfRows[0]) ? r.rfRows[0].cust : 'หลายรายการ';
+            const w = (r.rfRows && r.rfRows[0]) ? r.rfRows[0].wBill : '0.00';
+            col.items.push({ rf, cust, date: r.date, w, lot: r.lot });
+          });
+        }
+      }
+    });
+  }
+
+  syncKanbanData();
+
   // Helper: render one lane column
   function laneCol(col) {
     return `<div class="lane-col">
@@ -81,7 +138,7 @@ function pageDashboard() {
         <div class="lane-strip lane1">
           <div class="lane-badge">1</div>
           <span class="lane-title">RF Node</span>
-          <span class="lane-sub">NEW → หลอม → ทดสอบ % → หักทอง → TDC</span>
+          <span class="lane-sub">NEW → หลอม → ทดสอบ % → TDC → หักทอง</span>
           <span class="lane-total">${l1Total} รายการ</span>
         </div>
         <div class="lane-cols">${rfNodeHtml || '<div class="lane-empty">ไม่มีรายการในเลนนี้</div>'}</div>

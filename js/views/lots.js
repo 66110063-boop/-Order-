@@ -137,15 +137,7 @@ function pageLotManageList() {
 
 
 function getLotStageBadgeClass(sKey) {
-  switch (sKey) {
-    case 'presend': return 'badge-blue';
-    case 'postsend': return 'badge-orange';
-    case 'extract': return 'badge-orange';
-    case 'pre99': return 'badge-orange';
-    case 'post99': return 'badge-orange';
-    case 'closed': return 'badge-green';
-    default: return 'badge-info';
-  }
+  return 'lot-stage-badge';
 }
 
 /* ---------- DETAIL VIEW ---------- */
@@ -219,6 +211,8 @@ function _lotTable(d, stage, stageLabel) {
     else if (stage === 'closed')
       extra = '<th class="num">น้ำหนักชั่ง - ก่อนรีด</th><th class="num">%Au</th><th class="num">Au (g)</th><th class="num">%Ag</th><th class="num">Ag (g)</th><th class="center" style="width:100px;">รายละเอียด</th>';
 
+    const tblInputStyle = 'width:100%; max-width:140px; height:38px; min-height:38px; padding:6px 12px; margin-left:auto; display:block; border:1.5px solid var(--border-strong, #CBD5E1); border-radius:var(--radius-sm, 6px); font-family:var(--font-mono); font-size:18px; font-weight:700; text-align:right;';
+
     /* body rows */
     const bodyRows = d.rfRows.length ? d.rfRows.map((r, i) => {
       let cells = `
@@ -230,11 +224,11 @@ function _lotTable(d, stage, stageLabel) {
         <td class="num">${esc(r.wBill)}</td>`;
 
       if (stage === 'presend')
-        cells += '<td><input type="text" class="num-input" placeholder="0.00" style="width:100%;"></td>';
+        cells += `<td><input type="text" inputmode="decimal" class="num-input" placeholder="0.00" style="${tblInputStyle}"></td>`;
       else if (stage === 'postsend')
         cells += `<td class="num">${esc(r.wBill)}</td><td class="center"><button class="btn btn-sm btn-danger-ghost">รีดเสียหาย</button></td>`;
       else if (stage === 'extract')
-        cells += `<td class="num">${esc(r.wBill)}</td><td><input type="text" class="num-input" placeholder="0.00" style="width:100%;"></td>`;
+        cells += `<td class="num">${esc(r.wBill)}</td><td><input type="text" inputmode="decimal" class="num-input" placeholder="0.00" style="${tblInputStyle}"></td>`;
       else if (stage === 'pre99' || stage === 'post99')
         cells += `
           <td class="num">${esc(r.wBill)}</td>
@@ -244,11 +238,11 @@ function _lotTable(d, stage, stageLabel) {
           <td class="num">${r.agG || '100.00'}</td>`;
       else if (stage === 'closed')
         cells += `
-          <td><input type="text" class="num-input input-locked" value="${esc(r.wBill)}" disabled style="width:100%;"></td>
-          <td><input type="text" class="num-input input-locked" value="${r.percentAu || '10.00'}" disabled style="width:100%;"></td>
-          <td><input type="text" class="num-input input-locked" value="${r.auG || '10.00'}" disabled style="width:100%;"></td>
-          <td><input type="text" class="num-input input-locked" value="${r.percentAg || '10.00'}" disabled style="width:100%;"></td>
-          <td><input type="text" class="num-input input-locked" value="${r.agG || '10.00'}" disabled style="width:100%;"></td>
+          <td><input type="text" inputmode="decimal" class="num-input input-locked" value="${esc(r.wBill)}" disabled style="${tblInputStyle}"></td>
+          <td><input type="text" inputmode="decimal" class="num-input input-locked" value="${r.percentAu || '10.00'}" disabled style="${tblInputStyle}"></td>
+          <td><input type="text" inputmode="decimal" class="num-input input-locked" value="${r.auG || '10.00'}" disabled style="${tblInputStyle}"></td>
+          <td><input type="text" inputmode="decimal" class="num-input input-locked" value="${r.percentAg || '10.00'}" disabled style="${tblInputStyle}"></td>
+          <td><input type="text" inputmode="decimal" class="num-input input-locked" value="${r.agG || '10.00'}" disabled style="${tblInputStyle}"></td>
           <td class="center"><button class="btn btn-sm btn-secondary">${iconEye()} ดู detail</button></td>`;
 
       return '<tr>' + cells + '</tr>';
@@ -291,7 +285,7 @@ function _lotSections(d, stage, stageLabel) {
   if (stage === 'presend') return `
     ${lotNoLine}
     <div class="panel">
-      <div class="panel-head">ทองคำ (Au)</div>
+      <div class="panel-head-blue">ทองคำ (Au)</div>
       ${auSummary3('100.00', '100.00', '100.00')}
     </div>
     ${operatorSection('ก่อนส่งรีด')}`;
@@ -300,7 +294,7 @@ function _lotSections(d, stage, stageLabel) {
   if (stage === 'postsend') return `
     ${lotNoLine}
     <div class="panel">
-      <div class="panel-head">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
+      <div class="panel-head-blue">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
       <div class="panel-body">
         <div style="max-width:420px;">
           <div class="field">
@@ -311,7 +305,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">ทองคำ (Au)</div>
+      <div class="panel-head-blue">ทองคำ (Au)</div>
       ${auSummary3('100.00', '100.00', '100.00')}
     </div>
     ${operatorSection('หลังส่งรีด')}`;
@@ -320,7 +314,7 @@ function _lotSections(d, stage, stageLabel) {
   if (stage === 'extract') return `
     ${lotNoLine}
     <div class="panel">
-      <div class="panel-head">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
+      <div class="panel-head-blue">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
       <div class="panel-body">
         <div class="grid-2">
           <div class="field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
@@ -329,7 +323,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">ทองคำ (Au)</div>
+      <div class="panel-head-blue">ทองคำ (Au)</div>
       ${auSummary3('100.00', '100.00', '100.00')}
     </div>
     ${operatorSection('ก่อนส่งสกัด')}`;
@@ -338,7 +332,7 @@ function _lotSections(d, stage, stageLabel) {
   if (stage === 'pre99') return `
     ${lotNoLine}
     <div class="panel">
-      <div class="panel-head">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
+      <div class="panel-head-blue">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
       <div class="panel-body">
         <div class="grid-2">
           <div class="field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
@@ -347,7 +341,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">ทองคำ (Au)</div>
+      <div class="panel-head-blue">ทองคำ (Au)</div>
       <div class="panel-body" style="margin-bottom:0; padding-bottom:0;">
         <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
         <div class="grid-3" style="margin-bottom:16px;">
@@ -363,7 +357,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">เงิน (Ag)</div>
+      <div class="panel-head-blue">เงิน (Ag)</div>
       <div class="panel-body" style="margin-bottom:0; padding-bottom:0;">
         <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
         <div class="grid-2" style="margin-bottom:16px;">
@@ -373,7 +367,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">รวม Au + Ag</div>
+      <div class="panel-head-blue">รวม Au + Ag</div>
       <div class="panel-body">
         <div style="max-width:420px;">
           <div class="field">
@@ -389,7 +383,7 @@ function _lotSections(d, stage, stageLabel) {
   if (stage === 'post99') return `
     ${lotNoLine}
     <div class="panel">
-      <div class="panel-head">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
+      <div class="panel-head-blue">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
       <div class="panel-body">
         <div class="grid-2">
           <div class="field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
@@ -398,7 +392,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">ทองคำ (Au)</div>
+      <div class="panel-head-blue">ทองคำ (Au)</div>
       <div class="panel-body" style="margin-bottom:0; padding-bottom:0;">
         <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
         <div class="grid-3" style="margin-bottom:16px;">
@@ -422,7 +416,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">เงิน (Ag)</div>
+      <div class="panel-head-blue">เงิน (Ag)</div>
       <div class="panel-body" style="margin-bottom:0; padding-bottom:0;">
         <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
         <div class="grid-3" style="margin-bottom:16px; display:block;">
@@ -440,7 +434,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">รวม Au + Ag</div>
+      <div class="panel-head-blue">รวม Au + Ag</div>
       <div class="panel-body">
         <div style="max-width:420px;">
           <div class="field">
@@ -456,7 +450,7 @@ function _lotSections(d, stage, stageLabel) {
   if (stage === 'closed') return `
     ${lotNoLine}
     <div class="panel">
-      <div class="panel-head">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
+      <div class="panel-head-blue">น้ำหนักระหว่างทาง — ไม่แยกโลหะ</div>
       <div class="panel-body">
         <div class="grid-2">
           <div class="field"><label>ผลรวมน้ำหนักชั่งหลังรีด</label><input type="text" class="num-input input-locked" value="100.00" disabled></div>
@@ -465,7 +459,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">ทองคำ (Au)</div>
+      <div class="panel-head-blue">ทองคำ (Au)</div>
       <div class="panel-body" style="margin-bottom:0; padding-bottom:0;">
         <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">น้ำหนักตั้งต้น (จากข้อมูลลูกค้า)</div>
         <div class="grid-3" style="margin-bottom:16px;">
@@ -489,7 +483,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">เงิน (Ag)</div>
+      <div class="panel-head-blue">เงิน (Ag)</div>
       <div class="panel-body" style="margin-bottom:0; padding-bottom:0;">
         <div style="font-size:14px; color:var(--text-secondary); margin-bottom:10px;">ก่อนหลอม 99</div>
         <div class="grid-3" style="margin-bottom:16px; display:block;">
@@ -507,7 +501,7 @@ function _lotSections(d, stage, stageLabel) {
       </div>
     </div>
     <div class="panel">
-      <div class="panel-head">รวม Au + Ag</div>
+      <div class="panel-head-blue">รวม Au + Ag</div>
       <div class="panel-body">
         <div style="max-width:420px;">
           <div class="field">

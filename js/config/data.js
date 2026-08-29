@@ -33,6 +33,7 @@ const ICONS = {
 /* ---------- ORDERS ---------- */
 const ORDERS = [
   {rf:'RF-0002', date:'28/08/2569', cust:'นายจระเกียรติ อั้งอร่าม', w:'1240.12', wDeclared:'1245.12', meltedW:'1240.12', percentAu:'88.00', auSample:'1.23', auSampleCust:'0.61', percentAg:'95.00', percentApprovalStatus:'pending', status:'info', statusLabel:'ทดสอบ %', station:3, cancelled:false, lotNo:'—', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
+  {rf:'RF-2569-0084', date:'18/08/2569', cust:'ห้างทองแม่ทองสุก', w:'520.50', wDeclared:'520.50', meltedW:'518.20', percentAu:null, auSample:null, auSampleCust:null, percentAg:null, percentApprovalStatus:'none', status:'info', statusLabel:'ทดสอบ %', station:3, cancelled:false, lotNo:'—', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00'},
   {rf:'RF-2569-0079', date:'04/08/2569', cust:'ห้างทองเยาวราชกิจ', w:'128.45', status:'info', statusLabel:'สร้าง Order', station:1, cancelled:false, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00', percentAu:null, percentAg:null, percentApprovalStatus:'none'},
   {rf:'RF-2569-0078', date:'03/08/2569', cust:'ห้างทองชั่วเช่งเฮง', w:'96.20', status:'info', statusLabel:'สร้าง Order', station:1, cancelled:false, lotNo:'—', meltedW:'0.00', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00', percentAu:null, percentAg:null, percentApprovalStatus:'none'},
   {rf:'RF-2569-0077', date:'03/08/2569', cust:'ห้างทองแม่ทองสุก', w:'412.80', status:'info', statusLabel:'หลอมทองเก่า', station:2, cancelled:false, lotNo:'—', meltedW:'406.10', auCalc:'0.00', auReturn:'0.00', agCalc:'0.00', agReturn:'0.00', percentAu:null, percentAg:null, percentApprovalStatus:'none'},
@@ -214,11 +215,11 @@ const KANBAN_COLS = [
     {rf:'RF-007', cust:'ห้างทองแม่ทองย้อย', date:'16/08/2569', w:'93.75'},
     {rf:'RF-008', cust:'ห้างทองชั่วเช่งเฮง', date:'16/08/2569', w:'305.10'},
   ]},
-  {key:'deduct', label:'หักทอง', color:'sched', items:[
-    {rf:'RF-009', cust:'ห้างทองใบเยาวราช', date:'15/08/2569', w:'147.60'},
-  ]},
   {key:'tdc', label:'TDC', color:'info', items:[
     {rf:'RF-002', cust:'นายศุภพัฒน์ ตริเทพาสัมพัทธ์', date:'13/08/2569', w:'100.00'},
+  ]},
+  {key:'deduct', label:'หักทอง', color:'sched', items:[
+    {rf:'RF-009', cust:'ห้างทองใบเยาวราช', date:'15/08/2569', w:'147.60'},
   ]},
 
   // ===== เลน 2 — ระดับ Lot No (การจัดล็อต/รีด/สกัด/หลอม99) =====
