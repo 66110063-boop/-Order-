@@ -5,12 +5,7 @@
 /* ============================================================
    BUTTONS
    ============================================================ */
-.btn {
-  display: inline-flex; align-items: center; gap: 9px;
-  border-radius: 12px; padding: 15px 24px; font-size: 18px; font-weight: 600;
-  min-height: 54px;
-  border: 1px solid transparent; transition: background-color .12s var(--ease-out), border-color .12s var(--ease-out), box-shadow .12s var(--ease-out); white-space: nowrap;
-}
+.btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 12px; padding: 8px 16px; font-size: 15px; font-weight: 600; min-height: 38px; border: 1px solid transparent; transition: all .12s var(--ease-out); white-space: nowrap; }
 .btn svg { width: 19px; height: 19px; }
 .btn-primary { background: var(--header-bg); color: var(--btn-primary-fg); }
 .btn-primary:hover { background: var(--btn-primary); }
@@ -20,7 +15,7 @@
 .btn-ghost:hover { background: var(--card-highlight-bg); }
 .btn-danger-ghost { background: transparent; color: var(--st-hold-fg); border-color: var(--st-hold-bd); }
 .btn-danger-ghost:hover { background: var(--st-hold-bg); }
-.btn-sm { padding: 9px 15px; font-size: 16px; border-radius: 9px; min-height: 40px; font-weight: 600; }
+.btn-sm { padding: 6px 12px; font-size: 14px; border-radius: 9px; min-height: 34px; font-weight: 600; gap: 8px; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .icon-btn {
   width: 44px; height: 44px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
@@ -41,10 +36,9 @@
 .percent-input-lg:disabled { background: var(--zebra) !important; border-color: var(--border) !important; color: var(--text-secondary) !important; font-weight: 600 !important; }
 .field .hint { font-size: 16px; color: var(--text-secondary); }
 input[type=text], input[type=date], input[type=number], select, textarea {
-  font-family: inherit; font-size: 18px; color: var(--text-primary);
-  border: 1px solid var(--border-strong); border-radius: 10px; padding: 13px 14px;
-  min-height: 52px;
-  background: var(--surface); width: 100%; transition: border-color .12s;
+  font-family: inherit; font-size: 16px; color: var(--text-primary);
+  border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 14px; min-height: 42px;
+  background: var(--surface); box-sizing: border-box; transition: border-color .12s var(--ease-out);
 }
 input.num-input { font-family: var(--font-mono); text-align: right; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--btn-primary); outline-offset: 1px; border-color: var(--btn-primary); box-shadow: 0 0 0 3px rgba(0,86,255,0.12); }
@@ -157,10 +151,10 @@ table {
 thead th {
   background: var(--table-head-bg); 
   color: var(--table-head-fg);
-  font-size: 18px; 
+  font-size: 16px; 
   font-weight: 700; 
   text-align: left; 
-  padding: 14px 16px;
+  padding: 12px 14px;
   position: sticky; 
   top: 0;
   white-space: nowrap;
@@ -170,8 +164,8 @@ thead th.num, thead th.right { text-align: right; }
 thead th.center { text-align: center; }
 
 tbody td { 
-  padding: 16px; 
-  font-size: 18px; 
+  padding: 12px 14px; 
+  font-size: 16px; 
   border-bottom: 1px solid var(--border); 
   vertical-align: middle; 
 }
