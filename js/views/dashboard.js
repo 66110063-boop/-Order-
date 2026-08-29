@@ -70,12 +70,12 @@ function pageDashboard() {
       <div class="lane-col-body">
         ${col.items.length ? col.items.map(it => `
           <div class="kcard" data-detail="${esc(it.rf)}">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px;">
               <div class="rf" style="font-weight:700; color:var(--header-bg); font-size:15px;">${esc(it.rf)}</div>
               <div class="num" style="font-family:var(--font-mono); font-weight:700; font-size:15px; white-space:nowrap;">${esc(it.w)} g</div>
             </div>
-            <div class="cust" style="margin:4px 0; font-size:14px; color:var(--text-secondary); line-height:1.3;">${esc(it.cust)}</div>
-            <div class="meta" style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#64748B;">
+            <div class="cust" style="margin:6px 0; font-size:15px; color:var(--text-secondary); line-height:1.3;">${esc(it.cust)}</div>
+            <div class="meta" style="display:flex; justify-content:space-between; align-items:center; font-size:13.5px; color:#64748B;">
               <span>${esc(it.date)}</span>
               ${it.lot && it.lot !== '—' ? `<span class="lot" style="margin:0;">${esc(it.lot)}</span>` : '<span></span>'}
             </div>
@@ -102,17 +102,17 @@ function pageDashboard() {
   const lotLossHtml = lotLossCols.map(laneCol).join('');
 
   // Lane 3: ปิดงาน — 30 วันล่าสุด
-  const closedHtml = `<div class="lane-col" style="flex:0 0 250px;">
+  const closedHtml = `<div class="lane-col" style="flex:0 0 300px; width:300px; min-width:300px;">
     <div class="lane-col-head"><span>ปิดงาน — 30 วันล่าสุด</span><span class="lc-count">${KANBAN_CLOSED.length}</span></div>
     <div class="lane-col-body">
       ${KANBAN_CLOSED.length ? KANBAN_CLOSED.map(it => `
         <div class="kcard" data-detail="${esc(it.rf)}">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px;">
             <div class="rf" style="font-weight:700; color:var(--header-bg); font-size:15px;">${esc(it.rf)}</div>
             <div class="num" style="font-family:var(--font-mono); font-weight:700; font-size:15px; white-space:nowrap;">${esc(it.w)} g</div>
           </div>
-          <div class="cust" style="margin:4px 0; font-size:14px; color:var(--text-secondary); line-height:1.3;">${esc(it.cust)}</div>
-          <div class="meta" style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#64748B;">
+          <div class="cust" style="margin:6px 0; font-size:15px; color:var(--text-secondary); line-height:1.3;">${esc(it.cust)}</div>
+          <div class="meta" style="display:flex; justify-content:space-between; align-items:center; font-size:13.5px; color:#64748B;">
             <span>${esc(it.date)}</span>
             ${it.lot && it.lot !== '—' ? `<span class="lot" style="margin:0;">${esc(it.lot)}</span>` : '<span></span>'}
           </div>
