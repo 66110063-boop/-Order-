@@ -70,10 +70,15 @@ function pageDashboard() {
       <div class="lane-col-body">
         ${col.items.length ? col.items.map(it => `
           <div class="kcard" data-detail="${esc(it.rf)}">
-            <div class="rf">${esc(it.rf)}</div>
-            <div class="cust">${esc(it.cust)}</div>
-            ${it.lot ? `<div class="lot num">${esc(it.lot)}</div>` : ''}
-            <div class="meta"><span>${esc(it.date)}</span><span class="w">${esc(it.w)} g</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+              <div class="rf" style="font-weight:700; color:var(--header-bg); font-size:15px;">${esc(it.rf)}</div>
+              <div class="num" style="font-family:var(--font-mono); font-weight:700; font-size:15px; white-space:nowrap;">${esc(it.w)} g</div>
+            </div>
+            <div class="cust" style="margin:4px 0; font-size:14px; color:var(--text-secondary); line-height:1.3;">${esc(it.cust)}</div>
+            <div class="meta" style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#64748B;">
+              <span>${esc(it.date)}</span>
+              ${it.lot && it.lot !== '—' ? `<span class="lot" style="margin:0;">${esc(it.lot)}</span>` : '<span></span>'}
+            </div>
           </div>`).join('') : `<div class="lane-empty">ไม่มีรายการ</div>`}
       </div>
     </div>`;
@@ -97,19 +102,24 @@ function pageDashboard() {
   const lotLossHtml = lotLossCols.map(laneCol).join('');
 
   // Lane 3: ปิดงาน — 30 วันล่าสุด
-  const closedSpecial = `<div class="lane-col" style="flex:0 0 250px;">
+  const closedHtml = `<div class="lane-col" style="flex:0 0 250px;">
     <div class="lane-col-head"><span>ปิดงาน — 30 วันล่าสุด</span><span class="lc-count">${KANBAN_CLOSED.length}</span></div>
     <div class="lane-col-body">
-      ${KANBAN_CLOSED.map(it => `
+      ${KANBAN_CLOSED.length ? KANBAN_CLOSED.map(it => `
         <div class="kcard" data-detail="${esc(it.rf)}">
-          <div class="rf">${esc(it.rf)}</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div class="rf">${esc(it.rf)}</div>
+            <div class="num" style="font-weight:600; color:var(--text-primary);">${esc(it.w)} g</div>
+          </div>
           <div class="cust">${esc(it.cust)}</div>
-          ${it.lot ? `<div class="lot num">${esc(it.lot)}</div>` : ''}
-          <div class="meta"><span>${esc(it.date)}</span><span class="w">${esc(it.w)} g</span></div>
-        </div>`).join('')}
+          <div class="meta" style="margin-top:2px;">
+            <span>${esc(it.date)}</span>
+            ${it.lot && it.lot !== '—' ? `<span class="lot" style="margin:0;">${esc(it.lot)}</span>` : '<span></span>'}
+          </div>
+        </div>
+      `).join('') : '<div class="lane-empty">ไม่มีรายการปิดงานใน 30 วันที่ผ่านมา</div>'}
     </div>
   </div>`;
-  const closedHtml = closedSpecial;
 
   return `
     <div class="page-head">
