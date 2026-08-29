@@ -8,13 +8,15 @@ function pageCustomers() {
     <tr>
       <td class="cell-primary">${esc(c.name)}</td>
       <td class="num" style="text-align:left; font-family:inherit;">${esc(c.phone)}</td>
+      <td class="num" style="text-align:left;">${c.taxId || c.idCard || '-'}</td>
       <td>${esc(c.date)}</td>
       <td><span class="cell-sub">ลบโดย ${esc(c.deletedBy)}<br>${esc(c.deletedAt)}</span></td>
       <td class="right"><button class="btn btn-secondary btn-sm" data-action="restore-customer" data-idx="${i}">${iconRestore()} กู้คืน</button></td>
     </tr>` : `
     <tr>
       <td class="cell-primary">${esc(c.name)}</td>
-      <td style="font-family:'IBM Plex Mono';">${esc(c.phone)}</td>
+      <td class="num" style="text-align:left; font-family:inherit;">${esc(c.phone)}</td>
+      <td class="num" style="text-align:left;">${c.taxId || c.idCard || '-'}</td>
       <td class="num">${c.orders}</td>
       <td>${esc(c.date)}</td>
       <td class="right">
@@ -26,8 +28,8 @@ function pageCustomers() {
     </tr>`).join('');
 
   const headCols = state.custShowTrash
-    ? `<th>ชื่อลูกค้า</th><th>เบอร์โทร</th><th>วันที่สร้าง</th><th>ข้อมูลการลบ</th><th class="right">จัดการ</th>`
-    : `<th>ชื่อลูกค้า</th><th>เบอร์โทร</th><th class="num">จำนวน order</th><th>วันที่สร้าง</th><th class="right">จัดการ</th>`;
+    ? `<th>ชื่อลูกค้า</th><th>เบอร์โทร</th><th>เลขประจำตัวผู้เสียภาษี / บัตรประชาชน</th><th>วันที่สร้าง</th><th>ข้อมูลการลบ</th><th class="right">จัดการ</th>`
+    : `<th>ชื่อลูกค้า</th><th>เบอร์โทร</th><th>เลขประจำตัวผู้เสียภาษี / บัตรประชาชน</th><th class="num">จำนวน order</th><th>วันที่สร้าง</th><th class="right">จัดการ</th>`;
 
   return `
     <div class="page-head">

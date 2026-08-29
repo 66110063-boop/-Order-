@@ -126,7 +126,7 @@ function pageAccounting() {
         <td>${esc(r.date)}</td><td class="cell-primary">${esc(r.no)}</td><td>${esc(r.cust)}</td><td class="num">${esc(r.total)}</td>
         <td class="right">
           <div class="table-actions" style="justify-content:flex-end;">
-            <button class="btn btn-secondary btn-sm" data-action="preview-invoice" data-no="${esc(r.no)}">${iconEye()} Preview</button>
+            <button class="btn btn-secondary btn-sm" onclick='window.previewTaxInvoiceModal(${JSON.stringify(r).replace(/'/g, "&#39;")})'>${iconEye()} Preview</button>
             <button class="btn btn-secondary btn-sm" data-action="edit-invoice" data-no="${esc(r.no)}">${iconEdit()} แก้ไข</button>
           </div>
         </td>
@@ -140,7 +140,7 @@ function pageAccounting() {
         <td>${esc(r.cust)}</td>
         <td class="right">
           <div class="table-actions" style="justify-content:flex-end;">
-            <button class="btn btn-secondary btn-sm" data-action="preview-invoice" data-no="${esc(r.no)}" data-doctype="${docType(i)}">${iconEye()} Preview</button>
+            <button class="btn btn-secondary btn-sm" onclick='window.previewTaxInvoiceModal(${JSON.stringify(r).replace(/'/g, "&#39;")})'>${iconEye()} Preview</button>
             <button class="btn btn-secondary btn-sm" data-action="edit-invoice" data-no="${esc(r.no)}">${iconEdit()} แก้ไข</button>
           </div>
         </td>
@@ -225,7 +225,7 @@ function invoiceEditModal(no) {
       </div>
       <div class="modal-foot">
         <button class="btn btn-secondary" data-close-modal>ยกเลิก</button>
-        <button class="btn btn-secondary" data-action="do-preview" data-no="${esc(inv.no)}">${iconEye()} Preview</button>
+        <button class="btn btn-secondary" onclick='window.previewTaxInvoiceModal(${JSON.stringify(inv).replace(/'/g, "&#39;")})'>${iconEye()} Preview</button>
         <button class="btn btn-primary" data-action="save-invoice">บันทึก</button>
       </div>
     </div>`;
@@ -358,7 +358,7 @@ function pageInvoiceEdit() {
           </div>
           <div class="field">
             <label>เลขประจำตัวผู้เสียภาษี</label>
-            <input type="text" id="inv_tax" value="${esc(inv.tax || '')}">
+            <input type="text" id="inv_tax" class="num-input" maxlength="13" inputmode="numeric" value="${esc(inv.tax || '')}">
           </div>
         </div>
       </div>
@@ -608,7 +608,11 @@ function pageInvoiceGeneralEdit() {
       <div class="panel-body" style="padding:18px 20px;">
         <div class="field" style="margin-bottom:18px;">
           <label style="font-weight:700;">ลูกค้า <span style="color:red;">*</span></label>
-          <select id="client_select" style="width:100%; max-width:320px; height:40px; padding:0 12px; border-radius:8px; border:1px solid var(--border-strong);">
+          <select id="client_select" onchange="
+            const cust = CUSTOMERS.find(c => c.name === this.value);
+            const taxVal = cust ? (cust.taxId || cust.idCard || '') : '';
+            setTimeout(() => { const t = document.getElementById('inv_tax'); if(t) t.value = taxVal; }, 10);
+          " style="width:100%; max-width:320px; height:40px; padding:0 12px; border-radius:8px; border:1px solid var(--border-strong);">
             <option value="">เลือกลูกค้า</option>
             ${CUSTOMERS.map(c => `<option value="${esc(c.name)}" ${inv.cust === c.name ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
           </select>
@@ -633,7 +637,7 @@ function pageInvoiceGeneralEdit() {
           </div>
           <div class="field">
             <label>เลขประจำตัวผู้เสียภาษี</label>
-            <input type="text" id="inv_tax" value="${esc(inv.tax || '')}">
+            <input type="text" id="inv_tax" class="num-input" maxlength="13" inputmode="numeric" value="${esc(inv.tax || '')}">
           </div>
         </div>
       </div>

@@ -350,6 +350,16 @@ function wfStationS4() {
     <div class="panel">
       <div class="panel-head"><span class="badge badge-progress">Au</span></div>
       <div class="panel-body">
+        <div class="grid grid-2" style="margin-bottom:12px;">
+          <div class="field"><label>น้ำหนักหลังหลอม (Au)</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station2.weightAfterMeltAu)}" disabled></div>
+          <div class="field"><label>น้ำหนักตัวอย่าง (Au)</label><input class="num-input input-locked" type="text" value="${wfFmt(order.station2.sampleWeightAu)}" disabled></div>
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label class="check-label" style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="wf_s4_includeSampleAu" ${s.includeSampleAu ? 'checked' : ''}>
+            รวมน้ำหนักตัวอย่างในการคำนวณ Au
+          </label>
+        </div>
         <div class="grid grid-4">
           <div class="field"><label>Au คำนวณได้ (g)</label><input class="num-input input-locked" type="text" id="wf_s4_auCalculatedWeight" value="${wfFmt(s.auCalculatedWeight)}" disabled></div>
           <div class="field"><label>% คืน (Au)</label><input class="num-input" type="text" id="wf_s4_auReturnPercent" value="${s.auReturnPercent ?? ''}" placeholder="0.00"></div>
@@ -374,6 +384,10 @@ function wfStationS4() {
       </div>
     </div>
     <div class="table-foot" style="border:none; padding:0; justify-content:flex-end; gap:10px;">
+      <button class="btn btn-secondary" onclick="window.openGoldReturnSlipModal()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        พิมพ์ใบรายงานหักทอง
+      </button>
       <button class="btn btn-secondary" id="wf_btnRecalc4">${iconChart()} คำนวณใหม่</button>
       <button class="btn btn-primary" id="wf_btnNext4">ขั้นตอนถัดไป →</button>
     </div>
@@ -756,7 +770,8 @@ function wfStationS10() {
 /* Event Binding helper forStation forms */
 function wfRecalcStation4() {
   const s4 = order.station4, s2 = order.station2, s3 = order.station3, s1 = order.station1;
-  s4.auCalculatedWeight = WfFormula.auCalculatedWeight(s2.weightAfterMeltAu, s3.percentAu);
+  const auBaseWeight = s4.includeSampleAu ? (wfNum(s2.weightAfterMeltAu) + wfNum(s2.sampleWeightAu)) : wfNum(s2.weightAfterMeltAu);
+  s4.auCalculatedWeight = WfFormula.auCalculatedWeight(auBaseWeight, s3.percentAu);
   s4.auReturnWeight = WfFormula.auReturnWeight(s4.auCalculatedWeight, s4.auReturnPercent);
   s4.auRemark = WfFormula.auRemark(s4.auCalculatedWeight, s4.auReturnWeight);
   s4.agCalculatedWeight = WfFormula.agCalculatedWeight(order.metalType, s2.weightAfterMeltAu, s2.weightAfterMeltAg, s3.percentAg);
@@ -883,6 +898,13 @@ function wfBindStationEvents() {
   const btnCancel3 = $('#wf_btnCancel3'); if (btnCancel3) btnCancel3.addEventListener('click', () => toast('ยกเลิก RF-No: ' + order.rfNo));
 
   // Station 4
+  const incSampleAu = $('#wf_s4_includeSampleAu');
+  if (incSampleAu) {
+    incSampleAu.addEventListener('change', () => {
+      order.station4.includeSampleAu = incSampleAu.checked;
+      wfRecalcStation4(); wfSyncStation4Fields();
+    });
+  }
   ['wf_s4_auReturnPercent', 'wf_s4_agReturnPercent', 'wf_s4_laborFee'].forEach(id => {
     const el = $('#' + id); if (!el) return;
     el.addEventListener('input', () => { order.station4[id.replace('wf_s4_', '')] = el.value; wfRecalcStation4(); wfSyncStation4Fields(); });

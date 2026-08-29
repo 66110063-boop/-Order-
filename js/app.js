@@ -19,7 +19,6 @@ function renderPage() {
     users: pageUsers,
     'invoice-edit': pageInvoiceEdit,
     'invoice-general-edit': pageInvoiceGeneralEdit,
-    report: pageReport,
     'tdc-approve': pageTdcApprove,
     workflow: pageWorkflow,
     'rf-summary': () => pageRfSummary(state.rfSummaryTarget),

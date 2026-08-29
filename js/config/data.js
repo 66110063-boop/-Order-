@@ -11,7 +11,6 @@ const NAV = [
   {key:'customers', label:'ลูกค้า', group:'ข้อมูลหลัก'},
   {key:'stock', label:'คลังสินค้า', group:'ข้อมูลหลัก'},
   {key:'accounting', label:'บัญชี', group:'ข้อมูลหลัก', count:2},
-  {key:'report', label:'รายงาน', group:'ระบบ'},
   {key:'history', label:'ประวัติการแก้ไข', group:'ระบบ'},
   {key:'users', label:'จัดการผู้ใช้งาน', group:'ระบบ'},
 ];
