@@ -110,7 +110,7 @@ function pageLotManageList() {
       <td class="right">
         <div class="td-actions">
           <button class="btn btn-primary btn-sm" data-action="view-lot" data-lot="${esc(r.lot)}" data-stage="${esc(r.stageKey)}">${iconEye()} ดูรายละเอียด</button>
-          <button class="btn btn-excel btn-sm">${iconDownload()} export .xlsx</button>
+          <button class="btn btn-excel btn-sm" data-action="export-lot-excel" data-lot="${esc(r.lot)}">${iconDownload()} export .xlsx</button>
         </div>
       </td>
     </tr>`).join('') : '<tr class="empty-row"><td colspan="5">ไม่พบ Lot ที่ตรงกับเงื่อนไข</td></tr>';
