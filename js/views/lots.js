@@ -119,11 +119,11 @@ function pageLotManageList() {
     <div class="page-head">
       <div><h1>รีด/สกัด/หลอม99</h1><div class="desc">ติดตามข้อมูล Lot ในแต่ละขั้นตอนของกระบวนการ</div></div>
     </div>
-    <div class="search-row">
+    <div class="search-row" style="margin-bottom:16px;">
       <input type="text" placeholder="ค้นหาเลข Lot" style="max-width:320px;">
       <button class="btn btn-secondary btn-sm">ค้นหา</button>
     </div>
-    <div class="tabs" style="margin-bottom:0; border-bottom:none;">
+    <div class="tabs">
       ${LOT_STAGES.map(s => '<div class="tab ' + (key === s.key ? 'active' : '') + '" data-tab="lot" data-key="' + s.key + '">' + esc(s.label) + '</div>').join('')}
     </div>
     <div class="table-wrap">
