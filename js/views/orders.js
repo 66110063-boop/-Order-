@@ -205,10 +205,10 @@ function pageTdcApproveList() {
         <td class="num center" style="white-space:nowrap;">${r.auSampleCust || '0.00'}</td>
         <td class="num center" style="white-space:nowrap;">${r.percentAg || '0.00'}</td>
         <td style="text-align:center; white-space:nowrap; min-width:180px;">
-          <div style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%;">
-            <button class="btn btn-sm btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}">${iconCheck()} อนุมัติ</button>
-            <button class="btn btn-sm btn-danger-ghost" data-action="tdc-reject-row" data-rf="${esc(r.rf)}">${iconX()} ไม่อนุมัติ</button>
-            <button class="btn btn-sm btn-secondary" data-action="tdc-view-detail" data-rf="${esc(r.rf)}">ดู</button>
+          <div style="display:flex; align-items:center; justify-content:center; width:100%;">
+            <button class="btn btn-sm btn-secondary" data-action="tdc-inspect-modal" data-rf="${esc(r.rf)}" style="gap:6px;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ตรวจสอบ
+            </button>
           </div>
         </td>
       </tr>`;
