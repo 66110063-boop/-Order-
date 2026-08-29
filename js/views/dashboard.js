@@ -107,12 +107,12 @@ function pageDashboard() {
     <div class="lane-col-body">
       ${KANBAN_CLOSED.length ? KANBAN_CLOSED.map(it => `
         <div class="kcard" data-detail="${esc(it.rf)}">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div class="rf">${esc(it.rf)}</div>
-            <div class="num" style="font-weight:600; color:var(--text-primary);">${esc(it.w)} g</div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+            <div class="rf" style="font-weight:700; color:var(--header-bg); font-size:15px;">${esc(it.rf)}</div>
+            <div class="num" style="font-family:var(--font-mono); font-weight:700; font-size:15px; white-space:nowrap;">${esc(it.w)} g</div>
           </div>
-          <div class="cust">${esc(it.cust)}</div>
-          <div class="meta" style="margin-top:2px;">
+          <div class="cust" style="margin:4px 0; font-size:14px; color:var(--text-secondary); line-height:1.3;">${esc(it.cust)}</div>
+          <div class="meta" style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#64748B;">
             <span>${esc(it.date)}</span>
             ${it.lot && it.lot !== '—' ? `<span class="lot" style="margin:0;">${esc(it.lot)}</span>` : '<span></span>'}
           </div>
