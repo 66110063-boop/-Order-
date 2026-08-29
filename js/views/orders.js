@@ -204,6 +204,8 @@ function pageTdcApproveList() {
         <td class="num center" style="white-space:nowrap;">${r.auSample || '0.00'}</td>
         <td class="num center" style="white-space:nowrap;">${r.auSampleCust || '0.00'}</td>
         <td class="num center" style="white-space:nowrap;">${r.percentAg || '0.00'}</td>
+        <td class="num center" style="white-space:nowrap;">${r.agSample || '0.00'}</td>
+        <td class="num center" style="white-space:nowrap;">${r.agSampleCust || '0.00'}</td>
         <td style="width: 220px; min-width: 220px; text-align: center;">
           <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
             <button class="btn btn-sm btn-primary" data-action="tdc-approve-row" data-rf="${esc(r.rf)}" style="white-space: nowrap;">${iconCheck()} อนุมัติ</button>
@@ -212,7 +214,7 @@ function pageTdcApproveList() {
           </div>
         </td>
       </tr>`;
-  }).join('') : `<tr class="empty-row"><td colspan="10">ไม่มีรายการรอตรวจสอบ</td></tr>`;
+  }).join('') : `<tr class="empty-row"><td colspan="12">ไม่มีรายการรอตรวจสอบ</td></tr>`;
 
   // Generate pagination buttons
   let pageButtonsHtml = '';
@@ -247,6 +249,8 @@ function pageTdcApproveList() {
             <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่าง (Au)</th>
             <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่างลูกค้า (Au)</th>
             <th class="center" style="white-space:nowrap;">%Ag</th>
+            <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่าง (Ag)</th>
+            <th class="center" style="white-space:nowrap;">น้ำหนักตัวอย่างลูกค้า (Ag)</th>
             <th style="width: 220px; min-width: 220px; text-align: center;">จัดการ</th>
           </tr>
         </thead>
@@ -315,7 +319,9 @@ function pageTdcApproveDetail(rfId) {
     <div class="lot-section-bar">เงิน (Ag)</div>
     <div class="lot-section-body">
       <div class="lot-field-row">
-        <div class="lot-field"><label>% Ag</label><input type="text" class="num-input input-locked" value="${esc(r.percentAg || '0.00')}" disabled style="max-width:calc(33.33% - 11px);"></div>
+        <div class="lot-field"><label>% Ag</label><input type="text" class="num-input input-locked" value="${esc(r.percentAg || '0.00')}" disabled></div>
+        <div class="lot-field"><label>น้ำหนักตัวอย่าง (Ag)</label><input type="text" class="num-input input-locked" value="${esc(r.agSample || '0.00')}" disabled></div>
+        <div class="lot-field"><label>น้ำหนักตัวอย่างลูกค้า (Ag)</label><input type="text" class="num-input input-locked" value="${esc(r.agSampleCust || '0.00')}" disabled></div>
       </div>
     </div>
     

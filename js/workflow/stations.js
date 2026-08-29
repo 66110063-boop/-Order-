@@ -72,6 +72,8 @@ function wfSyncOrdersTable() {
     percentApprovalStatus: order.percentApproval.status,
     auSample: order.station2.sampleWeightAu ? wfFmt(order.station2.sampleWeightAu) : null,
     auSampleCust: order.station2.customerSampleWeightAu ? wfFmt(order.station2.customerSampleWeightAu) : null,
+    agSample: order.station2.sampleWeightAg ? wfFmt(order.station2.sampleWeightAg) : null,
+    agSampleCust: order.station2.customerSampleWeightAg ? wfFmt(order.station2.customerSampleWeightAg) : null,
     wDeclared: order.station1.declaredWeight ? wfFmt(order.station1.declaredWeight) : null,
     cancelled: idx >= 0 ? ORDERS[idx].cancelled : false,
   };
