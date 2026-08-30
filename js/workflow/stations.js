@@ -108,7 +108,7 @@ function wfManualTag() { return `<span class="field-tag">กรอกเอง</
 function wfOperatorPanel(senderLabel, senderValue) {
   return `
     <div class="panel"><div class="panel-head">ผู้ดำเนินการ</div><div class="panel-body">
-      <div class="field" style="max-width:340px;"><label>${esc(senderLabel)}</label><input type="text" class="input-locked" value="${esc(senderValue || CURRENT_USER_EMAIL)}" disabled></div>
+      <div class="field" style="max-width:340px;"><label>${esc(senderLabel)}</label><input type="text" class="input-locked" style="text-align: left;" value="${esc(senderValue || CURRENT_USER_EMAIL)}" disabled></div>
     </div></div>`;
 }
 function wfSaveDraftButton(stationLabel) {
@@ -136,7 +136,7 @@ function wfOpenConfirmModal({ title, receiverLabel, senderLabel, senderName, onC
         </div>
         <div class="field">
           <label>${esc(senderLabel)}</label>
-          <input type="text" class="input-locked" value="${esc(senderName || 'เจ้าหน้าที่ระบบ (Current User)')}" disabled>
+          <input type="text" class="input-locked" style="text-align: left;" value="${esc(senderName || 'เจ้าหน้าที่ระบบ (Current User)')}" disabled>
         </div>
       </div>
       <div class="modal-foot"><button class="btn btn-secondary" data-close-modal>ยกเลิก</button><button class="btn btn-primary" id="wfModalConfirmBtn">ยืนยัน</button></div>
