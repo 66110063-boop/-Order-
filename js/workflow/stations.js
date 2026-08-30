@@ -70,6 +70,7 @@ function wfSyncOrdersTable() {
     agCalc: wfFmt(s4.agCalculatedWeight), agReturn: wfFmt(s4.agReturnWeight),
     percentAu: order.station3.percentAu, percentAg: order.station3.percentAg,
     percentApprovalStatus: order.percentApproval.status,
+      rejectReason: order.percentApproval.rejectReason || null,
     auSample: order.station2.sampleWeightAu ? wfFmt(order.station2.sampleWeightAu) : null,
     auSampleCust: order.station2.customerSampleWeightAu ? wfFmt(order.station2.customerSampleWeightAu) : null,
     agSample: order.station2.sampleWeightAg ? wfFmt(order.station2.sampleWeightAg) : null,

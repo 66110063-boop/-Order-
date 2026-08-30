@@ -806,3 +806,6 @@ label:has(input[type="radio"]) input[type="radio"] {
 
 
 
+
+/* Custom Checkbox Scaling for Lot Allocate */
+input[type=checkbox].lot-check, input[type=checkbox]#lotCheckAll { transform: scale(1.8); cursor: pointer; margin: 4px; }

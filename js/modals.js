@@ -325,14 +325,42 @@ function bindModalEvents() {
       const ord = ORDERS.find(o => o.rf === rf);
       if (ord) {
         ord.percentApprovalStatus = 'approved';
-        ord.statusLabel = 'หักทอง';
         ord.station = 4;
+        ord.statusLabel = 'หักทอง';
+        if (order && order.rfNo === rf) {
+          order.percentApproval.status = 'approved';
+          order.percentApproval.decidedAt = new Date().toLocaleString('th-TH');
+        }
       }
-      closeModal();
-      toast('อัปเดตสถานะเป็น ชักทอง แล้ว');
-      state.tdcDetailId = null;
-      renderBreadcrumb();
-      renderPage();
+      closeModal(); toast('อนุมัติเปอร์เซ็นต์ทอง/เงิน สำหรับ ' + rf + ' เรียบร้อย'); state.tdcDetailId = null;
+      renderBreadcrumb(); renderPage(); renderSidebar();
+    });
+  }
+
+  const confirmReject = $('[data-action="tdc-confirm-reject"]');
+  if (confirmReject) {
+    confirmReject.addEventListener('click', (e) => {
+      const rf = e.currentTarget.dataset.rf;
+      const reasonInput = document.getElementById('tdcRejectReason');
+      const err = document.getElementById('tdcRejectError');
+      if (!reasonInput.value.trim()) {
+        err.style.display = 'block';
+        return;
+      }
+      err.style.display = 'none';
+      
+      const ord = ORDERS.find(o => o.rf === rf);
+      if (ord) {
+        ord.percentApprovalStatus = 'rejected';
+        ord.rejectReason = reasonInput.value.trim();
+        ord.station = 2; // back to testing
+        if (order && order.rfNo === rf) {
+          order.percentApproval.status = 'rejected';
+          order.percentApproval.rejectReason = ord.rejectReason;
+        }
+      }
+      closeModal(); toast('ปฏิเสธผลทดสอบของ ' + rf + ' แล้ว'); state.tdcDetailId = null;
+      renderBreadcrumb(); renderPage(); renderSidebar();
     });
   }
 
@@ -737,25 +765,19 @@ function bindPageEvents() {
     renderPage();
   }));
 
-  $$('[data-action="tdc-approve-row"]').forEach(el => el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const rf = e.currentTarget.dataset.rf;
-    openConfirmApproveModal(rf);
-  }));
+  
 
-  $$('[data-action="tdc-reject-row"]').forEach(el => el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const rf = e.currentTarget.dataset.rf;
-    const ord = ORDERS.find(o => o.rf === rf);
-    if (ord) {
-      ord.station = 2;
-      ord.percentApprovalStatus = 'rejected';
-    }
-    closeModal(); toast('ส่งกลับไปแก้ไขที่ขั้นตอนทดสอบ % ทอง (Station 2) เรียบร้อยแล้ว'); state.tdcDetailId = null;
-    renderBreadcrumb();
-    renderPage();
-  }));
+  
 
+  $$('[data-action="tdc-approve-modal"]').forEach(el => el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openTdcApproveModal(e.currentTarget.dataset.rf);
+  }));
+  $$('[data-action="tdc-reject-modal"]').forEach(el => el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openTdcRejectModal(e.currentTarget.dataset.rf);
+  }));
+  
   $$('[data-action="tdc-go-page"]').forEach(el => el.addEventListener('click', (e) => {
     state.tdcPage = parseInt(e.currentTarget.dataset.page);
     renderPage();
@@ -844,26 +866,8 @@ function bindPageEvents() {
 
   $$('[data-action="manual-search"]').forEach(el => el.addEventListener('click', () => toast('ค้นหาแล้ว — โหลดผลลัพธ์ล่าสุด')));
 
-  $$('[data-action="tdc-approve-row"]').forEach(el => el.addEventListener('click', () => {
-    const rf = el.dataset.rf;
-    const rec = ORDERS.find(o => o.rf === rf);
-    if (!rec) return;
-    rec.percentApprovalStatus = 'approved';
-    if (order.rfNo === rf) { order.percentApproval.status = 'approved'; order.percentApproval.decidedAt = new Date().toLocaleString('th-TH'); }
-    toast(`อนุมัติ %Au/%Ag สำหรับ ${rf} เรียบร้อย — พร้อมเข้าสู่ขั้นตอนหักทอง`);
-    renderSidebar();
-    if (state.page === 'tdc-approve') renderPage();
-  }));
-  $$('[data-action="tdc-reject-row"]').forEach(el => el.addEventListener('click', () => {
-    const rf = el.dataset.rf;
-    const rec = ORDERS.find(o => o.rf === rf);
-    if (!rec) return;
-    rec.percentApprovalStatus = 'rejected';
-    if (order.rfNo === rf) { order.percentApproval.status = 'rejected'; }
-    toast(`ปฏิเสธผลทดสอบของ ${rf} แล้ว — รอแก้ไขและส่งใหม่`);
-    renderSidebar();
-    if (state.page === 'tdc-approve') renderPage();
-  }));
+  
+  
 
   const applyReportFilter = $('[data-action="apply-report-filter"]');
   if (applyReportFilter) applyReportFilter.addEventListener('click', () => toast('กรองข้อมูลแล้ว — อัปเดตผลลัพธ์ด้านล่าง'));
@@ -1103,24 +1107,49 @@ function openTdcInspectModal(rf) {
   bindModalEvents();
 }
 
-function openConfirmApproveModal(rf) {
-  const html = `
-    <div class="modal modal-sm">
-      <div class="modal-head">
-        <h3>ยืนยันการอนุมัติ</h3>
-        <button class="modal-close" data-close-modal>${iconX()}</button>
-      </div>
-      <div class="modal-body" style="text-align:center; padding: 24px 16px;">
-        <div style="font-size:17px; margin-bottom:24px; color:var(--text-primary);">ยืนยันการอนุมัติ <b>${esc(rf)}</b> ไปยังขั้นตอน 'ชักทอง' หรือไม่?</div>
-      </div>
-      <div class="modal-foot" style="justify-content:center; gap:16px;">
-        <button class="btn btn-secondary" data-close-modal style="min-width:100px;">ยกเลิก</button>
-        <button class="btn btn-primary" data-action="tdc-confirm-approve" data-rf="${esc(rf)}" style="min-width:100px;">ยืนยัน</button>
-      </div>
-    </div>`;
-  openModal(html);
-  bindModalEvents();
-}
+function openTdcApproveModal(rf) {
+    const html = `
+      <div class="modal modal-sm">
+        <div class="modal-head">
+          <h3>ยืนยันการอนุมัติ</h3>
+          <button class="modal-close" data-close-modal>${iconX()}</button>
+        </div>
+        <div class="modal-body" style="padding: 24px 16px;">
+          <div style="font-size:16px; margin-bottom:12px; color:var(--text-primary); text-align: center;">
+            ยืนยันการอนุมัติเปอร์เซ็นต์ทอง/เงิน สำหรับ RF: <b>${esc(rf)}</b>?
+            <br><br>
+            <span style="color:var(--danger); font-weight: 600;">การกระทำนี้ไม่สามารถย้อนกลับได้</span>
+          </div>
+        </div>
+        <div class="modal-foot" style="justify-content:center; gap:16px;">
+          <button class="btn btn-secondary" data-close-modal style="min-width:100px;">ยกเลิก</button>
+          <button class="btn btn-primary" data-action="tdc-confirm-approve" data-rf="${esc(rf)}" style="min-width:100px; background-color: #00b050; border-color: #00b050;">ยืนยัน</button>
+        </div>
+      </div>`;
+    openModal(html);
+    bindModalEvents();
+  }
+
+  function openTdcRejectModal(rf) {
+    const html = `
+      <div class="modal modal-sm">
+        <div class="modal-head">
+          <h3>ระบุเหตุผลที่ไม่อนุมัติ</h3>
+          <button class="modal-close" data-close-modal>${iconX()}</button>
+        </div>
+        <div class="modal-body" style="padding: 20px 16px;">
+          <p style="font-size: 16px; margin-bottom: 8px;">RF: <b>${esc(rf)}</b></p>
+          <textarea id="tdcRejectReason" class="input-locked" style="background:#fff!important; height:100px; width:100%; border:1px solid var(--border-strong)!important; padding: 12px; font-size: 16px; box-sizing: border-box; resize: none;" placeholder="ระบุเหตุผลที่ไม่อนุมัติ..."></textarea>
+          <div id="tdcRejectError" style="color:var(--danger); display:none; margin-top:6px; font-size:14px;">กรุณาระบุเหตุผลก่อนกดยืนยัน</div>
+        </div>
+        <div class="modal-foot" style="justify-content:flex-end; gap:12px;">
+          <button class="btn btn-secondary" data-close-modal style="min-width:100px;">ยกเลิก</button>
+          <button class="btn btn-danger" data-action="tdc-confirm-reject" data-rf="${esc(rf)}" style="min-width:100px;">ยืนยันไม่อนุมัติ</button>
+        </div>
+      </div>`;
+    openModal(html);
+    bindModalEvents();
+  }
 
 
 window.previewTaxInvoiceModal = function(inv) {
