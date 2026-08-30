@@ -63,10 +63,10 @@ function renderSidebar() {
     html += `<div class="sidebar-section-label">${esc(g)}</div>`;
     groups[g].forEach(n => {
       const isActive = state.page === n.key || (state.page === 'invoice-edit' && n.key === 'accounting');
-      const count = n.key === 'tdc-approve' ? ORDERS.filter(o => !o.cancelled && o.percentApprovalStatus === 'pending').length : n.count;
+      const count = n.key === 'tdc-approve' ? ORDERS.filter(o => !o.cancelled && o.percentApprovalStatus === 'pending').length : (n.key === 'lot-allocate' ? (typeof LOT_ALLOCATE !== 'undefined' ? LOT_ALLOCATE.length : 0) : n.count);
       html += `<div class="nav-item ${isActive ? 'active' : ''}" data-nav="${n.key}">
         ${ICONS[n.key] || ''}<span>${esc(n.label)}</span>
-        ${count !== undefined ? `<span class="badge-count">${count}</span>` : ''}
+        ${count ? `<span class="badge-count">${count}</span>` : ''}
       </div>`;
     });
   });

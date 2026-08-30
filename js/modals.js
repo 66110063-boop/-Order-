@@ -920,8 +920,8 @@ function bindPageEvents() {
       date: new Date().toLocaleDateString('th-TH'),
       rfRows: selectedRows.map(r => ({ ...r, wDec: r.wDeclared, wRec: r.w, wBill: r.w })),
       w: selectedRows.reduce((sum, r) => sum + parseFloat(r.w.replace(/,/g, '')), 0).toFixed(2),
-      rf: selectedRows.length === 1 ? selectedRows[0].rf : 'หลายรายการ',
-      cust: selectedRows.length === 1 ? selectedRows[0].cust : 'หลายลูกค้า'
+      rf: selectedRows.map(x => x.rf).join(', '),
+      cust: [...new Set(selectedRows.map(x => x.cust))].join(', ')
     };
 
     LOT_MANAGE_DATA[targetStage] = LOT_MANAGE_DATA[targetStage] || [];

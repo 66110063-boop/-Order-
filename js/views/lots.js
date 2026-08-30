@@ -106,8 +106,8 @@ function pageLotManageList() {
     let custStr = r.cust || '-';
     let wStr = r.w || '0.00';
     if (!r.rf && r.rfRows && r.rfRows.length > 0) {
-      rfStr = r.rfRows.length > 1 ? 'หลายรายการ' : r.rfRows[0].rf;
-      custStr = r.rfRows.length > 1 ? 'หลายลูกค้า' : r.rfRows[0].cust;
+      rfStr = r.rfRows.length > 1 ? r.rfRows.map(x => x.rf).join(', ') : r.rfRows[0].rf;
+      custStr = r.rfRows.length > 1 ? [...new Set(r.rfRows.map(x => x.cust))].join(', ') : r.rfRows[0].cust;
       wStr = r.rfRows.reduce((sum, item) => sum + (parseFloat((item.wBill || '0').replace(/,/g, '')) || 0), 0).toFixed(2);
     }
     return `
