@@ -655,13 +655,6 @@ function bindPageEvents() {
     renderPage();
   }));
 
-  $$('[data-action="next-lot-stage"]').forEach(el => el.addEventListener('click', () => {
-    toast('บันทึกและส่งต่อไปขั้นตอนถัดไปเรียบร้อยแล้ว');
-    state.lotDetailId = null;
-    renderBreadcrumb();
-    renderPage();
-  }));
-
   /* ---- TDC Approve Handlers ---- */
   function exportTdcToExcel() {
     const tdcOrders = ORDERS.filter(o => !o.cancelled && o.percentApprovalStatus === 'pending');
@@ -909,9 +902,49 @@ function bindPageEvents() {
   $$('.lot-check').forEach(cb => cb.addEventListener('change', updateLotSelection));
   const createLotBtn = $('#lotCreateBtn');
   if (createLotBtn) createLotBtn.addEventListener('click', () => {
-    const n = $$('.lot-check:checked').length;
-    toast(`จัดล็อตสำเร็จ — รวม ${n} รายการเป็น Lot ใหม่`);
-    goPage('lot-allocate');
+    const checked = $$('.lot-check:checked');
+    const n = checked.length;
+    if (n === 0) return;
+
+    const newLotNo = 'KGR' + new Date().toLocaleDateString('th-TH', {year: '2-digit', month: '2-digit'}).replace('/', '') + '-' + String(Math.floor(Math.random() * 900) + 100);
+
+    const selectedRows = Array.from(checked).map(cb => {
+      const idx = parseInt(cb.dataset.idx, 10);
+      return LOT_ALLOCATE.filter(r => r.type === state.lotAllocateView)[idx];
+    });
+
+    const targetStage = state.lotAllocateView === 'bar' ? 'presend' : 'extract';
+    const newLot = {
+      lot: newLotNo,
+      jobType: state.lotAllocateView === 'bar' ? 'แบบแท่ง' : 'แบบเม็ด',
+      date: new Date().toLocaleDateString('th-TH'),
+      rfRows: selectedRows.map(r => ({ ...r, wDec: r.wDeclared, wRec: r.w, wBill: r.w })),
+      w: selectedRows.reduce((sum, r) => sum + parseFloat(r.w.replace(/,/g, '')), 0).toFixed(2),
+      rf: selectedRows.length === 1 ? selectedRows[0].rf : 'หลายรายการ',
+      cust: selectedRows.length === 1 ? selectedRows[0].cust : 'หลายลูกค้า'
+    };
+
+    LOT_MANAGE_DATA[targetStage] = LOT_MANAGE_DATA[targetStage] || [];
+    LOT_MANAGE_DATA[targetStage].push(newLot);
+
+    // Remove allocated items from LOT_ALLOCATE so they disappear from the list
+    selectedRows.forEach(row => {
+      const index = LOT_ALLOCATE.findIndex(r => r.rf === row.rf);
+      if (index > -1) LOT_ALLOCATE.splice(index, 1);
+    });
+
+    toast(`จัดล็อตสำเร็จ — รวม ${n} รายการเป็น Lot ใหม่ ${newLotNo}`);
+    
+    // Redirect to the Lot Manage list page
+    state.lotDetailId = null;
+    state.lotDetailStage = null;
+    state.lotStage = targetStage;
+    state.page = 'lot-manage';
+    
+    renderSidebar();
+    renderBreadcrumb();
+    renderPage();
+    window.scrollTo({ top: 0, behavior: 'instant' });
   });
 
   const addCustBtn = $('[data-action="add-customer"]');
@@ -1332,7 +1365,7 @@ window.openGoldReturnSlipModal = function() {
 
 
 window.exportLotReportToExcel = function(lotId) {
-  const lot = (window.LOT_MANAGE_DATA ? Object.values(window.LOT_MANAGE_DATA).flat() : []).find(l => l.lotId === lotId || l.lot === lotId || l.lotNo === lotId) || {};
+  const lot = (LOT_MANAGE_DATA ? Object.values(LOT_MANAGE_DATA).flat() : []).find(l => l.lotId === lotId || l.lot === lotId || l.lotNo === lotId) || {};
   const orders = lot.orders || [];
   const lotNo = lot.lot || lot.lotNo || lotId || 'KGR2608-0004';
   const issueDate = lot.date || '29/08/2569';

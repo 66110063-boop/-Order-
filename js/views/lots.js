@@ -101,10 +101,22 @@ function pageLotManageList() {
   }
 
 
-  const body = rows.length ? rows.map(r => `
+  const body = rows.length ? rows.map(r => {
+    let rfStr = r.rf || '-';
+    let custStr = r.cust || '-';
+    let wStr = r.w || '0.00';
+    if (!r.rf && r.rfRows && r.rfRows.length > 0) {
+      rfStr = r.rfRows.length > 1 ? 'หลายรายการ' : r.rfRows[0].rf;
+      custStr = r.rfRows.length > 1 ? 'หลายลูกค้า' : r.rfRows[0].cust;
+      wStr = r.rfRows.reduce((sum, item) => sum + (parseFloat((item.wBill || '0').replace(/,/g, '')) || 0), 0).toFixed(2);
+    }
+    return `
     <tr>
       <td class="cell-primary">${esc(r.lot)}</td>
       <td>${esc(r.jobType)}</td>
+      <td style="color:var(--text-secondary);">${esc(rfStr)}</td>
+      <td style="color:var(--text-secondary);">${esc(custStr)}</td>
+      <td class="num font-mono">${esc(wStr)}</td>
       <td>${esc(r.date)}</td>
       <td><span class="badge ${getLotStageBadgeClass(r.stageKey)}">${esc(r.stageLabel)}</span></td>
       <td class="right">
@@ -113,7 +125,8 @@ function pageLotManageList() {
           <button class="btn btn-excel btn-sm" data-action="export-lot-excel" data-lot="${esc(r.lot)}">${iconDownload()} export .xlsx</button>
         </div>
       </td>
-    </tr>`).join('') : '<tr class="empty-row"><td colspan="5">ไม่พบ Lot ที่ตรงกับเงื่อนไข</td></tr>';
+    </tr>`;
+  }).join('') : '<tr class="empty-row"><td colspan="8">ไม่พบ Lot ที่ตรงกับเงื่อนไข</td></tr>';
 
   return `
     <div class="page-head">
@@ -128,7 +141,7 @@ function pageLotManageList() {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Lot No</th><th>ชนิด</th><th>วันที่จัดล็อต</th><th>สถานะ</th><th class="right">จัดการ</th></tr></thead>
+        <thead><tr><th>Lot No</th><th>ชนิด</th><th>รายการ (RF)</th><th>ลูกค้า</th><th class="num">น้ำหนัก (g)</th><th>วันที่จัดล็อต</th><th>สถานะ</th><th class="right">จัดการ</th></tr></thead>
         <tbody>${body}</tbody>
       </table>
     </div>
@@ -163,8 +176,27 @@ function pageLotDetail(lotId) {
 
   /* ---- header ---- */
   const badgeClass = getLotStageBadgeClass(lotStage);
+  const lotSteps = LOT_STAGES.filter(s => s.key !== 'all');
+  const currentIndex = lotSteps.findIndex(s => s.key === lotStage);
+
+  const stepperHtml = `
+    <div class="stepper" style="margin-bottom: 24px;">
+      ${lotSteps.map((s, i) => {
+        const cls = i === currentIndex ? 'current' : i < currentIndex ? 'complete' : '';
+        const locked = i > currentIndex;
+        return `<div class="step-chip ${cls} ${locked ? 'locked' : ''}" style="${locked ? 'opacity:.5; cursor:default;' : ''}">
+          <div class="n">${i < currentIndex ? iconCheck() : (i + 1)}</div>
+          <div>
+            <div class="t">${esc(s.label)}</div>
+            <div class="s">${i === currentIndex ? 'กำลังทำ' : i < currentIndex ? 'เสร็จแล้ว' : 'ยังไม่ถึง'}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
   const hdr = `
-    <div class="page-head" style="margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div class="page-head" style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
         <h1>${esc(lotData.lot)}</h1>
         <span class="badge ${badgeClass}">${esc(lotStageLabel)}</span>
@@ -172,7 +204,7 @@ function pageLotDetail(lotId) {
       </div>
       <button class="btn btn-secondary" data-action="back-lot-list">← ย้อนกลับ</button>
     </div>
-    <div class="desc" style="margin-bottom:20px;">${esc(lotStageLabel)}</div>`;
+    ${stepperHtml}`;
 
   /* ---- table ---- */
   const tbl = _lotTable(lotData, lotStage, lotStageLabel);
@@ -557,8 +589,8 @@ window.LotsView = (function() {
         if (!lotId) return;
 
         let lotData = null, currentStage = null;
-        for (const sKey in window.LOT_MANAGE_DATA) {
-          const found = window.LOT_MANAGE_DATA[sKey].find(x => x.lot === lotId);
+        for (const sKey in LOT_MANAGE_DATA) {
+          const found = LOT_MANAGE_DATA[sKey].find(x => x.lot === lotId);
           if (found) { lotData = found; currentStage = sKey; break; }
         }
         if (!lotData) return;
@@ -567,9 +599,9 @@ window.LotsView = (function() {
         const currIdx = stageFlow.indexOf(currentStage);
         if (currIdx >= 0 && currIdx < stageFlow.length - 1) {
           const nextStage = stageFlow[currIdx + 1];
-          window.LOT_MANAGE_DATA[currentStage] = window.LOT_MANAGE_DATA[currentStage].filter(x => x.lot !== lotId);
-          window.LOT_MANAGE_DATA[nextStage] = window.LOT_MANAGE_DATA[nextStage] || [];
-          window.LOT_MANAGE_DATA[nextStage].push(lotData);
+          LOT_MANAGE_DATA[currentStage] = LOT_MANAGE_DATA[currentStage].filter(x => x.lot !== lotId);
+          LOT_MANAGE_DATA[nextStage] = LOT_MANAGE_DATA[nextStage] || [];
+          LOT_MANAGE_DATA[nextStage].push(lotData);
           state.lotDetailStage = nextStage;
           toast('บันทึกและเปลี่ยนสถานะไปขั้นถัดไปเรียบร้อยแล้ว');
           if (typeof renderPage === 'function') renderPage();
