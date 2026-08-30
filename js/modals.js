@@ -1139,7 +1139,7 @@ function openTdcApproveModal(rf) {
         </div>
         <div class="modal-body" style="padding: 20px 16px;">
           <p style="font-size: 16px; margin-bottom: 8px;">RF: <b>${esc(rf)}</b></p>
-          <textarea id="tdcRejectReason" class="input-locked" style="background:#fff!important; height:100px; width:100%; border:1px solid var(--border-strong)!important; padding: 12px; font-size: 16px; box-sizing: border-box; resize: none;" placeholder="ระบุเหตุผลที่ไม่อนุมัติ..."></textarea>
+          <textarea id="tdcRejectReason" class="input-locked" style="background:#fff!important; text-align: left; height:100px; width:100%; border:1px solid var(--border-strong)!important; padding: 12px; font-size: 16px; box-sizing: border-box; resize: none;" placeholder="ระบุเหตุผลที่ไม่อนุมัติ..."></textarea>
           <div id="tdcRejectError" style="color:var(--danger); display:none; margin-top:6px; font-size:14px;">กรุณาระบุเหตุผลก่อนกดยืนยัน</div>
         </div>
         <div class="modal-foot" style="justify-content:flex-end; gap:12px;">
